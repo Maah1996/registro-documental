@@ -299,7 +299,7 @@ min-width:22px;
 
 <script>
 
-const API_URL="https://script.google.com/macros/s/AKfycbx3dVB_vdPg27VmlM6I7mm9wCEY8gVJipxkQvtL6zg3PV4cRhxZaDmEpbuI-PhPmu-n/exec"
+const API_URL="https://script.google.com/macros/s/AKfycby_YzwHNK-ll4TQVPNX3CR4eG3xJoRLWEQXVwHPHPnfTI8o-ygOtlqOJovagwsPW0Dn/exec"
 
 let registros=[]
 let editIndex=null
@@ -404,19 +404,20 @@ llegsal:mayus(llegsal.value),
 observ:mayus(observ.value)
 }
 
-fetch("https://script.google.com/macros/s/AKfycby_YzwHNK-ll4TQVPNX3CR4eG3xJoRLWEQXVwHPHPnfTI8o-ygOtlqOJovagwsPW0Dn/exec",{
-method:"POST",
-body:JSON.stringify(r)
+fetch(API_URL,{
+  method:"POST",
+  body:JSON.stringify(r)
 })
+
 if(!r.fecha || !r.numero){
-return
+  return
 }
 
-if(editIndex!==null){
-registros[editIndex]=r
-editIndex=null
+if(editIndex!=null){
+  registros[editIndex]=r
+  editIndex=null
 }else{
-registros.push(r)
+  registros.push(r)
 }
 
 localStorage.setItem("registros",JSON.stringify(registros))
@@ -641,6 +642,7 @@ render()
 </body>
 
 </html>
+
 
 
 
