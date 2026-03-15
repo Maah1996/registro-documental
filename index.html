@@ -306,15 +306,12 @@ let editIndex=null
 
 function enviarAScript(datos){
 fetch(API_URL,{
-method:"POST",
-headers:{
-"Content-Type":"application/json"
-},
-body:JSON.stringify(datos)
-}).catch(function(e){
-console.log("Error enviando a Google Sheets",e)
+  method:"POST",
+  headers:{
+    "Content-Type":"application/json"
+  },
+  body:JSON.stringify(datos)
 })
-}
 
 /* REFERENCIAS A CAMPOS */
 const fecha = document.getElementById("fecha")
