@@ -3,8 +3,10 @@
 <head>
 <meta charset="UTF-8">
 <title>REGISTRO DOCUMENTAL</title>
+
 <link rel="icon" type="image/png" href="icono.png">
 <link rel="apple-touch-icon" href="icono.png">
+
 <script src="https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js"></script>
 
 <style>
@@ -138,39 +140,10 @@ th{
 background:#e8edf3;
 }
 
-.rojo{
-background:#e74c3c;
-color:white;
-font-weight:bold;
-padding:3px 6px;
-border-radius:3px;
-display:inline-block;
-min-width:22px;
-}
-
-.naranja{
-background:#f39c12;
-padding:3px 6px;
-border-radius:3px;
-display:inline-block;
-min-width:22px;
-}
-
-.amarillo{
-background:#f1c40f;
-padding:3px 6px;
-border-radius:3px;
-display:inline-block;
-min-width:22px;
-}
-
-.verde{
-background:#2ecc71;
-padding:3px 6px;
-border-radius:3px;
-display:inline-block;
-min-width:22px;
-}
+.rojo{background:#e74c3c;color:white;padding:3px 6px;border-radius:3px}
+.naranja{background:#f39c12;padding:3px 6px;border-radius:3px}
+.amarillo{background:#f1c40f;padding:3px 6px;border-radius:3px}
+.verde{background:#2ecc71;padding:3px 6px;border-radius:3px}
 
 </style>
 </head>
@@ -299,54 +272,60 @@ min-width:22px;
 
 <script>
 
+/* =====================================================
+MODULO 1 — CONFIGURACION
+===================================================== */
+
 const API_URL="https://script.google.com/macros/s/AKfycbzOrlvAmDJCFIR9J-JIWg9CWvkeLu6QTyEiwjpNT0GF7vOW3IxD3uFePHD3muZjPWch/exec"
 
 let registros=[]
 let editIndex=null
 
-function enviarAScript(datos){
-fetch(API_URL,{
-  method:"POST",
-  headers:{
-    "Content-Type":"application/json"
-  },
-  body:JSON.stringify(datos)
-})
+/* =====================================================
+MODULO 2 — REFERENCIAS HTML
+===================================================== */
 
-/* REFERENCIAS A CAMPOS */
-const fecha = document.getElementById("fecha")
-const numero = document.getElementById("numero")
-const identMateria = document.getElementById("identMateria")
-const identDoc = document.getElementById("identDoc")
-const autoridad = document.getElementById("autoridad")
-const ejs = document.getElementById("ejs")
-const hjs = document.getElementById("hjs")
-const materia = document.getElementById("materia")
-const plazo = document.getElementById("plazo")
-const procedencia = document.getElementById("procedencia")
-const clasificacion = document.getElementById("clasificacion")
-const archivo = document.getElementById("archivo")
-const llegsal = document.getElementById("llegsal")
-const observ = document.getElementById("observ")
+const fecha=document.getElementById("fecha")
+const numero=document.getElementById("numero")
+const identMateria=document.getElementById("identMateria")
+const identDoc=document.getElementById("identDoc")
+const autoridad=document.getElementById("autoridad")
+const ejs=document.getElementById("ejs")
+const hjs=document.getElementById("hjs")
+const materia=document.getElementById("materia")
+const plazo=document.getElementById("plazo")
+const procedencia=document.getElementById("procedencia")
+const clasificacion=document.getElementById("clasificacion")
+const archivo=document.getElementById("archivo")
+const llegsal=document.getElementById("llegsal")
+const observ=document.getElementById("observ")
 
-const buscarNumero = document.getElementById("buscarNumero")
-const buscarFecha = document.getElementById("buscarFecha")
-const buscarProcedencia = document.getElementById("buscarProcedencia")
-const buscarArchivo = document.getElementById("buscarArchivo")
-const buscarAnio = document.getElementById("buscarAnio")
+const buscarNumero=document.getElementById("buscarNumero")
+const buscarFecha=document.getElementById("buscarFecha")
+const buscarProcedencia=document.getElementById("buscarProcedencia")
+const buscarArchivo=document.getElementById("buscarArchivo")
+const buscarAnio=document.getElementById("buscarAnio")
 
-const total = document.getElementById("total")
-const res = document.getElementById("res")
-const sec = document.getElementById("sec")
-const pub = document.getElementById("pub")
-const vencer = document.getElementById("vencer")
-const venc = document.getElementById("venc")
+const total=document.getElementById("total")
+const res=document.getElementById("res")
+const sec=document.getElementById("sec")
+const pub=document.getElementById("pub")
+const vencer=document.getElementById("vencer")
+const venc=document.getElementById("venc")
+
+/* =====================================================
+MODULO 3 — CARGA LOCAL
+===================================================== */
 
 try{
 registros=JSON.parse(localStorage.getItem("registros"))||[]
 }catch{
 registros=[]
 }
+
+/* =====================================================
+MODULO 4 — FUNCIONES AUXILIARES
+===================================================== */
 
 function mayus(t){
 return (t||"").toUpperCase().trim()
@@ -375,12 +354,32 @@ f.setHours(0,0,0,0)
 
 let d=Math.floor((f-hoy)/86400000)
 
-if(d<0)return '<span class="verde"> </span>'
+if(d<0)return '<span class="verde"></span>'
 if(d<=5)return `<span class="rojo">${d}</span>`
 if(d<=20)return `<span class="naranja">${d}</span>`
 return `<span class="amarillo">${d}</span>`
 
 }
+
+/* =====================================================
+MODULO 5 — ENVIO GOOGLE SHEETS
+===================================================== */
+
+function enviarAScript(datos){
+
+fetch(API_URL,{
+method:"POST",
+headers:{
+"Content-Type":"application/json"
+},
+body:JSON.stringify(datos)
+})
+
+}
+
+/* =====================================================
+MODULO 6 — GUARDAR
+===================================================== */
 
 function guardar(){
 
@@ -401,24 +400,13 @@ llegsal:mayus(llegsal.value),
 observ:mayus(observ.value)
 }
 
-fetch(API_URL,{
-  method:"POST",
-  mode:"no-cors",
-  headers:{
-    "Content-Type":"application/json"
-  },
-  body:JSON.stringify(r)
-})
-
-if(!r.fecha || !r.numero){
-  return
-}
+if(!r.fecha || !r.numero)return
 
 if(editIndex!=null){
-  registros[editIndex]=r
-  editIndex=null
+registros[editIndex]=r
+editIndex=null
 }else{
-  registros.push(r)
+registros.push(r)
 }
 
 localStorage.setItem("registros",JSON.stringify(registros))
@@ -430,12 +418,20 @@ limpiar()
 
 }
 
+/* =====================================================
+MODULO 7 — LIMPIAR
+===================================================== */
+
 function limpiar(){
 document.querySelectorAll(".left input,.left textarea").forEach(i=>i.value="")
 clasificacion.value="RESERVADO"
 llegsal.value="LLEGADO"
 editIndex=null
 }
+
+/* =====================================================
+MODULO 8 — EDITAR BORRAR
+===================================================== */
 
 function editar(i){
 
@@ -470,57 +466,16 @@ render()
 
 }
 
+/* =====================================================
+MODULO 9 — RENDER TABLA
+===================================================== */
+
 function render(){
 
 let tbody=document.querySelector("#tabla tbody")
 tbody.innerHTML=""
 
-let lista=[...registros]
-
-let resCount=0
-let secCount=0
-let pubCount=0
-let vencerCount=0
-let vencCount=0
-
-lista.forEach(r=>{
-
-let clas=(r.clasificacion||"").trim().toUpperCase()
-
-if(clas==="RESERVADO") resCount++
-if(clas==="SECRETO") secCount++
-if(clas==="PUBLICO") pubCount++
-
-let p=(r.plazo||"").split("-")
-if(p.length===3){
-let hoy=new Date()
-hoy.setHours(0,0,0,0)
-let f=new Date(p[0],p[1]-1,p[2])
-f.setHours(0,0,0,0)
-let d=Math.floor((f-hoy)/86400000)
-if(d>=0 && d<=5) vencerCount++
-if(d<0) vencCount++
-}
-
-})
-
-let fNumero=buscarNumero.value.toUpperCase()
-let fFecha=buscarFecha.value
-let fProc=buscarProcedencia.value.toUpperCase()
-let fArch=buscarArchivo.value.toUpperCase()
-let fAnio=buscarAnio.value
-
-lista.forEach((r,i)=>{
-
-if(
-(fNumero && !String(r.numero||"").toUpperCase().includes(fNumero)) ||
-(fFecha && r.fecha!==fFecha) ||
-(fProc && !String(r.procedencia||"").toUpperCase().includes(fProc)) ||
-(fArch && !String(r.archivo||"").toUpperCase().includes(fArch)) ||
-(fAnio && anioDeFecha(r.fecha)!==fAnio)
-){
-return
-}
+registros.forEach((r,i)=>{
 
 let tr=document.createElement("tr")
 
@@ -551,62 +506,20 @@ tbody.appendChild(tr)
 })
 
 total.textContent=registros.length
-res.textContent=resCount
-sec.textContent=secCount
-pub.textContent=pubCount
-vencer.textContent=vencerCount
-venc.textContent=vencCount
 
 }
 
+/* =====================================================
+MODULO 10 — EXPORTAR
+===================================================== */
+
 function imprimirPDF(){
-
-let lista=[...registros]
-
-let html=`
-<h2 style="text-align:center">REGISTRO DOCUMENTAL</h2>
-<table border="1" style="border-collapse:collapse;margin:auto;text-align:center">
-<tr style="height:35px">
-<th style="width:120px">FECHA</th>
-<th style="width:120px">NUMERO</th>
-<th style="width:140px">IDENT MATERIA</th>
-<th style="width:140px">IDENT DOC</th>
-<th style="width:180px">AUTORIDAD</th>
-<th style="width:80px">EJS</th>
-<th style="width:80px">HJS</th>
-<th style="width:200px">MATERIA</th>
-</tr>
-`
-
-lista.forEach(r=>{
-html+=`
-<tr style="height:28px">
-<td>${fechaCL(r.fecha)}</td>
-<td>${r.numero}</td>
-<td>${r.identMateria}</td>
-<td>${r.identDoc}</td>
-<td>${r.autoridad}</td>
-<td>${r.ejs}</td>
-<td>${r.hjs}</td>
-<td>${r.materia}</td>
-</tr>`
-})
-
-html+="</table>"
-
-let w=window.open("")
-w.document.write(html)
-w.document.close()
-w.focus()
-w.print()
-
+window.print()
 }
 
 function exportarExcel(){
 
-let data=[
-["FECHA","NUMERO","IDENT MATERIA","IDENT DOC","AUTORIDAD","EJS","HJS","MATERIA"]
-]
+let data=[["FECHA","NUMERO","IDENT MATERIA","IDENT DOC","AUTORIDAD","EJS","HJS","MATERIA"]]
 
 registros.forEach(r=>{
 data.push([
@@ -630,6 +543,10 @@ XLSX.writeFile(wb,"registro_documental.xlsx")
 
 }
 
+/* =====================================================
+MODULO 11 — EVENTOS
+===================================================== */
+
 buscarNumero.oninput=render
 buscarFecha.oninput=render
 buscarProcedencia.oninput=render
@@ -641,15 +558,4 @@ render()
 </script>
 
 </body>
-
 </html>
-
-
-
-
-
-
-
-
-
-
