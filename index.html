@@ -24,6 +24,13 @@ margin:0 0 18px 0;
 color:#243447;
 }
 
+h3{
+text-align:center;
+margin:0 0 12px 0;
+color:#243447;
+font-size:18px;
+}
+
 .layout{
 display:grid;
 grid-template-columns:320px 1fr;
@@ -184,25 +191,27 @@ z-index:1;
 /* ===== COLORES PLAZO ===== */
 
 .plazoRojo{
-background:#e74c3c;
+background:#ff3b30;
 color:#fff;
 font-weight:700;
 }
 
 .plazoVerde{
-background:#b8e6c3;
+background:#b9f6ca;
 color:#000;
 font-weight:700;
 }
 
 .plazoAmarillo{
-background:#f1c40f;
+background:#fff176;
 color:#000;
 font-weight:700;
 }
 
 .plazoVencido{
-background:#cfefff;
+background:#b3e5fc;
+color:#000;
+font-weight:700;
 }
 
 /* ===== CLASIFICACION ===== */
@@ -230,6 +239,8 @@ font-size:12px;
 <!-- MODULO 0 FORMULARIO -->
 
 <div class="panel left">
+
+<h3>REGISTRAR AQUÍ</h3>
 
 <label>Fecha Doc</label>
 <input type="date" id="fecha">
@@ -552,11 +563,14 @@ let claseClasif=r.clasificacion==="SECRETO"?"secret-cell":""
 let d=diasNumero(r.plazo)
 
 let clasePlazo=""
-
 let textoDia=""
 
-if(d<0){
+if(d===null){
+clasePlazo=""
+textoDia=""
+}else if(d<0){
 clasePlazo="plazoVencido"
+textoDia=""
 }else if(d<=5){
 clasePlazo="plazoRojo"
 textoDia=d
@@ -694,7 +708,7 @@ function actualizarResumen(){
 document.getElementById("total").textContent=registros.length
 document.getElementById("res").textContent=registros.filter(x=>x.clasificacion==="RESERVADO").length
 document.getElementById("sec").textContent=registros.filter(x=>x.clasificacion==="SECRETO").length
-document.getElementById("pub").textContent=registros.filter(x=>x.clasificacion==="PÚBLICO").length
+document.getElementById("pub").textContent=registros.filter(x=>x.clasificacion==="PÚBLICO" || x.clasificacion==="PUBLICO").length
 
 let vencen=registros.filter(x=>{
 let d=diasNumero(x.plazo)
