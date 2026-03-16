@@ -9,169 +9,215 @@
 <script src="https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js"></script>
 
 <style>
+
 body{
-  font-family:"Segoe UI",Arial,sans-serif;
-  background:#dfeaf5;
-  margin:0;
-  padding:20px;
-  color:#243447;
+font-family:"Segoe UI",Arial,sans-serif;
+background:#dfeaf5;
+margin:0;
+padding:20px;
+color:#243447;
 }
+
 h1{
-  text-align:center;
-  margin:0 0 18px 0;
-  color:#243447;
+text-align:center;
+margin:0 0 18px 0;
+color:#243447;
 }
+
 .layout{
-  display:grid;
-  grid-template-columns:320px 1fr;
-  gap:18px;
-  align-items:start;
+display:grid;
+grid-template-columns:320px 1fr;
+gap:18px;
+align-items:start;
 }
+
 .panel{
-  background:#fff;
-  border-radius:12px;
-  box-shadow:0 2px 10px rgba(0,0,0,.08);
-  padding:16px;
+background:#fff;
+border-radius:12px;
+box-shadow:0 2px 10px rgba(0,0,0,.08);
+padding:16px;
 }
+
 label{
-  display:block;
-  font-size:12px;
-  font-weight:700;
-  margin-top:8px;
+display:block;
+font-size:12px;
+font-weight:700;
+margin-top:8px;
 }
+
 input,select,textarea{
-  width:100%;
-  box-sizing:border-box;
-  margin-top:4px;
-  padding:8px 10px;
-  border:1px solid #cfd8e3;
-  border-radius:8px;
-  font-size:13px;
-  background:#fff;
+width:100%;
+box-sizing:border-box;
+margin-top:4px;
+padding:8px 10px;
+border:1px solid #cfd8e3;
+border-radius:8px;
+font-size:13px;
+background:#fff;
 }
+
 textarea{
-  min-height:68px;
-  resize:vertical;
+min-height:68px;
+resize:vertical;
 }
+
 .row2{
-  display:grid;
-  grid-template-columns:1fr 1fr;
-  gap:10px;
+display:grid;
+grid-template-columns:1fr 1fr;
+gap:10px;
 }
+
 .actions{
-  display:flex;
-  gap:8px;
-  margin-top:12px;
+display:flex;
+gap:8px;
+margin-top:12px;
 }
+
 button{
-  border:none;
-  border-radius:8px;
-  padding:9px 12px;
-  cursor:pointer;
-  background:#34495e;
-  color:#fff;
-  font-weight:600;
+border:none;
+border-radius:8px;
+padding:9px 12px;
+cursor:pointer;
+background:#34495e;
+color:#fff;
+font-weight:600;
 }
+
 button:hover{
-  background:#2c3e50;
+background:#2c3e50;
 }
+
 button.sec{
-  background:#7f8c8d;
+background:#7f8c8d;
 }
+
 button.sec:hover{
-  background:#667071;
+background:#667071;
 }
+
+/* ===== TARJETAS ===== */
+
 .stats{
-  display:grid;
-  grid-template-columns:repeat(5,minmax(120px,1fr));
-  gap:10px;
-  margin-bottom:12px;
+display:grid;
+grid-template-columns:repeat(5,minmax(120px,1fr));
+gap:10px;
+margin-bottom:12px;
 }
+
 .card{
-  background:#f7fafc;
-  border:1px solid #e5edf5;
-  border-radius:10px;
-  padding:10px;
-  text-align:center;
+background:#f7fafc;
+border:1px solid #e5edf5;
+border-radius:10px;
+padding:10px;
+text-align:center;
 }
+
 .card b{
-  display:block;
-  font-size:22px;
-  margin-bottom:4px;
+display:block;
+font-size:22px;
+margin-bottom:4px;
 }
+
 .card.secret{
-  border-color:#f4c7c3;
-  background:#fff5f5;
+border-color:#f4c7c3;
+background:#fff5f5;
 }
+
 .card.secret b{
-  color:#c0392b;
+color:#c0392b;
 }
+
 .card.warning{
-  border-color:#f7dc6f;
-  background:#fffbea;
+border-color:#f7dc6f;
+background:#fffbea;
 }
+
 .card.warning b{
-  color:#b9770e;
+color:#b9770e;
 }
+
+/* ===== BUSQUEDA ===== */
+
 .search{
-  display:grid;
-  grid-template-columns:repeat(3,minmax(160px,1fr));
-  gap:10px;
-  margin-bottom:12px;
+display:grid;
+grid-template-columns:repeat(3,minmax(160px,1fr));
+gap:10px;
+margin-bottom:12px;
 }
+
 .export{
-  display:flex;
-  gap:8px;
-  justify-content:flex-end;
-  margin-bottom:10px;
+display:flex;
+gap:8px;
+justify-content:flex-end;
+margin-bottom:10px;
 }
+
+/* ===== TABLA ===== */
+
 .table-wrap{
-  overflow:auto;
-  border:1px solid #e3e9ef;
-  border-radius:10px;
+overflow:auto;
+border:1px solid #e3e9ef;
+border-radius:10px;
 }
+
 table{
-  width:100%;
-  border-collapse:collapse;
-  font-size:12px;
-  background:#fff;
+width:100%;
+border-collapse:collapse;
+font-size:12px;
+background:#fff;
 }
+
 th,td{
-  border:1px solid #e5edf5;
-  padding:8px 6px;
-  text-align:center;
-  vertical-align:middle;
+border:1px solid #e5edf5;
+padding:8px 6px;
+text-align:center;
+vertical-align:middle;
 }
+
 th{
-  background:#eef4f9;
-  position:sticky;
-  top:0;
-  z-index:1;
+background:#eef4f9;
+position:sticky;
+top:0;
+z-index:1;
 }
 
-.badge{
-  display:inline-block;
-  min-width:26px;
-  padding:3px 6px;
-  border-radius:999px;
-  font-weight:700;
+/* ===== COLORES PLAZO ===== */
+
+.plazoRojo{
+background:#e74c3c;
+color:#fff;
+font-weight:700;
 }
 
-.rojo{background:#e74c3c;color:#fff;}
-.amarillo{background:#f1c40f;color:#000;}
-.verdeClaro{background:#b8e6c3;color:#000;}
-.vencido{background:#cfefff;color:#000;}
+.plazoVerde{
+background:#b8e6c3;
+color:#000;
+font-weight:700;
+}
+
+.plazoAmarillo{
+background:#f1c40f;
+color:#000;
+font-weight:700;
+}
+
+.plazoVencido{
+background:#cfefff;
+}
+
+/* ===== CLASIFICACION ===== */
 
 .secret-cell{
-  background:#c0392b;
-  color:#fff;
-  font-weight:700;
+background:#c0392b;
+color:#fff;
+font-weight:700;
 }
 
 .muted{
-  color:#6b7b8c;
-  font-size:12px;
+color:#6b7b8c;
+font-size:12px;
 }
+
 </style>
 </head>
 
@@ -236,7 +282,7 @@ th{
 <select id="clasificacion">
 <option>RESERVADO</option>
 <option>SECRETO</option>
-<option>PUBLICO</option>
+<option>PÚBLICO</option>
 </select>
 </div>
 <div>
@@ -268,15 +314,15 @@ th{
 
 </div>
 
-<!-- MODULO 0B TABLA -->
+<!-- MODULO TABLA -->
 
 <div class="panel right">
 
 <div class="stats">
-<div class="card"><b id="total">0</b>Total</div>
 <div class="card"><b id="res">0</b>Reservados</div>
 <div class="card secret"><b id="sec">0</b>Secretos</div>
 <div class="card"><b id="pub">0</b>Públicos</div>
+<div class="card"><b id="total">0</b>Total</div>
 <div class="card warning"><b id="porVencer">0</b>Por vencer</div>
 </div>
 
@@ -292,8 +338,11 @@ th{
 </div>
 
 <div class="table-wrap">
+
 <table id="tabla">
+
 <thead>
+
 <tr>
 <th>FECHA</th>
 <th>NUMERO</th>
@@ -312,17 +361,22 @@ th{
 <th>OBS</th>
 <th>ACCIONES</th>
 </tr>
+
 </thead>
+
 <tbody></tbody>
+
 </table>
+
 </div>
 
 </div>
+
 </div>
 
 <script>
 
-/* MODULO 1 */
+/* MODULO 1 VARIABLES */
 
 const fecha=document.getElementById("fecha")
 const numero=document.getElementById("numero")
@@ -343,14 +397,14 @@ const buscarNumero=document.getElementById("buscarNumero")
 const buscarFecha=document.getElementById("buscarFecha")
 const buscarProcedencia=document.getElementById("buscarProcedencia")
 
-/* MODULO 2 */
+/* MODULO 2 SISTEMA */
 
 const API_URL="PEGA_AQUI_TU_URL_EXEC"
 
 let registros=[]
 let editIndex=null
 
-/* MODULO 3 */
+/* MODULO 3 CARGA LOCAL */
 
 try{
 registros=JSON.parse(localStorage.getItem("registros"))||[]
@@ -358,53 +412,44 @@ registros=JSON.parse(localStorage.getItem("registros"))||[]
 registros=[]
 }
 
-/* MODULO 4 */
+/* MODULO 4 FUNCIONES */
 
 function mayus(t){
-return (t||"").toUpperCase().trim()
+
+t=(t||"").toUpperCase().trim()
+
+t=t.replace("PUBLICO","PÚBLICO")
+
+return t
 }
 
 function fechaCL(f){
 if(!f) return ""
-let p=String(f).split("-")
+let p=f.split("-")
 return `${p[2]}-${p[1]}-${p[0]}`
 }
 
 function diasNumero(pl){
+
 if(!pl) return null
+
 let hoy=new Date()
 hoy.setHours(0,0,0,0)
+
 let p=pl.split("-")
+
 let f=new Date(p[0],p[1]-1,p[2])
+
 return Math.floor((f-hoy)/86400000)
+
 }
 
-function dias(pl){
-
-let d=diasNumero(pl)
-
-if(d===null) return ""
-
-if(d<0){
-return `<span class="badge vencido"></span>`
-}
-
-if(d<=5){
-return `<span class="badge rojo">${d}</span>`
-}
-
-if(d<=15){
-return `<span class="badge verdeClaro">${d}</span>`
-}
-
-return `<span class="badge amarillo">${d}</span>`
-}
-
-/* MODULO 5 */
+/* MODULO 5 GUARDAR */
 
 function guardar(){
 
 let r={
+
 fecha:fecha.value,
 numero:mayus(numero.value),
 identMateria:mayus(identMateria.value),
@@ -419,6 +464,7 @@ clasificacion:mayus(clasificacion.value),
 archivo:mayus(archivo.value),
 llegsal:mayus(llegsal.value),
 observ:mayus(observ.value)
+
 }
 
 if(editIndex!==null){
@@ -429,27 +475,31 @@ registros.push(r)
 }
 
 localStorage.setItem("registros",JSON.stringify(registros))
-enviarAScript(r)
+
 render()
 limpiar()
 
 }
 
-/* MODULO 6 */
+/* MODULO 6 ENVIAR */
 
 function enviarAScript(datos){
+
 if(!API_URL || API_URL==="PEGA_AQUI_TU_URL_EXEC") return
+
 fetch(API_URL,{
 method:"POST",
 mode:"no-cors",
 headers:{"Content-Type":"application/json"},
 body:JSON.stringify(datos)
 })
+
 }
 
-/* MODULO 7 */
+/* MODULO 7 EDITAR BORRAR */
 
 function editar(i){
+
 let r=registros[i]
 
 fecha.value=r.fecha
@@ -468,43 +518,60 @@ llegsal.value=r.llegsal
 observ.value=r.observ
 
 editIndex=i
+
 }
 
 function borrar(i){
+
 if(confirm("¿Eliminar registro?")){
+
 registros.splice(i,1)
+
 localStorage.setItem("registros",JSON.stringify(registros))
+
 render()
-}
+
 }
 
-/* MODULO 8 */
+}
+
+/* MODULO 8 RENDER */
 
 function render(){
 
 let tbody=document.querySelector("#tabla tbody")
+
 tbody.innerHTML=""
 
 let lista=[...registros]
 
-let fNumero=mayus(buscarNumero.value)
-let fFecha=buscarFecha.value
-let fProc=mayus(buscarProcedencia.value)
-
-lista=lista.filter(r=>{
-if(fNumero && !r.numero.includes(fNumero)) return false
-if(fFecha && r.fecha!==fFecha) return false
-if(fProc && !r.procedencia.includes(fProc)) return false
-return true
-})
-
 lista.forEach((r,i)=>{
 
-let claseClasif = r.clasificacion==="SECRETO" ? "secret-cell" : ""
+let claseClasif=r.clasificacion==="SECRETO"?"secret-cell":""
+
+let d=diasNumero(r.plazo)
+
+let clasePlazo=""
+
+let textoDia=""
+
+if(d<0){
+clasePlazo="plazoVencido"
+}else if(d<=5){
+clasePlazo="plazoRojo"
+textoDia=d
+}else if(d<=15){
+clasePlazo="plazoVerde"
+textoDia=d
+}else{
+clasePlazo="plazoAmarillo"
+textoDia=d
+}
 
 let tr=document.createElement("tr")
 
 tr.innerHTML=`
+
 <td>${fechaCL(r.fecha)}</td>
 <td>${r.numero}</td>
 <td>${r.identMateria}</td>
@@ -514,16 +581,18 @@ tr.innerHTML=`
 <td>${r.hjs}</td>
 <td>${r.materia}</td>
 <td>${fechaCL(r.plazo)}</td>
-<td>${dias(r.plazo)}</td>
+<td class="${clasePlazo}">${textoDia}</td>
 <td>${r.procedencia}</td>
 <td class="${claseClasif}">${r.clasificacion}</td>
 <td>${r.archivo}</td>
 <td>${r.llegsal}</td>
 <td>${r.observ}</td>
+
 <td>
 <button onclick="editar(${i})">✏</button>
 <button onclick="borrar(${i})">🗑</button>
 </td>
+
 `
 
 tbody.appendChild(tr)
@@ -534,7 +603,7 @@ actualizarResumen()
 
 }
 
-/* MODULO 9 PDF Y EXCEL */
+/* MODULO 9 PDF */
 
 function imprimirPDF(){
 
@@ -560,6 +629,7 @@ th,td{border:1px solid #000;padding:6px;text-align:center}
 `
 
 lista.forEach(r=>{
+
 html+=`<tr>
 <td>${fechaCL(r.fecha)}</td>
 <td>${r.numero}</td>
@@ -570,21 +640,31 @@ html+=`<tr>
 <td>${r.hjs}</td>
 <td>${r.materia}</td>
 </tr>`
+
 })
 
 html+=`</table></body></html>`
 
 let w=window.open("")
+
 w.document.write(html)
+
+w.document.close()
+
+w.focus()
+
 w.print()
 
 }
+
+/* MODULO 10 EXCEL */
 
 function exportarExcel(){
 
 let data=[["FECHA","NUMERO","IDENT MATERIA","IDENT DOC","AUTORIDAD","EJS","HJS","MATERIA"]]
 
 registros.forEach(r=>{
+
 data.push([
 fechaCL(r.fecha),
 r.numero,
@@ -595,32 +675,26 @@ r.ejs,
 r.hjs,
 r.materia
 ])
+
 })
 
 let ws=XLSX.utils.aoa_to_sheet(data)
 let wb=XLSX.utils.book_new()
+
 XLSX.utils.book_append_sheet(wb,ws,"Registro")
+
 XLSX.writeFile(wb,"registro_documental.xlsx")
 
 }
 
-/* MODULO 10 */
-
-function limpiar(){
-document.querySelectorAll(".left input,.left textarea").forEach(i=>i.value="")
-clasificacion.value="RESERVADO"
-llegsal.value="LLEGADO"
-editIndex=null
-}
-
-/* MODULO 11 */
+/* MODULO 11 RESUMEN */
 
 function actualizarResumen(){
 
 document.getElementById("total").textContent=registros.length
 document.getElementById("res").textContent=registros.filter(x=>x.clasificacion==="RESERVADO").length
 document.getElementById("sec").textContent=registros.filter(x=>x.clasificacion==="SECRETO").length
-document.getElementById("pub").textContent=registros.filter(x=>x.clasificacion==="PUBLICO").length
+document.getElementById("pub").textContent=registros.filter(x=>x.clasificacion==="PÚBLICO").length
 
 let vencen=registros.filter(x=>{
 let d=diasNumero(x.plazo)
@@ -631,7 +705,7 @@ document.getElementById("porVencer").textContent=vencen
 
 }
 
-/* MODULO 12 */
+/* MODULO 12 INICIO */
 
 buscarNumero.addEventListener("input",render)
 buscarFecha.addEventListener("input",render)
