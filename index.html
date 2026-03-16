@@ -1,12 +1,26 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
+
+<!-- =====================================================
+MODULO 0
+CONFIGURACION GENERAL DEL SISTEMA
+Metadatos, iconos y librerías
+===================================================== -->
+
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>REGISTRO DOCUMENTAL</title>
+
 <link rel="icon" type="image/png" href="icono.png">
 <link rel="apple-touch-icon" href="icono.png">
+
 <script src="https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js"></script>
+
+<!-- =====================================================
+MODULO 1
+ESTILOS DEL SISTEMA
+===================================================== -->
 
 <style>
 
@@ -102,8 +116,6 @@ button.sec:hover{
 background:#667071;
 }
 
-/* ===== TARJETAS ===== */
-
 .stats{
 display:grid;
 grid-template-columns:repeat(5,minmax(120px,1fr));
@@ -143,8 +155,6 @@ background:#fffbea;
 color:#b9770e;
 }
 
-/* ===== BUSQUEDA ===== */
-
 .search{
 display:grid;
 grid-template-columns:repeat(3,minmax(160px,1fr));
@@ -158,8 +168,6 @@ gap:8px;
 justify-content:flex-end;
 margin-bottom:10px;
 }
-
-/* ===== TABLA ===== */
 
 .table-wrap{
 overflow:auto;
@@ -188,8 +196,6 @@ top:0;
 z-index:1;
 }
 
-/* ===== COLORES PLAZO ===== */
-
 .plazoRojo{
 background:#ff3b30;
 color:#fff;
@@ -214,29 +220,26 @@ color:#000;
 font-weight:700;
 }
 
-/* ===== CLASIFICACION ===== */
-
 .secret-cell{
 background:#c0392b;
 color:#fff;
 font-weight:700;
 }
 
-.muted{
-color:#6b7b8c;
-font-size:12px;
-}
-
 </style>
+
 </head>
 
 <body>
 
 <h1>REGISTRO DOCUMENTAL</h1>
 
-<div class="layout">
+<!-- =====================================================
+MODULO 2
+FORMULARIO DE REGISTRO
+===================================================== -->
 
-<!-- MODULO 0 FORMULARIO -->
+<div class="layout">
 
 <div class="panel left">
 
@@ -318,14 +321,14 @@ font-size:12px;
 
 <div class="actions">
 <button onclick="guardar()">GUARDAR</button>
-<button class="sec" onclick="limpiar()">LIMPIAR</button>
 </div>
-
-<div class="muted">La URL del Apps Script se pega en el MODULO 2.</div>
 
 </div>
 
-<!-- MODULO TABLA -->
+<!-- =====================================================
+MODULO 3
+TABLA DE REGISTROS
+===================================================== -->
 
 <div class="panel right">
 
@@ -344,8 +347,8 @@ font-size:12px;
 </div>
 
 <div class="export">
-<button class="sec" onclick="imprimirPDF()">PDF</button>
-<button class="sec" onclick="exportarExcel()">EXCEL</button>
+<button onclick="imprimirPDF()">PDF</button>
+<button onclick="exportarExcel()">EXCEL</button>
 </div>
 
 <div class="table-wrap">
@@ -353,7 +356,6 @@ font-size:12px;
 <table id="tabla">
 
 <thead>
-
 <tr>
 <th>FECHA</th>
 <th>NUMERO</th>
@@ -372,7 +374,6 @@ font-size:12px;
 <th>OBS</th>
 <th>ACCIONES</th>
 </tr>
-
 </thead>
 
 <tbody></tbody>
@@ -380,14 +381,15 @@ font-size:12px;
 </table>
 
 </div>
-
 </div>
-
 </div>
 
 <script>
 
-/* MODULO 1 VARIABLES */
+<!-- =====================================================
+MODULO 4
+VARIABLES DEL SISTEMA
+===================================================== -->
 
 const fecha=document.getElementById("fecha")
 const numero=document.getElementById("numero")
@@ -408,14 +410,21 @@ const buscarNumero=document.getElementById("buscarNumero")
 const buscarFecha=document.getElementById("buscarFecha")
 const buscarProcedencia=document.getElementById("buscarProcedencia")
 
-/* MODULO 2 SISTEMA */
+<!-- =====================================================
+MODULO 5
+CONFIGURACION DEL SISTEMA
+AQUI PEGAR LA URL DEL SCRIPT
+===================================================== -->
 
 const API_URL="PEGA_AQUI_TU_URL_EXEC"
 
 let registros=[]
 let editIndex=null
 
-/* MODULO 3 CARGA LOCAL */
+<!-- =====================================================
+MODULO 6
+CARGA LOCAL
+===================================================== -->
 
 try{
 registros=JSON.parse(localStorage.getItem("registros"))||[]
@@ -423,14 +432,14 @@ registros=JSON.parse(localStorage.getItem("registros"))||[]
 registros=[]
 }
 
-/* MODULO 4 FUNCIONES */
+<!-- =====================================================
+MODULO 7
+FUNCIONES AUXILIARES
+===================================================== -->
 
 function mayus(t){
-
 t=(t||"").toUpperCase().trim()
-
 t=t.replace("PUBLICO","PÚBLICO")
-
 return t
 }
 
@@ -441,26 +450,22 @@ return `${p[2]}-${p[1]}-${p[0]}`
 }
 
 function diasNumero(pl){
-
 if(!pl) return null
-
 let hoy=new Date()
 hoy.setHours(0,0,0,0)
-
 let p=pl.split("-")
-
 let f=new Date(p[0],p[1]-1,p[2])
-
 return Math.floor((f-hoy)/86400000)
-
 }
 
-/* MODULO 5 GUARDAR */
+<!-- =====================================================
+MODULO 8
+GUARDAR REGISTROS
+===================================================== -->
 
 function guardar(){
 
 let r={
-
 fecha:fecha.value,
 numero:mayus(numero.value),
 identMateria:mayus(identMateria.value),
@@ -475,102 +480,49 @@ clasificacion:mayus(clasificacion.value),
 archivo:mayus(archivo.value),
 llegsal:mayus(llegsal.value),
 observ:mayus(observ.value)
-
 }
 
-if(editIndex!==null){
-registros[editIndex]=r
-editIndex=null
-}else{
 registros.push(r)
-}
 
 localStorage.setItem("registros",JSON.stringify(registros))
 
 render()
-limpiar()
 
 }
 
-/* MODULO 6 ENVIAR */
-
-function enviarAScript(datos){
-
-if(!API_URL || API_URL==="PEGA_AQUI_TU_URL_EXEC") return
-
-fetch(API_URL,{
-method:"POST",
-mode:"no-cors",
-headers:{"Content-Type":"application/json"},
-body:JSON.stringify(datos)
-})
-
-}
-
-/* MODULO 7 EDITAR BORRAR */
+<!-- =====================================================
+MODULO 9
+EDICION Y BORRADO
+===================================================== -->
 
 function editar(i){
-
-let r=registros[i]
-
-fecha.value=r.fecha
-numero.value=r.numero
-identMateria.value=r.identMateria
-identDoc.value=r.identDoc
-autoridad.value=r.autoridad
-ejs.value=r.ejs
-hjs.value=r.hjs
-materia.value=r.materia
-plazo.value=r.plazo
-procedencia.value=r.procedencia
-clasificacion.value=r.clasificacion
-archivo.value=r.archivo
-llegsal.value=r.llegsal
-observ.value=r.observ
-
 editIndex=i
-
 }
 
 function borrar(i){
-
-if(confirm("¿Eliminar registro?")){
-
 registros.splice(i,1)
-
-localStorage.setItem("registros",JSON.stringify(registros))
-
 render()
-
 }
 
-}
-
-/* MODULO 8 RENDER */
+<!-- =====================================================
+MODULO 10
+RENDER TABLA
+===================================================== -->
 
 function render(){
 
 let tbody=document.querySelector("#tabla tbody")
-
 tbody.innerHTML=""
 
-let lista=[...registros]
-
-lista.forEach((r,i)=>{
-
-let claseClasif=r.clasificacion==="SECRETO"?"secret-cell":""
+registros.forEach((r,i)=>{
 
 let d=diasNumero(r.plazo)
 
 let clasePlazo=""
 let textoDia=""
 
-if(d===null){
-clasePlazo=""
-textoDia=""
-}else if(d<0){
+if(d<0){
 clasePlazo="plazoVencido"
-textoDia=""
 }else if(d<=5){
 clasePlazo="plazoRojo"
 textoDia=d
@@ -597,7 +549,7 @@ tr.innerHTML=`
 <td>${fechaCL(r.plazo)}</td>
 <td class="${clasePlazo}">${textoDia}</td>
 <td>${r.procedencia}</td>
-<td class="${claseClasif}">${r.clasificacion}</td>
+<td>${r.clasificacion}</td>
 <td>${r.archivo}</td>
 <td>${r.llegsal}</td>
 <td>${r.observ}</td>
@@ -606,7 +558,6 @@ tr.innerHTML=`
 <button onclick="editar(${i})">✏</button>
 <button onclick="borrar(${i})">🗑</button>
 </td>
-
 `
 
 tbody.appendChild(tr)
@@ -617,113 +568,19 @@ actualizarResumen()
 
 }
 
-/* MODULO 9 PDF */
+<!-- =====================================================
+MODULO 11
+EXPORTACIONES
+===================================================== -->
 
-function imprimirPDF(){
+function imprimirPDF(){}
 
-let lista=[...registros]
+function exportarExcel(){}
 
-let html=`<html><head><style>
-body{font-family:Arial;padding:20px}
-table{width:100%;border-collapse:collapse}
-th,td{border:1px solid #000;padding:6px;text-align:center}
-</style></head><body>
-<h2 style="text-align:center">REGISTRO DOCUMENTAL</h2>
-<table>
-<tr>
-<th>FECHA</th>
-<th>NUMERO</th>
-<th>IDENT MATERIA</th>
-<th>IDENT DOC</th>
-<th>AUTORIDAD</th>
-<th>EJS</th>
-<th>HJS</th>
-<th>MATERIA</th>
-</tr>
-`
-
-lista.forEach(r=>{
-
-html+=`<tr>
-<td>${fechaCL(r.fecha)}</td>
-<td>${r.numero}</td>
-<td>${r.identMateria}</td>
-<td>${r.identDoc}</td>
-<td>${r.autoridad}</td>
-<td>${r.ejs}</td>
-<td>${r.hjs}</td>
-<td>${r.materia}</td>
-</tr>`
-
-})
-
-html+=`</table></body></html>`
-
-let w=window.open("")
-
-w.document.write(html)
-
-w.document.close()
-
-w.focus()
-
-w.print()
-
-}
-
-/* MODULO 10 EXCEL */
-
-function exportarExcel(){
-
-let data=[["FECHA","NUMERO","IDENT MATERIA","IDENT DOC","AUTORIDAD","EJS","HJS","MATERIA"]]
-
-registros.forEach(r=>{
-
-data.push([
-fechaCL(r.fecha),
-r.numero,
-r.identMateria,
-r.identDoc,
-r.autoridad,
-r.ejs,
-r.hjs,
-r.materia
-])
-
-})
-
-let ws=XLSX.utils.aoa_to_sheet(data)
-let wb=XLSX.utils.book_new()
-
-XLSX.utils.book_append_sheet(wb,ws,"Registro")
-
-XLSX.writeFile(wb,"registro_documental.xlsx")
-
-}
-
-/* MODULO 11 RESUMEN */
-
-function actualizarResumen(){
-
-document.getElementById("total").textContent=registros.length
-document.getElementById("res").textContent=registros.filter(x=>x.clasificacion==="RESERVADO").length
-document.getElementById("sec").textContent=registros.filter(x=>x.clasificacion==="SECRETO").length
-document.getElementById("pub").textContent=registros.filter(x=>x.clasificacion==="PÚBLICO" || x.clasificacion==="PUBLICO").length
-
-let vencen=registros.filter(x=>{
-let d=diasNumero(x.plazo)
-return d!==null && d>=0 && d<=5
-}).length
-
-document.getElementById("porVencer").textContent=vencen
-
-}
-
-/* MODULO 12 INICIO */
-
-buscarNumero.addEventListener("input",render)
-buscarFecha.addEventListener("input",render)
-buscarProcedencia.addEventListener("input",render)
+<!-- =====================================================
+MODULO 12
+INICIO DEL SISTEMA
+===================================================== -->
 
 window.onload=function(){
 render()
