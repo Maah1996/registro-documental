@@ -4,82 +4,164 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>REGISTRO DOCUMENTAL</title>
-
+<link rel="icon" type="image/png" href="icono.png">
+<link rel="apple-touch-icon" href="icono.png">
 <script src="https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js"></script>
 
 <style>
-
 body{
-font-family:"Segoe UI",Arial;
-background:#e8f0f8;
-margin:0;
-padding:20px;
+  font-family:"Segoe UI",Arial,sans-serif;
+  background:#eef2f6;
+  margin:0;
+  padding:20px;
+  color:#243447;
 }
-
 h1{
-text-align:center;
-margin-bottom:15px;
+  text-align:center;
+  margin:0 0 18px 0;
+  color:#243447;
 }
-
 .layout{
-display:grid;
-grid-template-columns:320px 1fr;
-gap:20px;
+  display:grid;
+  grid-template-columns:320px 1fr;
+  gap:18px;
+  align-items:start;
 }
-
 .panel{
-background:white;
-padding:15px;
-border-radius:10px;
-box-shadow:0 2px 10px rgba(0,0,0,0.1);
+  background:#fff;
+  border-radius:12px;
+  box-shadow:0 2px 10px rgba(0,0,0,.08);
+  padding:16px;
 }
-
+label{
+  display:block;
+  font-size:12px;
+  font-weight:700;
+  margin-top:8px;
+}
 input,select,textarea{
-width:100%;
-padding:7px;
-margin-top:5px;
-margin-bottom:6px;
-border:1px solid #ccc;
-border-radius:6px;
+  width:100%;
+  box-sizing:border-box;
+  margin-top:4px;
+  padding:8px 10px;
+  border:1px solid #cfd8e3;
+  border-radius:8px;
+  font-size:13px;
+  background:#fff;
 }
-
+textarea{
+  min-height:68px;
+  resize:vertical;
+}
+.row2{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:10px;
+}
+.actions{
+  display:flex;
+  gap:8px;
+  margin-top:12px;
+}
 button{
-padding:8px 12px;
-border:none;
-border-radius:6px;
-cursor:pointer;
-background:#34495e;
-color:white;
+  border:none;
+  border-radius:8px;
+  padding:9px 12px;
+  cursor:pointer;
+  background:#34495e;
+  color:#fff;
+  font-weight:600;
 }
-
+button:hover{
+  background:#2c3e50;
+}
+button.sec{
+  background:#7f8c8d;
+}
+button.sec:hover{
+  background:#667071;
+}
+.topbar{
+  display:flex;
+  justify-content:space-between;
+  gap:10px;
+  align-items:center;
+  margin-bottom:12px;
+  flex-wrap:wrap;
+}
+.stats{
+  display:grid;
+  grid-template-columns:repeat(4,minmax(120px,1fr));
+  gap:10px;
+  margin-bottom:12px;
+}
+.card{
+  background:#f7fafc;
+  border:1px solid #e5edf5;
+  border-radius:10px;
+  padding:10px;
+  text-align:center;
+}
+.card b{
+  display:block;
+  font-size:22px;
+  margin-bottom:4px;
+}
+.search{
+  display:grid;
+  grid-template-columns:repeat(4,minmax(140px,1fr));
+  gap:10px;
+  margin-bottom:12px;
+}
+.export{
+  display:flex;
+  gap:8px;
+  justify-content:flex-end;
+  margin-bottom:10px;
+}
+.table-wrap{
+  overflow:auto;
+  border:1px solid #e3e9ef;
+  border-radius:10px;
+}
 table{
-width:100%;
-border-collapse:collapse;
-font-size:12px;
+  width:100%;
+  border-collapse:collapse;
+  font-size:12px;
+  background:#fff;
 }
-
 th,td{
-border:1px solid #dcdcdc;
-padding:6px;
-text-align:center;
+  border:1px solid #e5edf5;
+  padding:8px 6px;
+  text-align:center;
+  vertical-align:middle;
 }
-
 th{
-background:#eef4f9;
+  background:#eef4f9;
+  position:sticky;
+  top:0;
+  z-index:1;
 }
-
-.rojo{
-background:#e74c3c;
-color:white;
+.badge{
+  display:inline-block;
+  min-width:26px;
+  padding:3px 6px;
+  border-radius:999px;
+  font-weight:700;
 }
-
-.verde{
-background:#2ecc71;
-color:white;
-padding:3px 6px;
-border-radius:10px;
+.rojo{background:#e74c3c;color:#fff;}
+.naranja{background:#f39c12;color:#fff;}
+.amarillo{background:#f1c40f;color:#333;}
+.verde{background:#2ecc71;color:#fff;}
+.muted{
+  color:#6b7b8c;
+  font-size:12px;
 }
-
+@media (max-width: 1000px){
+  .layout{grid-template-columns:1fr;}
+  .stats{grid-template-columns:repeat(2,1fr);}
+  .search{grid-template-columns:repeat(2,1fr);}
+}
 </style>
 </head>
 
@@ -89,354 +171,488 @@ border-radius:10px;
 
 <div class="layout">
 
-<div class="panel">
+  <!-- =====================================================
+  MODULO 0
+  INTERFAZ VISUAL DEL FORMULARIO
+  ===================================================== -->
+  <div class="panel left">
+    <label>Fecha Doc</label>
+    <input type="date" id="fecha">
 
-<label>Fecha</label>
-<input type="date" id="fecha">
+    <label>Número</label>
+    <input id="numero">
 
-<label>Número</label>
-<input id="numero">
+    <div class="row2">
+      <div>
+        <label>Ident. Materia</label>
+        <input id="identMateria">
+      </div>
+      <div>
+        <label>Ident. Documento</label>
+        <input id="identDoc">
+      </div>
+    </div>
 
-<label>Ident Materia</label>
-<input id="identMateria">
+    <label>Autoridad</label>
+    <input id="autoridad">
 
-<label>Ident Doc</label>
-<input id="identDoc">
+    <div class="row2">
+      <div>
+        <label>Cant. Ejs</label>
+        <input id="ejs">
+      </div>
+      <div>
+        <label>Cant. Hjs</label>
+        <input id="hjs">
+      </div>
+    </div>
 
-<label>Autoridad</label>
-<input id="autoridad">
+    <label>Materia</label>
+    <textarea id="materia"></textarea>
 
-<label>EJS</label>
-<input id="ejs">
+    <div class="row2">
+      <div>
+        <label>Plazo</label>
+        <input type="date" id="plazo">
+      </div>
+      <div>
+        <label>Procedencia</label>
+        <input id="procedencia">
+      </div>
+    </div>
 
-<label>HJS</label>
-<input id="hjs">
+    <div class="row2">
+      <div>
+        <label>Clasificación</label>
+        <select id="clasificacion">
+          <option>RESERVADO</option>
+          <option>SECRETO</option>
+          <option>PUBLICO</option>
+        </select>
+      </div>
+      <div>
+        <label>Archivo</label>
+        <input id="archivo">
+      </div>
+    </div>
 
-<label>Materia</label>
-<textarea id="materia"></textarea>
+    <div class="row2">
+      <div>
+        <label>Lleg/Sal</label>
+        <select id="llegsal">
+          <option>LLEGADO</option>
+          <option>SALIDO</option>
+        </select>
+      </div>
+      <div>
+        <label>Observ</label>
+        <input id="observ">
+      </div>
+    </div>
 
-<label>Plazo</label>
-<input type="date" id="plazo">
+    <div class="actions">
+      <button onclick="guardar()">GUARDAR</button>
+      <button class="sec" onclick="limpiar()">LIMPIAR</button>
+    </div>
+    <div class="muted" style="margin-top:10px;">La URL del Apps Script se pega en el MODULO 2.</div>
+  </div>
 
-<label>Procedencia</label>
-<input id="procedencia">
+  <!-- =====================================================
+  MODULO 0B
+  INTERFAZ VISUAL DE TABLA Y BUSQUEDA
+  ===================================================== -->
+  <div class="panel right">
 
-<label>Clasificación</label>
-<select id="clasificacion">
-<option>RESERVADO</option>
-<option>SECRETO</option>
-<option>PUBLICO</option>
-</select>
+    <div class="stats">
+      <div class="card"><b id="total">0</b>Total</div>
+      <div class="card"><b id="res">0</b>Reservados</div>
+      <div class="card"><b id="sec">0</b>Secretos</div>
+      <div class="card"><b id="pub">0</b>Públicos</div>
+    </div>
 
-<label>Archivo</label>
-<input id="archivo">
+    <div class="search">
+      <input id="buscarNumero" placeholder="Buscar número">
+      <input type="date" id="buscarFecha">
+      <input id="buscarProcedencia" placeholder="Buscar procedencia">
+      <input id="buscarTexto" placeholder="Buscar texto libre">
+    </div>
 
-<label>Lleg/Sal</label>
-<select id="llegsal">
-<option>LLEGADO</option>
-<option>SALIDO</option>
-</select>
+    <div class="export">
+      <button class="sec" onclick="imprimirPDF()">PDF</button>
+      <button class="sec" onclick="exportarExcel()">EXCEL</button>
+    </div>
 
-<label>Observ</label>
-<input id="observ">
+    <div class="table-wrap">
+      <table id="tabla">
+        <thead>
+          <tr>
+            <th>FECHA</th>
+            <th>NUMERO</th>
+            <th>IDENT MATERIA</th>
+            <th>IDENT DOC</th>
+            <th>AUTORIDAD</th>
+            <th>EJS</th>
+            <th>HJS</th>
+            <th>MATERIA</th>
+            <th>PLAZO</th>
+            <th>DÍAS</th>
+            <th>PROCED</th>
+            <th>CLASIF</th>
+            <th>ARCH</th>
+            <th>L/S</th>
+            <th>OBS</th>
+            <th>ACCIONES</th>
+          </tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+    </div>
 
-<button onclick="guardar()">GUARDAR</button>
-
-</div>
-
-<div class="panel">
-
-<div>
-TOTAL <b id="total">0</b>
-RESERVADOS <b id="res">0</b>
-SECRETOS <b id="sec">0</b>
-PUBLICOS <b id="pub">0</b>
-POR VENCER <b id="porvencer" class="verde">0</b>
-</div>
-
-<br>
-
-<input id="buscarNumero" placeholder="Buscar número">
-<input type="date" id="buscarFecha">
-<input id="buscarProcedencia" placeholder="Buscar procedencia">
-
-<br><br>
-
-<button onclick="imprimirPDF()">PDF</button>
-<button onclick="exportarExcel()">EXCEL</button>
-
-<br><br>
-
-<table id="tabla">
-
-<thead>
-
-<tr>
-
-<th>FECHA</th>
-<th>NUMERO</th>
-<th>IDENT MATERIA</th>
-<th>IDENT DOC</th>
-<th>AUTORIDAD</th>
-<th>EJS</th>
-<th>HJS</th>
-<th>MATERIA</th>
-<th>PLAZO</th>
-<th>DÍAS</th>
-<th>PROCED</th>
-<th>CLASIF</th>
-<th>ARCH</th>
-<th>L/S</th>
-<th>OBS</th>
-<th>ACCIONES</th>
-
-</tr>
-
-</thead>
-
-<tbody></tbody>
-
-</table>
-
-</div>
-
+  </div>
 </div>
 
 <script>
 
-const API_URL="PEGA_AQUI_TU_URL"
+/* =====================================================
+MODULO 1
+RECEPCION DE INFORMACION (FORMULARIO)
+Captura los datos ingresados por el usuario
+===================================================== */
+
+const fecha=document.getElementById("fecha")
+const numero=document.getElementById("numero")
+const identMateria=document.getElementById("identMateria")
+const identDoc=document.getElementById("identDoc")
+const autoridad=document.getElementById("autoridad")
+const ejs=document.getElementById("ejs")
+const hjs=document.getElementById("hjs")
+const materia=document.getElementById("materia")
+const plazo=document.getElementById("plazo")
+const procedencia=document.getElementById("procedencia")
+const clasificacion=document.getElementById("clasificacion")
+const archivo=document.getElementById("archivo")
+const llegsal=document.getElementById("llegsal")
+const observ=document.getElementById("observ")
+
+const buscarNumero=document.getElementById("buscarNumero")
+const buscarFecha=document.getElementById("buscarFecha")
+const buscarProcedencia=document.getElementById("buscarProcedencia")
+const buscarTexto=document.getElementById("buscarTexto")
+
+/* =====================================================
+MODULO 2
+VARIABLES DEL SISTEMA
+Estado interno del sistema documental
+AQUI PEGA TU URL /exec
+===================================================== */
+
+const API_URL="PEGA_AQUI_TU_URL_EXEC"
 
 let registros=[]
 let editIndex=null
 
+/* =====================================================
+MODULO 3
+CARGA LOCAL DE DATOS
+Carga registros guardados en el navegador
+===================================================== */
+
 try{
-registros=JSON.parse(localStorage.getItem("registros"))||[]
+  registros=JSON.parse(localStorage.getItem("registros"))||[]
 }catch{
-registros=[]
+  registros=[]
 }
 
+/* =====================================================
+MODULO 4
+PROCESAMIENTO DE DATOS
+Funciones auxiliares de tratamiento de información
+===================================================== */
+
 function mayus(t){
-return (t||"").toUpperCase().trim()
+  return (t||"").toUpperCase().trim()
 }
 
 function fechaCL(f){
-if(!f)return""
-let p=f.split("-")
-return `${p[2]}-${p[1]}-${p[0]}`
+  if(!f) return ""
+  let p=String(f).split("-")
+  if(p.length!==3) return f
+  return `${p[2]}-${p[1]}-${p[0]}`
 }
 
 function dias(pl){
+  if(!pl) return ""
+  let hoy=new Date()
+  hoy.setHours(0,0,0,0)
 
-if(!pl)return""
+  let p=String(pl).split("-")
+  if(p.length!==3) return ""
 
-let hoy=new Date()
-hoy.setHours(0,0,0,0)
+  let f=new Date(p[0],p[1]-1,p[2])
+  f.setHours(0,0,0,0)
 
-let p=pl.split("-")
+  let d=Math.floor((f-hoy)/86400000)
 
-let f=new Date(p[0],p[1]-1,p[2])
-
-let d=Math.floor((f-hoy)/86400000)
-
-if(d<=5)return `<span class="verde">${d}</span>`
-return d
-
+  if(d<0) return `<span class="badge verde">0</span>`
+  if(d<=5) return `<span class="badge rojo">${d}</span>`
+  if(d<=20) return `<span class="badge naranja">${d}</span>`
+  return `<span class="badge amarillo">${d}</span>`
 }
+
+function ordenarPorFecha(lista){
+  return [...lista].sort((a,b)=>{
+    let fa = a.fecha ? new Date(a.fecha) : new Date(0)
+    let fb = b.fecha ? new Date(b.fecha) : new Date(0)
+    return fb-fa
+  })
+}
+
+/* =====================================================
+MODULO 5
+PERSISTENCIA DE DATOS
+Guardado en memoria local del sistema
+===================================================== */
 
 function guardar(){
 
-let r={
+  let r={
+    fecha:fecha.value,
+    numero:mayus(numero.value),
+    identMateria:mayus(identMateria.value),
+    identDoc:mayus(identDoc.value),
+    autoridad:mayus(autoridad.value),
+    ejs:ejs.value,
+    hjs:hjs.value,
+    materia:mayus(materia.value),
+    plazo:plazo.value,
+    procedencia:mayus(procedencia.value),
+    clasificacion:mayus(clasificacion.value),
+    archivo:mayus(archivo.value),
+    llegsal:mayus(llegsal.value),
+    observ:mayus(observ.value)
+  }
 
-fecha:fecha.value,
-numero:mayus(numero.value),
-identMateria:mayus(identMateria.value),
-identDoc:mayus(identDoc.value),
-autoridad:mayus(autoridad.value),
-ejs:ejs.value,
-hjs:hjs.value,
-materia:mayus(materia.value),
-plazo:plazo.value,
-procedencia:mayus(procedencia.value),
-clasificacion:mayus(clasificacion.value),
-archivo:mayus(archivo.value),
-llegsal:mayus(llegsal.value),
-observ:mayus(observ.value)
+  if(!r.fecha || !r.numero) return
 
+  if(editIndex!==null){
+    registros[editIndex]=r
+    editIndex=null
+  }else{
+    registros.push(r)
+  }
+
+  registros=ordenarPorFecha(registros)
+  localStorage.setItem("registros",JSON.stringify(registros))
+
+  enviarAScript(r)
+  render()
+  limpiar()
 }
 
-if(editIndex!=null){
-
-registros[editIndex]=r
-editIndex=null
-
-}else{
-
-registros.push(r)
-
-}
-
-localStorage.setItem("registros",JSON.stringify(registros))
-
-enviarAScript(r)
-
-render()
-
-}
+/* =====================================================
+MODULO 6
+INTEGRACION CON GOOGLE SHEETS
+Envio de registros al servidor
+===================================================== */
 
 function enviarAScript(datos){
+  if(!API_URL || API_URL==="PEGA_AQUI_TU_URL_EXEC"){
+    console.log("Falta pegar la URL del Apps Script en MODULO 2")
+    return
+  }
 
-fetch(API_URL,{
-method:"POST",
-mode:"no-cors",
-body:JSON.stringify(datos)
-})
-
+  fetch(API_URL,{
+    method:"POST",
+    mode:"no-cors",
+    headers:{
+      "Content-Type":"application/json"
+    },
+    body:JSON.stringify(datos)
+  }).catch(err=>{
+    console.log("Error enviando a Google Sheets",err)
+  })
 }
 
+/* =====================================================
+MODULO 7
+GESTION DE REGISTROS
+Edición y eliminación de documentos
+===================================================== */
+
 function editar(i){
+  let r=registros[i]
 
-let r=registros[i]
+  fecha.value=r.fecha||""
+  numero.value=r.numero||""
+  identMateria.value=r.identMateria||""
+  identDoc.value=r.identDoc||""
+  autoridad.value=r.autoridad||""
+  ejs.value=r.ejs||""
+  hjs.value=r.hjs||""
+  materia.value=r.materia||""
+  plazo.value=r.plazo||""
+  procedencia.value=r.procedencia||""
+  clasificacion.value=r.clasificacion||"RESERVADO"
+  archivo.value=r.archivo||""
+  llegsal.value=r.llegsal||"LLEGADO"
+  observ.value=r.observ||""
 
-fecha.value=r.fecha
-numero.value=r.numero
-identMateria.value=r.identMateria
-identDoc.value=r.identDoc
-autoridad.value=r.autoridad
-ejs.value=r.ejs
-hjs.value=r.hjs
-materia.value=r.materia
-plazo.value=r.plazo
-procedencia.value=r.procedencia
-clasificacion.value=r.clasificacion
-archivo.value=r.archivo
-llegsal.value=r.llegsal
-observ.value=r.observ
-
-editIndex=i
-
+  editIndex=i
 }
 
 function borrar(i){
-
-registros.splice(i,1)
-
-localStorage.setItem("registros",JSON.stringify(registros))
-
-render()
-
+  if(confirm("¿Eliminar registro?")){
+    registros.splice(i,1)
+    localStorage.setItem("registros",JSON.stringify(registros))
+    render()
+  }
 }
+
+/* =====================================================
+MODULO 8
+VISUALIZACION DE REGISTROS
+Construcción dinámica de la tabla documental
+===================================================== */
 
 function render(){
 
-let tbody=document.querySelector("#tabla tbody")
+  let tbody=document.querySelector("#tabla tbody")
+  if(!tbody) return
 
-tbody.innerHTML=""
+  tbody.innerHTML=""
 
-let lista=[...registros]
+  let lista=ordenarPorFecha(registros)
 
-lista.forEach((r,i)=>{
+  let fNumero=mayus(buscarNumero.value)
+  let fFecha=buscarFecha.value
+  let fProc=mayus(buscarProcedencia.value)
+  let fTexto=mayus(buscarTexto.value)
 
-let clasif=r.clasificacion=="SECRETO"?`<td class="rojo">${r.clasificacion}</td>`:`<td>${r.clasificacion}</td>`
+  lista=lista.filter(r=>{
+    if(fNumero && !String(r.numero||"").includes(fNumero)) return false
+    if(fFecha && String(r.fecha||"")!==fFecha) return false
+    if(fProc && !String(r.procedencia||"").includes(fProc)) return false
+    if(fTexto){
+      let bloque=`${r.identMateria} ${r.identDoc} ${r.autoridad} ${r.materia} ${r.archivo} ${r.observ}`.toUpperCase()
+      if(!bloque.includes(fTexto)) return false
+    }
+    return true
+  })
 
-let tr=document.createElement("tr")
+  lista.forEach((r)=>{
+    let i=registros.findIndex(x=>
+      x.fecha===r.fecha &&
+      x.numero===r.numero &&
+      x.identDoc===r.identDoc &&
+      x.autoridad===r.autoridad
+    )
 
-tr.innerHTML=`
+    let tr=document.createElement("tr")
 
-<td>${fechaCL(r.fecha)}</td>
-<td>${r.numero}</td>
-<td>${r.identMateria}</td>
-<td>${r.identDoc}</td>
-<td>${r.autoridad}</td>
-<td>${r.ejs}</td>
-<td>${r.hjs}</td>
-<td>${r.materia}</td>
-<td>${fechaCL(r.plazo)}</td>
-<td>${dias(r.plazo)}</td>
-<td>${r.procedencia}</td>
-${clasif}
-<td>${r.archivo}</td>
-<td>${r.llegsal}</td>
-<td>${r.observ}</td>
+    tr.innerHTML=`
+      <td>${fechaCL(r.fecha)}</td>
+      <td>${r.numero||""}</td>
+      <td>${r.identMateria||""}</td>
+      <td>${r.identDoc||""}</td>
+      <td>${r.autoridad||""}</td>
+      <td>${r.ejs||""}</td>
+      <td>${r.hjs||""}</td>
+      <td>${r.materia||""}</td>
+      <td>${fechaCL(r.plazo)}</td>
+      <td>${dias(r.plazo)}</td>
+      <td>${r.procedencia||""}</td>
+      <td>${r.clasificacion||""}</td>
+      <td>${r.archivo||""}</td>
+      <td>${r.llegsal||""}</td>
+      <td>${r.observ||""}</td>
+      <td>
+        <button onclick="editar(${i})">✏</button>
+        <button class="sec" onclick="borrar(${i})">🗑</button>
+      </td>
+    `
+    tbody.appendChild(tr)
+  })
 
-<td>
-
-<button onclick="editar(${i})">✏</button>
-<button onclick="borrar(${i})">🗑</button>
-
-</td>
-
-`
-
-tbody.appendChild(tr)
-
-})
-
-actualizarResumen()
-
+  actualizarResumen()
 }
 
-function actualizarResumen(){
+/* =====================================================
+MODULO 9
+EXPORTACION DOCUMENTAL
+Generación de informes PDF y Excel
+===================================================== */
 
-document.getElementById("total").textContent=registros.length
-
-document.getElementById("res").textContent=registros.filter(x=>x.clasificacion=="RESERVADO").length
-
-document.getElementById("sec").textContent=registros.filter(x=>x.clasificacion=="SECRETO").length
-
-document.getElementById("pub").textContent=registros.filter(x=>x.clasificacion=="PUBLICO").length
-
-document.getElementById("porvencer").textContent=registros.filter(x=>{
-
-if(!x.plazo)return false
-
-let hoy=new Date()
-
-let f=new Date(x.plazo)
-
-let d=Math.floor((f-hoy)/86400000)
-
-return d<=5
-
-}).length
-
+function imprimirPDF(){
+  window.print()
 }
 
 function exportarExcel(){
+  let data=[["FECHA","NUMERO","IDENT MATERIA","IDENT DOC","AUTORIDAD","EJS","HJS","MATERIA","PLAZO","PROCED","CLASIF","ARCH","L/S","OBS"]]
 
-let data=[["FECHA","NUMERO","IDENT MATERIA","IDENT DOC","AUTORIDAD","EJS","HJS","MATERIA"]]
+  ordenarPorFecha(registros).forEach(r=>{
+    data.push([
+      fechaCL(r.fecha),
+      r.numero,
+      r.identMateria,
+      r.identDoc,
+      r.autoridad,
+      r.ejs,
+      r.hjs,
+      r.materia,
+      fechaCL(r.plazo),
+      r.procedencia,
+      r.clasificacion,
+      r.archivo,
+      r.llegsal,
+      r.observ
+    ])
+  })
 
-registros.forEach(r=>{
-
-data.push([
-fechaCL(r.fecha),
-r.numero,
-r.identMateria,
-r.identDoc,
-r.autoridad,
-r.ejs,
-r.hjs,
-r.materia
-])
-
-})
-
-let ws=XLSX.utils.aoa_to_sheet(data)
-
-let wb=XLSX.utils.book_new()
-
-XLSX.utils.book_append_sheet(wb,ws,"Registro")
-
-XLSX.writeFile(wb,"registro_documental.xlsx")
-
+  let ws=XLSX.utils.aoa_to_sheet(data)
+  let wb=XLSX.utils.book_new()
+  XLSX.utils.book_append_sheet(wb,ws,"Registro")
+  XLSX.writeFile(wb,"registro_documental.xlsx")
 }
 
-function imprimirPDF(){
+/* =====================================================
+MODULO 10
+LIMPIEZA DE FORMULARIO
+===================================================== */
 
-window.print()
-
+function limpiar(){
+  document.querySelectorAll(".left input,.left textarea").forEach(i=>i.value="")
+  clasificacion.value="RESERVADO"
+  llegsal.value="LLEGADO"
+  editIndex=null
 }
 
-render()
+/* =====================================================
+MODULO 11
+RESUMEN Y ESTADISTICAS
+===================================================== */
+
+function actualizarResumen(){
+  document.getElementById("total").textContent=registros.length
+  document.getElementById("res").textContent=registros.filter(x=>x.clasificacion==="RESERVADO").length
+  document.getElementById("sec").textContent=registros.filter(x=>x.clasificacion==="SECRETO").length
+  document.getElementById("pub").textContent=registros.filter(x=>x.clasificacion==="PUBLICO").length
+}
+
+/* =====================================================
+MODULO 12
+INICIALIZACION DEL SISTEMA
+Carga inicial del sistema documental
+===================================================== */
+
+buscarNumero.addEventListener("input",render)
+buscarFecha.addEventListener("input",render)
+buscarProcedencia.addEventListener("input",render)
+buscarTexto.addEventListener("input",render)
+
+window.onload=function(){
+  registros=ordenarPorFecha(registros)
+  render()
+}
 
 </script>
 
