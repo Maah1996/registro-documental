@@ -1,288 +1,9 @@
-<!DOCTYPE html>
-<html lang="es">
-<head>
-<meta charset="UTF-8">
-<title>REGISTRO DOCUMENTAL</title>
-
-<link rel="icon" type="image/png" href="icono.png">
-<link rel="apple-touch-icon" href="icono.png">
-
-<script src="https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js"></script>
-
-<style>
-
-body{
-font-family:"Segoe UI",Arial;
-background:#eef2f6;
-padding:20px;
-margin:0;
-}
-
-h1{
-text-align:center;
-margin-bottom:15px;
-color:#2c3e50;
-}
-
-.layout{
-display:flex;
-gap:15px;
-}
-
-.panel{
-background:white;
-border-radius:8px;
-box-shadow:0 2px 6px rgba(0,0,0,.1);
-}
-
-.left{
-width:320px;
-padding:12px;
-}
-
-.right{
-flex:1;
-padding:12px;
-}
-
-label{
-font-size:12px;
-font-weight:600;
-margin-top:6px;
-display:block;
-}
-
-input,select,textarea{
-width:100%;
-padding:6px;
-margin-top:3px;
-margin-bottom:6px;
-font-size:12px;
-border:1px solid #ccd3db;
-border-radius:4px;
-box-sizing:border-box;
-}
-
-textarea{
-height:60px;
-resize:none;
-}
-
-button{
-background:#34495e;
-color:white;
-cursor:pointer;
-border:none;
-padding:6px;
-border-radius:4px;
-}
-
-button:hover{
-background:#2c3e50;
-}
-
-.tools{
-display:flex;
-gap:6px;
-flex-wrap:wrap;
-margin-bottom:10px;
-align-items:center;
-}
-
-.tools input{
-width:120px;
-}
-
-.busquedaTitulo{
-font-weight:bold;
-margin-right:8px;
-}
-
-.export{
-display:flex;
-justify-content:center;
-gap:10px;
-margin-bottom:10px;
-}
-
-.stats{
-display:flex;
-gap:10px;
-margin-bottom:10px;
-}
-
-.card{
-background:#f8fafc;
-padding:8px;
-border-radius:6px;
-text-align:center;
-flex:1;
-}
-
-.card b{
-display:block;
-font-size:18px;
-}
-
-table{
-width:100%;
-border-collapse:collapse;
-font-size:11px;
-}
-
-th,td{
-border:1px solid #d8dee6;
-padding:6px;
-text-align:center;
-}
-
-th{
-background:#e8edf3;
-}
-
-.rojo{background:#e74c3c;color:white;padding:3px 6px;border-radius:3px}
-.naranja{background:#f39c12;padding:3px 6px;border-radius:3px}
-.amarillo{background:#f1c40f;padding:3px 6px;border-radius:3px}
-.verde{background:#2ecc71;padding:3px 6px;border-radius:3px}
-
-</style>
-</head>
-
-<body>
-
-<h1>REGISTRO DOCUMENTAL</h1>
-
-<div class="layout">
-
-<div class="panel left">
-
-<label>Fecha Doc</label>
-<input type="date" id="fecha">
-
-<label>Número</label>
-<input id="numero">
-
-<label>Ident. Materia</label>
-<input id="identMateria">
-
-<label>Ident. Documento</label>
-<input id="identDoc">
-
-<label>Autoridad que firma</label>
-<input id="autoridad">
-
-<label>Cant Ejs</label>
-<input id="ejs">
-
-<label>Cant Hjs</label>
-<input id="hjs">
-
-<label>Materia</label>
-<textarea id="materia"></textarea>
-
-<label>Plazo</label>
-<input type="date" id="plazo">
-
-<label>Procedencia</label>
-<input id="procedencia">
-
-<label>Clasificación</label>
-<select id="clasificacion">
-<option>RESERVADO</option>
-<option>SECRETO</option>
-<option>PUBLICO</option>
-</select>
-
-<label>Archivo</label>
-<input id="archivo">
-
-<label>Lleg/Sal</label>
-<select id="llegsal">
-<option>LLEGADO</option>
-<option>SALIDO</option>
-</select>
-
-<label>Observ</label>
-<input id="observ">
-
-<button onclick="guardar()">GUARDAR</button>
-<button onclick="limpiar()">LIMPIAR</button>
-
-</div>
-
-<div class="panel right">
-
-<div class="stats">
-
-<div class="card"><b id="total">0</b>TOTAL</div>
-<div class="card"><b id="res">0</b>RESERVADOS</div>
-<div class="card"><b id="sec">0</b>SECRETOS</div>
-<div class="card"><b id="pub">0</b>PUBLICOS</div>
-<div class="card"><b id="vencer">0</b>POR VENCER</div>
-<div class="card"><b id="venc">0</b>VENCIDOS</div>
-
-</div>
-
-<div class="tools">
-
-<div class="busquedaTitulo">BUSCADOR</div>
-
-<input id="buscarNumero" placeholder="Número">
-<input type="date" id="buscarFecha">
-<input id="buscarProcedencia" placeholder="Procedencia">
-<input id="buscarArchivo" placeholder="Archivo">
-<input id="buscarAnio" placeholder="Año">
-
-</div>
-
-<div class="export">
-<button onclick="imprimirPDF()">PDF</button>
-<button onclick="exportarExcel()">EXCEL</button>
-</div>
-
-<table id="tabla">
-
-<thead>
-<tr>
-<th>FECHA</th>
-<th>NUMERO</th>
-<th>IDENT MATERIA</th>
-<th>IDENT DOC</th>
-<th>AUTORIDAD</th>
-<th>EJS</th>
-<th>HJS</th>
-<th>MATERIA</th>
-<th>PLAZO</th>
-<th>DÍAS</th>
-<th>PROCED</th>
-<th>CLASIF</th>
-<th>ARCH</th>
-<th>L/S</th>
-<th>OBS</th>
-<th>ACCIONES</th>
-</tr>
-</thead>
-
-<tbody></tbody>
-
-</table>
-
-</div>
-</div>
-
 <script>
 
 /* =====================================================
-MODULO 1 — CONFIGURACION
-===================================================== */
-
-const API_URL="https://script.google.com/macros/s/AKfycbzOrlvAmDJCFIR9J-JIWg9CWvkeLu6QTyEiwjpNT0GF7vOW3IxD3uFePHD3muZjPWch/exec"
-
-let registros=[]
-let editIndex=null
-
-/* =====================================================
-MODULO 2 — REFERENCIAS HTML
+MODULO 1
+RECEPCION DE INFORMACION (FORMULARIO)
+Captura los datos ingresados por el usuario
 ===================================================== */
 
 const fecha=document.getElementById("fecha")
@@ -300,21 +21,23 @@ const archivo=document.getElementById("archivo")
 const llegsal=document.getElementById("llegsal")
 const observ=document.getElementById("observ")
 
-const buscarNumero=document.getElementById("buscarNumero")
-const buscarFecha=document.getElementById("buscarFecha")
-const buscarProcedencia=document.getElementById("buscarProcedencia")
-const buscarArchivo=document.getElementById("buscarArchivo")
-const buscarAnio=document.getElementById("buscarAnio")
-
-const total=document.getElementById("total")
-const res=document.getElementById("res")
-const sec=document.getElementById("sec")
-const pub=document.getElementById("pub")
-const vencer=document.getElementById("vencer")
-const venc=document.getElementById("venc")
 
 /* =====================================================
-MODULO 3 — CARGA LOCAL
+MODULO 2
+VARIABLES DEL SISTEMA
+Estado interno del sistema documental
+===================================================== */
+
+const API_URL="https://script.google.com/macros/s/AKfycbzOrlvAmDJCFIR9J-JIWg9CWvkeLu6QTyEiwjpNT0GF7vOW3IxD3uFePHD3muZjPWch/exec"
+
+let registros=[]
+let editIndex=null
+
+
+/* =====================================================
+MODULO 3
+CARGA LOCAL DE DATOS
+Carga registros guardados en el navegador
 ===================================================== */
 
 try{
@@ -323,8 +46,11 @@ registros=JSON.parse(localStorage.getItem("registros"))||[]
 registros=[]
 }
 
+
 /* =====================================================
-MODULO 4 — FUNCIONES AUXILIARES
+MODULO 4
+PROCESAMIENTO DE DATOS
+Funciones auxiliares de tratamiento de información
 ===================================================== */
 
 function mayus(t){
@@ -361,24 +87,11 @@ return `<span class="amarillo">${d}</span>`
 
 }
 
-/* =====================================================
-MODULO 5 — ENVIO GOOGLE SHEETS
-===================================================== */
-
-function enviarAScript(datos){
-
-fetch(API_URL,{
-method:"POST",
-headers:{
-"Content-Type":"application/json"
-},
-body:JSON.stringify(datos)
-})
-
-}
 
 /* =====================================================
-MODULO 6 — GUARDAR
+MODULO 5
+PERSISTENCIA DE DATOS
+Guardado en memoria local del sistema
 ===================================================== */
 
 function guardar(){
@@ -418,19 +131,30 @@ limpiar()
 
 }
 
+
 /* =====================================================
-MODULO 7 — LIMPIAR
+MODULO 6
+INTEGRACION CON GOOGLE SHEETS
+Envio de registros al servidor
 ===================================================== */
 
-function limpiar(){
-document.querySelectorAll(".left input,.left textarea").forEach(i=>i.value="")
-clasificacion.value="RESERVADO"
-llegsal.value="LLEGADO"
-editIndex=null
+function enviarAScript(datos){
+
+fetch(API_URL,{
+method:"POST",
+headers:{
+"Content-Type":"application/json"
+},
+body:JSON.stringify(datos)
+})
+
 }
 
+
 /* =====================================================
-MODULO 8 — EDITAR BORRAR
+MODULO 7
+GESTION DE REGISTROS
+Edición y eliminación de documentos
 ===================================================== */
 
 function editar(i){
@@ -466,8 +190,11 @@ render()
 
 }
 
+
 /* =====================================================
-MODULO 9 — RENDER TABLA
+MODULO 8
+VISUALIZACION DE REGISTROS
+Construcción dinámica de la tabla documental
 ===================================================== */
 
 function render(){
@@ -505,12 +232,15 @@ tbody.appendChild(tr)
 
 })
 
-total.textContent=registros.length
+document.getElementById("total").textContent=registros.length
 
 }
 
+
 /* =====================================================
-MODULO 10 — EXPORTAR
+MODULO 9
+EXPORTACION DOCUMENTAL
+Generación de informes PDF y Excel
 ===================================================== */
 
 function imprimirPDF(){
@@ -543,19 +273,26 @@ XLSX.writeFile(wb,"registro_documental.xlsx")
 
 }
 
+
 /* =====================================================
-MODULO 11 — EVENTOS
+MODULO 10
+LIMPIEZA DE FORMULARIO
 ===================================================== */
 
-buscarNumero.oninput=render
-buscarFecha.oninput=render
-buscarProcedencia.oninput=render
-buscarArchivo.oninput=render
-buscarAnio.oninput=render
+function limpiar(){
+document.querySelectorAll(".left input,.left textarea").forEach(i=>i.value="")
+clasificacion.value="RESERVADO"
+llegsal.value="LLEGADO"
+editIndex=null
+}
+
+
+/* =====================================================
+MODULO 11
+INICIALIZACION DEL SISTEMA
+Carga inicial del sistema documental
+===================================================== */
 
 render()
 
 </script>
-
-</body>
-</html>
