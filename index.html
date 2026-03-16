@@ -200,6 +200,13 @@ Construcción dinámica de la tabla documental
 function render(){
 
 let tbody=document.querySelector("#tabla tbody")
+
+/* PROTECCION PARA EVITAR ERROR SI LA TABLA AUN NO CARGA */
+if(!tbody){
+console.log("Tabla aún no disponible")
+return
+}
+
 tbody.innerHTML=""
 
 registros.forEach((r,i)=>{
@@ -232,7 +239,12 @@ tbody.appendChild(tr)
 
 })
 
-document.getElementById("total").textContent=registros.length
+/* PROTECCION PARA CONTADOR */
+const totalEl=document.getElementById("total")
+
+if(totalEl){
+totalEl.textContent=registros.length
+}
 
 }
 
@@ -293,6 +305,8 @@ INICIALIZACION DEL SISTEMA
 Carga inicial del sistema documental
 ===================================================== */
 
+window.onload=function(){
 render()
+}
 
 </script>
