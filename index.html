@@ -11,7 +11,7 @@
 <style>
 body{
   font-family:"Segoe UI",Arial,sans-serif;
-  background:#eef2f6;
+  background:#dfeaf5;
   margin:0;
   padding:20px;
   color:#243447;
@@ -81,17 +81,9 @@ button.sec{
 button.sec:hover{
   background:#667071;
 }
-.topbar{
-  display:flex;
-  justify-content:space-between;
-  gap:10px;
-  align-items:center;
-  margin-bottom:12px;
-  flex-wrap:wrap;
-}
 .stats{
   display:grid;
-  grid-template-columns:repeat(4,minmax(120px,1fr));
+  grid-template-columns:repeat(5,minmax(120px,1fr));
   gap:10px;
   margin-bottom:12px;
 }
@@ -107,9 +99,23 @@ button.sec:hover{
   font-size:22px;
   margin-bottom:4px;
 }
+.card.secret{
+  border-color:#f4c7c3;
+  background:#fff5f5;
+}
+.card.secret b{
+  color:#c0392b;
+}
+.card.warning{
+  border-color:#f7dc6f;
+  background:#fffbea;
+}
+.card.warning b{
+  color:#b9770e;
+}
 .search{
   display:grid;
-  grid-template-columns:repeat(4,minmax(140px,1fr));
+  grid-template-columns:repeat(3,minmax(160px,1fr));
   gap:10px;
   margin-bottom:12px;
 }
@@ -153,6 +159,15 @@ th{
 .naranja{background:#f39c12;color:#fff;}
 .amarillo{background:#f1c40f;color:#333;}
 .verde{background:#2ecc71;color:#fff;}
+.secret-cell{
+  background:#c0392b;
+  color:#fff;
+  font-weight:700;
+}
+.secret-number{
+  color:#c0392b;
+  font-weight:700;
+}
 .muted{
   color:#6b7b8c;
   font-size:12px;
@@ -266,15 +281,15 @@ th{
     <div class="stats">
       <div class="card"><b id="total">0</b>Total</div>
       <div class="card"><b id="res">0</b>Reservados</div>
-      <div class="card"><b id="sec">0</b>Secretos</div>
+      <div class="card secret"><b id="sec">0</b>Secretos</div>
       <div class="card"><b id="pub">0</b>Públicos</div>
+      <div class="card warning"><b id="porVencer">0</b>Por vencer</div>
     </div>
 
     <div class="search">
       <input id="buscarNumero" placeholder="Buscar número">
       <input type="date" id="buscarFecha">
       <input id="buscarProcedencia" placeholder="Buscar procedencia">
-      <input id="buscarTexto" placeholder="Buscar texto libre">
     </div>
 
     <div class="export">
@@ -337,7 +352,6 @@ const observ=document.getElementById("observ")
 const buscarNumero=document.getElementById("buscarNumero")
 const buscarFecha=document.getElementById("buscarFecha")
 const buscarProcedencia=document.getElementById("buscarProcedencia")
-const buscarTexto=document.getElementById("buscarTexto")
 
 /* =====================================================
 MODULO 2
@@ -380,21 +394,28 @@ function fechaCL(f){
   return `${p[2]}-${p[1]}-${p[0]}`
 }
 
-function dias(pl){
-  if(!pl) return ""
+function diasNumero(pl){
+  if(!pl) return null
+
   let hoy=new Date()
   hoy.setHours(0,0,0,0)
 
   let p=String(pl).split("-")
-  if(p.length!==3) return ""
+  if(p.length!==3) return null
 
   let f=new Date(p[0],p[1]-1,p[2])
   f.setHours(0,0,0,0)
 
-  let d=Math.floor((f-hoy)/86400000)
+  return Math.floor((f-hoy)/86400000)
+}
+
+function dias(pl){
+  let d=diasNumero(pl)
+
+  if(d===null) return ""
 
   if(d<0) return `<span class="badge verde">0</span>`
-  if(d<=5) return `<span class="badge rojo">${d}</span>`
+  if(d<=5) return `<span class="badge amarillo">${d}</span>`
   if(d<=20) return `<span class="badge naranja">${d}</span>`
   return `<span class="badge amarillo">${d}</span>`
 }
@@ -404,6 +425,21 @@ function ordenarPorFecha(lista){
     let fa = a.fecha ? new Date(a.fecha) : new Date(0)
     let fb = b.fecha ? new Date(b.fecha) : new Date(0)
     return fb-fa
+  })
+}
+
+function obtenerListaFiltrada(){
+  let lista=ordenarPorFecha(registros)
+
+  let fNumero=mayus(buscarNumero.value)
+  let fFecha=buscarFecha.value
+  let fProc=mayus(buscarProcedencia.value)
+
+  return lista.filter(r=>{
+    if(fNumero && !String(r.numero||"").includes(fNumero)) return false
+    if(fFecha && String(r.fecha||"")!==fFecha) return false
+    if(fProc && !String(r.procedencia||"").includes(fProc)) return false
+    return true
   })
 }
 
@@ -521,23 +557,7 @@ function render(){
 
   tbody.innerHTML=""
 
-  let lista=ordenarPorFecha(registros)
-
-  let fNumero=mayus(buscarNumero.value)
-  let fFecha=buscarFecha.value
-  let fProc=mayus(buscarProcedencia.value)
-  let fTexto=mayus(buscarTexto.value)
-
-  lista=lista.filter(r=>{
-    if(fNumero && !String(r.numero||"").includes(fNumero)) return false
-    if(fFecha && String(r.fecha||"")!==fFecha) return false
-    if(fProc && !String(r.procedencia||"").includes(fProc)) return false
-    if(fTexto){
-      let bloque=`${r.identMateria} ${r.identDoc} ${r.autoridad} ${r.materia} ${r.archivo} ${r.observ}`.toUpperCase()
-      if(!bloque.includes(fTexto)) return false
-    }
-    return true
-  })
+  let lista=obtenerListaFiltrada()
 
   lista.forEach((r)=>{
     let i=registros.findIndex(x=>
@@ -547,11 +567,14 @@ function render(){
       x.autoridad===r.autoridad
     )
 
+    let claseClasif = r.clasificacion==="SECRETO" ? "secret-cell" : ""
+    let claseNumero = r.clasificacion==="SECRETO" ? "secret-number" : ""
+
     let tr=document.createElement("tr")
 
     tr.innerHTML=`
       <td>${fechaCL(r.fecha)}</td>
-      <td>${r.numero||""}</td>
+      <td class="${claseNumero}">${r.numero||""}</td>
       <td>${r.identMateria||""}</td>
       <td>${r.identDoc||""}</td>
       <td>${r.autoridad||""}</td>
@@ -561,7 +584,7 @@ function render(){
       <td>${fechaCL(r.plazo)}</td>
       <td>${dias(r.plazo)}</td>
       <td>${r.procedencia||""}</td>
-      <td>${r.clasificacion||""}</td>
+      <td class="${claseClasif}">${r.clasificacion||""}</td>
       <td>${r.archivo||""}</td>
       <td>${r.llegsal||""}</td>
       <td>${r.observ||""}</td>
@@ -580,16 +603,79 @@ function render(){
 MODULO 9
 EXPORTACION DOCUMENTAL
 Generación de informes PDF y Excel
+Solo desde FECHA hasta MATERIA
+Solo con resultados filtrados
 ===================================================== */
 
 function imprimirPDF(){
-  window.print()
+
+  let lista=obtenerListaFiltrada()
+
+  let html=`
+  <html>
+  <head>
+    <title>REGISTRO DOCUMENTAL</title>
+    <style>
+      body{font-family:Arial,sans-serif;padding:20px}
+      h2{text-align:center;margin-bottom:20px}
+      table{width:100%;border-collapse:collapse;font-size:12px}
+      th,td{border:1px solid #000;padding:6px;text-align:center}
+      th{background:#eee}
+    </style>
+  </head>
+  <body>
+    <h2>REGISTRO DOCUMENTAL</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>FECHA</th>
+          <th>NUMERO</th>
+          <th>IDENT MATERIA</th>
+          <th>IDENT DOC</th>
+          <th>AUTORIDAD</th>
+          <th>EJS</th>
+          <th>HJS</th>
+          <th>MATERIA</th>
+        </tr>
+      </thead>
+      <tbody>
+  `
+
+  lista.forEach(r=>{
+    html+=`
+      <tr>
+        <td>${fechaCL(r.fecha)}</td>
+        <td>${r.numero||""}</td>
+        <td>${r.identMateria||""}</td>
+        <td>${r.identDoc||""}</td>
+        <td>${r.autoridad||""}</td>
+        <td>${r.ejs||""}</td>
+        <td>${r.hjs||""}</td>
+        <td>${r.materia||""}</td>
+      </tr>
+    `
+  })
+
+  html+=`
+      </tbody>
+    </table>
+  </body>
+  </html>
+  `
+
+  let w=window.open("","_blank")
+  w.document.open()
+  w.document.write(html)
+  w.document.close()
+  w.focus()
+  w.print()
 }
 
 function exportarExcel(){
-  let data=[["FECHA","NUMERO","IDENT MATERIA","IDENT DOC","AUTORIDAD","EJS","HJS","MATERIA","PLAZO","PROCED","CLASIF","ARCH","L/S","OBS"]]
 
-  ordenarPorFecha(registros).forEach(r=>{
+  let data=[["FECHA","NUMERO","IDENT MATERIA","IDENT DOC","AUTORIDAD","EJS","HJS","MATERIA"]]
+
+  obtenerListaFiltrada().forEach(r=>{
     data.push([
       fechaCL(r.fecha),
       r.numero,
@@ -598,13 +684,7 @@ function exportarExcel(){
       r.autoridad,
       r.ejs,
       r.hjs,
-      r.materia,
-      fechaCL(r.plazo),
-      r.procedencia,
-      r.clasificacion,
-      r.archivo,
-      r.llegsal,
-      r.observ
+      r.materia
     ])
   })
 
@@ -636,6 +716,13 @@ function actualizarResumen(){
   document.getElementById("res").textContent=registros.filter(x=>x.clasificacion==="RESERVADO").length
   document.getElementById("sec").textContent=registros.filter(x=>x.clasificacion==="SECRETO").length
   document.getElementById("pub").textContent=registros.filter(x=>x.clasificacion==="PUBLICO").length
+
+  let vencen=registros.filter(x=>{
+    let d=diasNumero(x.plazo)
+    return d!==null && d>=0 && d<=5
+  }).length
+
+  document.getElementById("porVencer").textContent=vencen
 }
 
 /* =====================================================
@@ -647,7 +734,6 @@ Carga inicial del sistema documental
 buscarNumero.addEventListener("input",render)
 buscarFecha.addEventListener("input",render)
 buscarProcedencia.addEventListener("input",render)
-buscarTexto.addEventListener("input",render)
 
 window.onload=function(){
   registros=ordenarPorFecha(registros)
