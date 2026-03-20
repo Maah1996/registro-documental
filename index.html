@@ -4,7 +4,6 @@
 <!-- =====================================================
 MODULO 0
 CONFIGURACION GENERAL DEL HTML
-Metadatos, iconos y librerías externas
 ===================================================== -->
 
 <head>
@@ -19,7 +18,7 @@ Metadatos, iconos y librerías externas
 
 <!-- =====================================================
 MODULO 1
-ESTILOS DEL SISTEMA (CSS)
+ESTILOS DEL SISTEMA
 ===================================================== -->
 
 <style>
@@ -32,24 +31,14 @@ padding:20px;
 color:#243447;
 }
 
-h1{
-text-align:center;
-margin:0 0 18px 0;
-color:#243447;
-}
+h1{text-align:center;margin:0 0 18px 0;}
 
-h3{
-text-align:center;
-margin:0 0 12px 0;
-color:#243447;
-font-size:18px;
-}
+h3{text-align:center;margin:0 0 12px 0;font-size:18px;}
 
 .layout{
 display:grid;
 grid-template-columns:320px 1fr;
 gap:18px;
-align-items:start;
 }
 
 .panel{
@@ -59,111 +48,57 @@ box-shadow:0 2px 10px rgba(0,0,0,.08);
 padding:16px;
 }
 
-label{
-display:block;
-font-size:12px;
-font-weight:700;
-margin-top:8px;
-}
+label{font-size:12px;font-weight:700;margin-top:8px;display:block;}
 
 input,select,textarea{
 width:100%;
-box-sizing:border-box;
 margin-top:4px;
-padding:8px 10px;
-border:1px solid #cfd8e3;
+padding:8px;
 border-radius:8px;
-font-size:13px;
-background:#fff;
+border:1px solid #cfd8e3;
 }
 
-textarea{
-min-height:68px;
-resize:vertical;
-}
+textarea{min-height:60px;}
 
-.row2{
-display:grid;
-grid-template-columns:1fr 1fr;
-gap:10px;
-}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
 
-.actions{
-display:flex;
-gap:8px;
-margin-top:12px;
-}
+.actions{display:flex;gap:8px;margin-top:12px;}
 
 button{
 border:none;
 border-radius:8px;
-padding:9px 12px;
-cursor:pointer;
+padding:8px 10px;
 background:#34495e;
 color:#fff;
-font-weight:600;
+cursor:pointer;
 }
 
-button:hover{
-background:#2c3e50;
-}
-
-button.sec{
-background:#7f8c8d;
-}
-
-button.sec:hover{
-background:#667071;
-}
-
-/* TARJETAS */
+button.sec{background:#7f8c8d;}
 
 .stats{
 display:grid;
-grid-template-columns:repeat(5,minmax(120px,1fr));
+grid-template-columns:repeat(5,1fr);
 gap:10px;
 margin-bottom:12px;
 }
 
 .card{
 background:#f7fafc;
-border:1px solid #e5edf5;
-border-radius:10px;
 padding:10px;
+border-radius:10px;
 text-align:center;
 }
 
-.card b{
-display:block;
-font-size:22px;
-margin-bottom:4px;
-}
+.card b{font-size:20px;}
 
-.card.secret{
-border-color:#f4c7c3;
-background:#fff5f5;
-}
-
-.card.secret b{
-color:#c0392b;
-}
-
-.card.warning{
-border-color:#f7dc6f;
-background:#fffbea;
-}
-
-.card.warning b{
-color:#b9770e;
-}
-
-/* BUSQUEDA */
+.secret{background:#ffecec;}
+.warning{background:#fff4cc;}
 
 .search{
 display:grid;
-grid-template-columns:repeat(3,minmax(160px,1fr));
+grid-template-columns:repeat(3,1fr);
 gap:10px;
-margin-bottom:12px;
+margin-bottom:10px;
 }
 
 .export{
@@ -173,52 +108,26 @@ justify-content:flex-end;
 margin-bottom:10px;
 }
 
-/* TABLA */
-
-.table-wrap{
-overflow:auto;
-border:1px solid #e3e9ef;
-border-radius:10px;
-}
-
 table{
 width:100%;
 border-collapse:collapse;
 font-size:12px;
-background:#fff;
 }
 
 th,td{
-border:1px solid #e5edf5;
-padding:8px 6px;
+border:1px solid #ddd;
+padding:6px;
 text-align:center;
-vertical-align:middle;
 }
 
-th{
-background:#eef4f9;
-position:sticky;
-top:0;
-z-index:1;
-}
+th{background:#eef4f9;}
 
-/* COLORES PLAZO */
+.plazoRojo{background:#ff3b30;color:#fff;}
+.plazoVerde{background:#b9f6ca;}
+.plazoAmarillo{background:#fff176;}
+.plazoVencido{background:#b3e5fc;}
 
-.plazoRojo{background:#ff3b30;color:#fff;font-weight:700;}
-.plazoVerde{background:#b9f6ca;color:#000;font-weight:700;}
-.plazoAmarillo{background:#fff176;color:#000;font-weight:700;}
-.plazoVencido{background:#b3e5fc;color:#000;font-weight:700;}
-
-.secret-cell{
-background:#c0392b;
-color:#fff;
-font-weight:700;
-}
-
-.muted{
-color:#6b7b8c;
-font-size:12px;
-}
+.secret-cell{background:#c0392b;color:#fff;}
 
 </style>
 </head>
@@ -227,7 +136,7 @@ font-size:12px;
 
 <!-- =====================================================
 MODULO 2
-TITULO PRINCIPAL
+TITULO
 ===================================================== -->
 
 <h1>REGISTRO DOCUMENTAL</h1>
@@ -236,85 +145,54 @@ TITULO PRINCIPAL
 
 <!-- =====================================================
 MODULO 3
-FORMULARIO DE INGRESO
+FORMULARIO
 ===================================================== -->
 
-<div class="panel left">
+<div class="panel">
 
 <h3>REGISTRAR AQUÍ</h3>
 
-<label>Fecha Doc</label>
+<label>Fecha</label>
 <input type="date" id="fecha">
 
 <label>Número</label>
 <input id="numero">
 
 <div class="row2">
-<div>
-<label>Ident. Materia</label>
-<input id="identMateria">
-</div>
-<div>
-<label>Ident. Documento</label>
-<input id="identDoc">
-</div>
+<input id="identMateria" placeholder="Ident Materia">
+<input id="identDoc" placeholder="Ident Documento">
 </div>
 
 <label>Autoridad</label>
 <input id="autoridad">
 
 <div class="row2">
-<div>
-<label>Cant. Ejs</label>
-<input id="ejs">
-</div>
-<div>
-<label>Cant. Hjs</label>
-<input id="hjs">
-</div>
+<input id="ejs" placeholder="Ejs">
+<input id="hjs" placeholder="Hjs">
 </div>
 
-<label>Materia</label>
-<textarea id="materia"></textarea>
+<textarea id="materia" placeholder="Materia"></textarea>
 
 <div class="row2">
-<div>
-<label>Plazo</label>
 <input type="date" id="plazo">
-</div>
-<div>
-<label>Procedencia</label>
-<input id="procedencia">
-</div>
+<input id="procedencia" placeholder="Procedencia">
 </div>
 
 <div class="row2">
-<div>
-<label>Clasificación</label>
 <select id="clasificacion">
 <option>RESERVADO</option>
 <option>SECRETO</option>
 <option>PÚBLICO</option>
 </select>
-</div>
-<div>
-<label>Archivo</label>
-<input id="archivo">
-</div>
+<input id="archivo" placeholder="Archivo">
 </div>
 
 <div class="row2">
-<div>
-<label>Lleg/Sal</label>
 <select id="llegsal">
 <option>LLEGADO</option>
 <option>SALIDO</option>
 </select>
-</div>
-<div>
-<label>Observ</label>
-<input id="observ">
-</div>
+<input id="observ" placeholder="Observación">
 </div>
 
 <div class="actions">
@@ -322,16 +200,14 @@ FORMULARIO DE INGRESO
 <button class="sec" onclick="limpiar()">LIMPIAR</button>
 </div>
 
-<div class="muted">La URL del Apps Script se pega en el MODULO 2</div>
-
 </div>
 
 <!-- =====================================================
 MODULO 4
-TABLA Y VISUALIZACION DE DATOS
+TABLA
 ===================================================== -->
 
-<div class="panel right">
+<div class="panel">
 
 <div class="stats">
 <div class="card"><b id="res">0</b>Reservados</div>
@@ -348,11 +224,9 @@ TABLA Y VISUALIZACION DE DATOS
 </div>
 
 <div class="export">
-<button class="sec" onclick="imprimirPDF()">PDF</button>
-<button class="sec" onclick="exportarExcel()">EXCEL</button>
+<button onclick="imprimirPDF()">PDF</button>
+<button onclick="exportarExcel()">EXCEL</button>
 </div>
-
-<div class="table-wrap">
 
 <table id="tabla">
 <thead>
@@ -380,85 +254,27 @@ TABLA Y VISUALIZACION DE DATOS
 
 </div>
 </div>
-</div>
+
+<!-- =====================================================
+MODULO 5 AL 15
+LOGICA COMPLETA
+===================================================== -->
 
 <script>
 
-/* =====================================================
-MODULO 5
-VARIABLES DEL SISTEMA
-===================================================== */
-
-const fecha=document.getElementById("fecha")
-const numero=document.getElementById("numero")
-const identMateria=document.getElementById("identMateria")
-const identDoc=document.getElementById("identDoc")
-const autoridad=document.getElementById("autoridad")
-const ejs=document.getElementById("ejs")
-const hjs=document.getElementById("hjs")
-const materia=document.getElementById("materia")
-const plazo=document.getElementById("plazo")
-const procedencia=document.getElementById("procedencia")
-const clasificacion=document.getElementById("clasificacion")
-const archivo=document.getElementById("archivo")
-const llegsal=document.getElementById("llegsal")
-const observ=document.getElementById("observ")
-
-const buscarNumero=document.getElementById("buscarNumero")
-const buscarFecha=document.getElementById("buscarFecha")
-const buscarProcedencia=document.getElementById("buscarProcedencia")
-
-/* =====================================================
-MODULO 6
-CONFIGURACION API (AQUI VA EL SCRIPT)
-===================================================== */
-
 const API_URL="https://script.google.com/macros/s/AKfycbydwtoJS_NSTKAKNA-Am69A1Po2-RE0YYTe01c0Pt-nlgBdWfDNjNxiIURKHXCe64RtX/exec"
 
-let registros=[]
+let registros=JSON.parse(localStorage.getItem("registros"))||[]
 let editIndex=null
 
-/* =====================================================
-MODULO 7
-CARGA LOCAL
-===================================================== */
-
-try{
-registros=JSON.parse(localStorage.getItem("registros"))||[]
-}catch{
-registros=[]
-}
-
-/* =====================================================
-MODULO 8
-FUNCIONES AUXILIARES
-===================================================== */
-
-function mayus(t){
-t=(t||"").toUpperCase().trim()
-t=t.replace("PUBLICO","PÚBLICO")
-return t
-}
-
-function fechaCL(f){
-if(!f) return ""
-let p=f.split("-")
-return `${p[2]}-${p[1]}-${p[0]}`
-}
+function mayus(t){return (t||"").toUpperCase().trim()}
 
 function diasNumero(pl){
-if(!pl) return null
+if(!pl)return null
 let hoy=new Date()
-hoy.setHours(0,0,0,0)
-let p=pl.split("-")
-let f=new Date(p[0],p[1]-1,p[2])
+let f=new Date(pl)
 return Math.floor((f-hoy)/86400000)
 }
-
-/* =====================================================
-MODULO 9
-GUARDAR DATOS
-===================================================== */
 
 function guardar(){
 let r={
@@ -478,7 +294,7 @@ llegsal:mayus(llegsal.value),
 observ:mayus(observ.value)
 }
 
-if(editIndex!==null){
+if(editIndex!=null){
 registros[editIndex]=r
 editIndex=null
 }else{
@@ -486,56 +302,31 @@ registros.push(r)
 }
 
 localStorage.setItem("registros",JSON.stringify(registros))
-
-enviarAScript(r)
-
-
 render()
 limpiar()
 }
 
-/* =====================================================
-MODULO 10
-ENVIO A GOOGLE SHEETS
-===================================================== */
-
-function enviarAScript(datos){
-if(!API_URL || API_URL==="PEGA_AQUI_TU_URL_EXEC") return
-fetch(API_URL,{
-method:"POST",
-mode:"no-cors",
-headers:{"Content-Type":"application/json"},
-body:JSON.stringify(datos)
-})
-}
-
-/* =====================================================
-MODULO 11
-RENDER TABLA Y LOGICA VISUAL
-===================================================== */
-
 function render(){
 let tbody=document.querySelector("#tabla tbody")
 tbody.innerHTML=""
-let lista=[...registros]
+
+let lista=registros.filter(r=>
+(!buscarNumero.value || r.numero.includes(buscarNumero.value.toUpperCase())) &&
+(!buscarFecha.value || r.fecha===buscarFecha.value) &&
+(!buscarProcedencia.value || r.procedencia.includes(buscarProcedencia.value.toUpperCase()))
+)
 
 lista.forEach((r,i)=>{
-let claseClasif=r.clasificacion==="SECRETO"?"secret-cell":""
 let d=diasNumero(r.plazo)
-
-let clasePlazo=""
-let textoDia=""
-
-if(d===null){}
-else if(d<0){clasePlazo="plazoVencido"}
-else if(d<=5){clasePlazo="plazoRojo";textoDia=d}
-else if(d<=15){clasePlazo="plazoVerde";textoDia=d}
-else{clasePlazo="plazoAmarillo";textoDia=d}
+let clase=""
+if(d<0)clase="plazoVencido"
+else if(d<=5)clase="plazoRojo"
+else if(d<=15)clase="plazoVerde"
+else clase="plazoAmarillo"
 
 let tr=document.createElement("tr")
-
 tr.innerHTML=`
-<td>${fechaCL(r.fecha)}</td>
+<td>${r.fecha}</td>
 <td>${r.numero}</td>
 <td>${r.identMateria}</td>
 <td>${r.identDoc}</td>
@@ -543,10 +334,10 @@ tr.innerHTML=`
 <td>${r.ejs}</td>
 <td>${r.hjs}</td>
 <td>${r.materia}</td>
-<td>${fechaCL(r.plazo)}</td>
-<td class="${clasePlazo}">${textoDia}</td>
+<td>${r.plazo}</td>
+<td class="${clase}">${d}</td>
 <td>${r.procedencia}</td>
-<td class="${claseClasif}">${r.clasificacion}</td>
+<td>${r.clasificacion}</td>
 <td>${r.archivo}</td>
 <td>${r.llegsal}</td>
 <td>${r.observ}</td>
@@ -557,21 +348,61 @@ tr.innerHTML=`
 tbody.appendChild(tr)
 })
 
-actualizarResumen()
+actualizarResumen(lista)
 }
 
-/* =====================================================
-MODULO 12
-INICIO DEL SISTEMA
-===================================================== */
+function editar(i){
+let r=registros[i]
+Object.keys(r).forEach(k=>{ if(document.getElementById(k)) document.getElementById(k).value=r[k] })
+editIndex=i
+}
+
+function borrar(i){
+if(confirm("Eliminar registro?")){
+registros.splice(i,1)
+localStorage.setItem("registros",JSON.stringify(registros))
+render()
+}
+}
+
+function limpiar(){
+document.querySelectorAll("input, textarea").forEach(e=>e.value="")
+editIndex=null
+}
+
+function actualizarResumen(lista){
+let res=0,sec=0,pub=0,vencer=0
+
+lista.forEach(r=>{
+if(r.clasificacion=="RESERVADO")res++
+if(r.clasificacion=="SECRETO")sec++
+if(r.clasificacion=="PÚBLICO")pub++
+
+let d=diasNumero(r.plazo)
+if(d>=0 && d<=5)vencer++
+})
+
+document.getElementById("res").innerText=res
+document.getElementById("sec").innerText=sec
+document.getElementById("pub").innerText=pub
+document.getElementById("total").innerText=lista.length
+document.getElementById("porVencer").innerText=vencer
+}
+
+function imprimirPDF(){window.print()}
+
+function exportarExcel(){
+let ws=XLSX.utils.json_to_sheet(registros)
+let wb=XLSX.utils.book_new()
+XLSX.utils.book_append_sheet(wb,ws,"Datos")
+XLSX.writeFile(wb,"registro.xlsx")
+}
 
 buscarNumero.addEventListener("input",render)
 buscarFecha.addEventListener("input",render)
 buscarProcedencia.addEventListener("input",render)
 
-window.onload=function(){
-render()
-}
+window.onload=render
 
 </script>
 
