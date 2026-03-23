@@ -122,7 +122,7 @@ background:#667071;
 .stats{
 display:grid;
 grid-template-columns:repeat(5,minmax(135px,1fr));
-gap:14px;
+gap:18px;
 margin-bottom:12px;
 align-items:stretch;
 }
@@ -257,6 +257,8 @@ color:#fff !important;
 font-weight:700;
 }
 
+/* TEXTO SUAVE */
+
 .muted{
 color:#6b7b8c;
 font-size:12px;
@@ -298,62 +300,90 @@ background:#4b5d73;
 background:#38485c;
 }
 
-/* ZONA OCULTA PARA IMPRESION */
+/* AREA OCULTA DE IMPRESION */
 
 .print-only{
 display:none;
 }
 
+/* IMPRESION PDF */
+
+@page{
+size:auto;
+margin:10mm;
+}
+
 @media print{
-body{
-background:#fff;
-padding:0;
-margin:0;
+
+html,body{
+background:#fff !important;
+margin:0 !important;
+padding:0 !important;
 }
 
-body *{
-visibility:hidden;
-}
-
-#printArea,
-#printArea *{
-visibility:visible;
+body > *{
+display:none !important;
 }
 
 #printArea{
-position:absolute;
-left:0;
-top:0;
-width:100%;
 display:block !important;
-padding:20px;
-box-sizing:border-box;
+position:static !important;
+width:100% !important;
+margin:0 !important;
+padding:0 !important;
+background:#fff !important;
 }
 
 #printArea h2{
+display:block !important;
 text-align:center;
-margin:0 0 18px 0;
-font-size:20px;
+margin:0 0 16px 0;
+padding:0;
+font-size:22px;
+font-weight:900;
+letter-spacing:.8px;
 color:#000;
+text-transform:uppercase;
 }
 
 #printArea table{
+display:table !important;
 width:100%;
 border-collapse:collapse;
 font-size:12px;
+background:#fff;
+}
+
+#printArea thead{
+display:table-header-group;
+}
+
+#printArea tbody{
+display:table-row-group;
+}
+
+#printArea tr{
+display:table-row;
 }
 
 #printArea th,
 #printArea td{
-border:1px solid #000;
+display:table-cell !important;
+border:1px solid #000 !important;
 padding:6px;
 text-align:center;
+vertical-align:middle;
+white-space:normal;
+color:#000 !important;
+background:#fff !important;
 }
 
 #printArea td.print-materia{
 text-align:left;
 white-space:normal;
+word-break:break-word;
 }
+
 }
 
 @media (max-width:1100px){
@@ -948,12 +978,15 @@ return html
 function imprimirPDF(){
 let lista=obtenerRegistrosFiltrados()
 printArea.innerHTML=construirTablaImpresion(lista)
-printArea.style.display="block"
+
+requestAnimationFrame(()=>{
+requestAnimationFrame(()=>{
 window.print()
 setTimeout(()=>{
-printArea.style.display="none"
 printArea.innerHTML=""
 },300)
+})
+})
 }
 
 /* =====================================================
