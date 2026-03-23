@@ -102,6 +102,7 @@ cursor:pointer;
 background:#34495e;
 color:#fff;
 font-weight:600;
+transition:.2s ease;
 }
 
 button:hover{
@@ -120,23 +121,32 @@ background:#667071;
 
 .stats{
 display:grid;
-grid-template-columns:repeat(5,minmax(120px,1fr));
-gap:10px;
+grid-template-columns:repeat(5,minmax(135px,1fr));
+gap:14px;
 margin-bottom:12px;
+align-items:stretch;
 }
 
 .card{
 background:#f7fafc;
 border:1px solid #e5edf5;
 border-radius:10px;
-padding:10px;
+padding:12px 10px;
 text-align:center;
+display:flex;
+flex-direction:column;
+justify-content:center;
+align-items:center;
+min-height:62px;
+line-height:1.15;
 }
 
 .card b{
 display:block;
-font-size:22px;
-margin-bottom:4px;
+font-size:28px;
+margin-bottom:8px;
+line-height:1;
+letter-spacing:.5px;
 }
 
 .card.secret{
@@ -200,24 +210,164 @@ background:#eef4f9;
 position:sticky;
 top:0;
 z-index:1;
+white-space:nowrap;
+}
+
+td{
+white-space:nowrap;
+}
+
+td.col-materia{
+white-space:normal;
+min-width:170px;
+text-align:left;
 }
 
 /* COLORES PLAZO */
 
-.plazoRojo{background:#ff3b30;color:#fff;font-weight:700;}
-.plazoVerde{background:#b9f6ca;color:#000;font-weight:700;}
-.plazoAmarillo{background:#fff176;color:#000;font-weight:700;}
-.plazoVencido{background:#b3e5fc;color:#000;font-weight:700;}
+.plazoRojo{
+background:#ff3b30;
+color:#fff;
+font-weight:700;
+}
+
+.plazoVerde{
+background:#b9f6ca;
+color:#000;
+font-weight:700;
+}
+
+.plazoAmarillo{
+background:#fff176;
+color:#000;
+font-weight:700;
+}
+
+.plazoVencido{
+background:#b3e5fc;
+color:#000;
+font-weight:700;
+}
+
+/* CLASIFICACION */
 
 .secret-cell{
-background:#c0392b;
-color:#fff;
+background:#c62828 !important;
+color:#fff !important;
 font-weight:700;
 }
 
 .muted{
 color:#6b7b8c;
 font-size:12px;
+margin-top:10px;
+}
+
+/* BOTONES DE ACCION */
+
+.acciones-wrap{
+display:flex;
+justify-content:center;
+gap:6px;
+}
+
+.btn-tabla{
+min-width:36px;
+height:34px;
+padding:0;
+display:inline-flex;
+align-items:center;
+justify-content:center;
+font-size:15px;
+border-radius:8px;
+}
+
+.btn-editar{
+background:#34495e;
+}
+
+.btn-editar:hover{
+background:#2c3e50;
+}
+
+.btn-borrar{
+background:#4b5d73;
+}
+
+.btn-borrar:hover{
+background:#38485c;
+}
+
+/* ZONA OCULTA PARA IMPRESION */
+
+.print-only{
+display:none;
+}
+
+@media print{
+body{
+background:#fff;
+padding:0;
+margin:0;
+}
+
+body *{
+visibility:hidden;
+}
+
+#printArea,
+#printArea *{
+visibility:visible;
+}
+
+#printArea{
+position:absolute;
+left:0;
+top:0;
+width:100%;
+display:block !important;
+padding:20px;
+box-sizing:border-box;
+}
+
+#printArea h2{
+text-align:center;
+margin:0 0 18px 0;
+font-size:20px;
+color:#000;
+}
+
+#printArea table{
+width:100%;
+border-collapse:collapse;
+font-size:12px;
+}
+
+#printArea th,
+#printArea td{
+border:1px solid #000;
+padding:6px;
+text-align:center;
+}
+
+#printArea td.print-materia{
+text-align:left;
+white-space:normal;
+}
+}
+
+@media (max-width:1100px){
+.layout{
+grid-template-columns:1fr;
+}
+
+.stats{
+grid-template-columns:repeat(2,minmax(140px,1fr));
+}
+
+.search{
+grid-template-columns:1fr;
+}
 }
 
 </style>
@@ -322,7 +472,7 @@ FORMULARIO DE INGRESO
 <button class="sec" onclick="limpiar()">LIMPIAR</button>
 </div>
 
-<div class="muted">La URL del Apps Script se pega en el MODULO 2</div>
+<div class="muted">La URL del Apps Script se pega en el MODULO 6</div>
 
 </div>
 
@@ -353,7 +503,6 @@ TABLA Y VISUALIZACION DE DATOS
 </div>
 
 <div class="table-wrap">
-
 <table id="tabla">
 <thead>
 <tr>
@@ -377,10 +526,18 @@ TABLA Y VISUALIZACION DE DATOS
 </thead>
 <tbody></tbody>
 </table>
+</div>
 
 </div>
 </div>
-</div>
+
+<!-- =====================================================
+MODULO 4.1
+AREA OCULTA DE IMPRESION PDF
+Solo imprime desde FECHA hasta MATERIA
+===================================================== -->
+
+<div id="printArea" class="print-only"></div>
 
 <script>
 
@@ -408,6 +565,9 @@ const buscarNumero=document.getElementById("buscarNumero")
 const buscarFecha=document.getElementById("buscarFecha")
 const buscarProcedencia=document.getElementById("buscarProcedencia")
 
+const tabla=document.getElementById("tabla")
+const printArea=document.getElementById("printArea")
+
 /* =====================================================
 MODULO 6
 CONFIGURACION API (AQUI VA EL SCRIPT)
@@ -425,7 +585,7 @@ CARGA LOCAL
 
 try{
 registros=JSON.parse(localStorage.getItem("registros"))||[]
-}catch{
+}catch(error){
 registros=[]
 }
 
@@ -435,7 +595,7 @@ FUNCIONES AUXILIARES
 ===================================================== */
 
 function mayus(t){
-t=(t||"").toUpperCase().trim()
+t=(t||"").toString().toUpperCase().trim()
 t=t.replace("PUBLICO","PÚBLICO")
 return t
 }
@@ -443,6 +603,7 @@ return t
 function fechaCL(f){
 if(!f) return ""
 let p=f.split("-")
+if(p.length!==3) return f
 return `${p[2]}-${p[1]}-${p[0]}`
 }
 
@@ -450,9 +611,65 @@ function diasNumero(pl){
 if(!pl) return null
 let hoy=new Date()
 hoy.setHours(0,0,0,0)
+
 let p=pl.split("-")
-let f=new Date(p[0],p[1]-1,p[2])
+if(p.length!==3) return null
+
+let f=new Date(Number(p[0]),Number(p[1])-1,Number(p[2]))
 return Math.floor((f-hoy)/86400000)
+}
+
+function valorSeguro(v){
+return (v??"").toString()
+}
+
+function limpiarTextoBusqueda(v){
+return mayus(v).normalize("NFD").replace(/[\u0300-\u036f]/g,"")
+}
+
+function normalizarComparacion(v){
+return limpiarTextoBusqueda(v||"")
+}
+
+function obtenerRegistrosFiltrados(){
+let numeroBuscado=normalizarComparacion(buscarNumero.value)
+let fechaBuscada=buscarFecha.value
+let procedBuscada=normalizarComparacion(buscarProcedencia.value)
+
+return registros
+.map((r,indexOriginal)=>({ ...r, indexOriginal }))
+.filter(r=>{
+let okNumero=!numeroBuscado || normalizarComparacion(r.numero).includes(numeroBuscado)
+let okFecha=!fechaBuscada || r.fecha===fechaBuscada
+let okProced=!procedBuscada || normalizarComparacion(r.procedencia).includes(procedBuscada)
+return okNumero && okFecha && okProced
+})
+}
+
+function obtenerClasePlazo(d){
+if(d===null) return ""
+if(d<0) return "plazoVencido"
+if(d<=5) return "plazoRojo"
+if(d<=15) return "plazoVerde"
+return "plazoAmarillo"
+}
+
+function obtenerTextoDia(d){
+if(d===null) return ""
+return d
+}
+
+function obtenerDatosExportacion(lista){
+return lista.map(r=>({
+"FECHA":fechaCL(r.fecha),
+"NUMERO":valorSeguro(r.numero),
+"IDENT MATERIA":valorSeguro(r.identMateria),
+"IDENT DOC":valorSeguro(r.identDoc),
+"AUTORIDAD":valorSeguro(r.autoridad),
+"EJS":valorSeguro(r.ejs),
+"HJS":valorSeguro(r.hjs),
+"MATERIA":valorSeguro(r.materia)
+}))
 }
 
 /* =====================================================
@@ -467,8 +684,8 @@ numero:mayus(numero.value),
 identMateria:mayus(identMateria.value),
 identDoc:mayus(identDoc.value),
 autoridad:mayus(autoridad.value),
-ejs:ejs.value,
-hjs:hjs.value,
+ejs:mayus(ejs.value),
+hjs:mayus(hjs.value),
 materia:mayus(materia.value),
 plazo:plazo.value,
 procedencia:mayus(procedencia.value),
@@ -498,11 +715,14 @@ ENVIO A GOOGLE SHEETS
 
 function enviarAScript(datos){
 if(!API_URL) return
+
 fetch(API_URL,{
 method:"POST",
 mode:"no-cors",
 headers:{"Content-Type":"application/json"},
 body:JSON.stringify(datos)
+}).catch(error=>{
+console.log("No se pudo enviar al Apps Script:",error)
 })
 }
 
@@ -515,41 +735,39 @@ function render(){
 let tbody=document.querySelector("#tabla tbody")
 tbody.innerHTML=""
 
-registros.forEach((r,i)=>{
-let claseClasif=r.clasificacion==="SECRETO"?"secret-cell":""
+let lista=obtenerRegistrosFiltrados()
+
+lista.forEach(r=>{
 let d=diasNumero(r.plazo)
-
-let clasePlazo=""
-let textoDia=""
-
-if(d===null){}
-else if(d<0){clasePlazo="plazoVencido"}
-else if(d<=5){clasePlazo="plazoRojo";textoDia=d}
-else if(d<=15){clasePlazo="plazoVerde";textoDia=d}
-else{clasePlazo="plazoAmarillo";textoDia=d}
+let clasePlazo=obtenerClasePlazo(d)
+let textoDia=obtenerTextoDia(d)
+let claseClasif=r.clasificacion==="SECRETO"?"secret-cell":""
 
 let tr=document.createElement("tr")
 
 tr.innerHTML=`
 <td>${fechaCL(r.fecha)}</td>
-<td>${r.numero}</td>
-<td>${r.identMateria}</td>
-<td>${r.identDoc}</td>
-<td>${r.autoridad}</td>
-<td>${r.ejs}</td>
-<td>${r.hjs}</td>
-<td>${r.materia}</td>
+<td>${valorSeguro(r.numero)}</td>
+<td>${valorSeguro(r.identMateria)}</td>
+<td>${valorSeguro(r.identDoc)}</td>
+<td>${valorSeguro(r.autoridad)}</td>
+<td>${valorSeguro(r.ejs)}</td>
+<td>${valorSeguro(r.hjs)}</td>
+<td class="col-materia">${valorSeguro(r.materia)}</td>
 <td>${fechaCL(r.plazo)}</td>
 <td class="${clasePlazo}">${textoDia}</td>
-<td>${r.procedencia}</td>
-<td class="${claseClasif}">${r.clasificacion}</td>
-<td>${r.archivo}</td>
-<td>${r.llegsal}</td>
-<td>${r.observ}</td>
+<td>${valorSeguro(r.procedencia)}</td>
+<td class="${claseClasif}">${valorSeguro(r.clasificacion)}</td>
+<td>${valorSeguro(r.archivo)}</td>
+<td>${valorSeguro(r.llegsal)}</td>
+<td>${valorSeguro(r.observ)}</td>
 <td>
-<button onclick="editar(${i})">✏</button>
-<button onclick="borrar(${i})">🗑</button>
-</td>`
+<div class="acciones-wrap">
+<button class="btn-tabla btn-editar" data-action="editar" data-index="${r.indexOriginal}" title="Editar">✏</button>
+<button class="btn-tabla btn-borrar" data-action="borrar" data-index="${r.indexOriginal}" title="Eliminar">🗑</button>
+</div>
+</td>
+`
 tbody.appendChild(tr)
 })
 
@@ -576,46 +794,69 @@ FUNCIONES AGREGADAS (ARREGLOS)
 
 function editar(i){
 let r=registros[i]
-fecha.value=r.fecha
-numero.value=r.numero
-identMateria.value=r.identMateria
-identDoc.value=r.identDoc
-autoridad.value=r.autoridad
-ejs.value=r.ejs
-hjs.value=r.hjs
-materia.value=r.materia
-plazo.value=r.plazo
-procedencia.value=r.procedencia
-clasificacion.value=r.clasificacion
-archivo.value=r.archivo
-llegsal.value=r.llegsal
-observ.value=r.observ
+if(!r) return
+
+fecha.value=r.fecha||""
+numero.value=r.numero||""
+identMateria.value=r.identMateria||""
+identDoc.value=r.identDoc||""
+autoridad.value=r.autoridad||""
+ejs.value=r.ejs||""
+hjs.value=r.hjs||""
+materia.value=r.materia||""
+plazo.value=r.plazo||""
+procedencia.value=r.procedencia||""
+clasificacion.value=r.clasificacion||"RESERVADO"
+archivo.value=r.archivo||""
+llegsal.value=r.llegsal||"LLEGADO"
+observ.value=r.observ||""
+
 editIndex=i
+window.scrollTo({top:0,behavior:"smooth"})
 }
 
 function borrar(i){
 if(confirm("¿Eliminar registro?")){
 registros.splice(i,1)
 localStorage.setItem("registros",JSON.stringify(registros))
+if(editIndex===i){
+editIndex=null
+}
 render()
 }
 }
 
 function limpiar(){
-document.querySelectorAll("input, textarea").forEach(e=>e.value="")
+fecha.value=""
+numero.value=""
+identMateria.value=""
+identDoc.value=""
+autoridad.value=""
+ejs.value=""
+hjs.value=""
+materia.value=""
+plazo.value=""
+procedencia.value=""
+clasificacion.value="RESERVADO"
+archivo.value=""
+llegsal.value="LLEGADO"
+observ.value=""
 editIndex=null
 }
 
 function actualizarResumen(){
-let res=0,sec=0,pub=0,vencer=0
+let res=0
+let sec=0
+let pub=0
+let vencer=0
 
 registros.forEach(r=>{
-if(r.clasificacion==="RESERVADO")res++
-if(r.clasificacion==="SECRETO")sec++
-if(r.clasificacion==="PÚBLICO")pub++
+if(r.clasificacion==="RESERVADO") res++
+if(r.clasificacion==="SECRETO") sec++
+if(r.clasificacion==="PÚBLICO") pub++
 
 let d=diasNumero(r.plazo)
-if(d!==null && d<=5 && d>=0)vencer++
+if(d!==null && d<=5 && d>=0) vencer++
 })
 
 document.getElementById("res").innerText=res
@@ -625,15 +866,127 @@ document.getElementById("total").innerText=registros.length
 document.getElementById("porVencer").innerText=vencer
 }
 
-function imprimirPDF(){
-window.print()
+/* =====================================================
+MODULO 14
+EVENTOS DE ACCIONES EN TABLA
+Editar y borrar con delegacion de eventos
+===================================================== */
+
+tabla.addEventListener("click",function(e){
+let btn=e.target.closest("button[data-action]")
+if(!btn) return
+
+let accion=btn.dataset.action
+let index=Number(btn.dataset.index)
+
+if(accion==="editar"){
+editar(index)
 }
 
+if(accion==="borrar"){
+borrar(index)
+}
+})
+
+/* =====================================================
+MODULO 15
+IMPRESION PDF
+Imprime solo desde FECHA hasta MATERIA
+===================================================== */
+
+function construirTablaImpresion(lista){
+let datos=obtenerDatosExportacion(lista)
+
+let html=`
+<h2>REGISTRO DOCUMENTAL</h2>
+<table>
+<thead>
+<tr>
+<th>FECHA</th>
+<th>NUMERO</th>
+<th>IDENT MATERIA</th>
+<th>IDENT DOC</th>
+<th>AUTORIDAD</th>
+<th>EJS</th>
+<th>HJS</th>
+<th>MATERIA</th>
+</tr>
+</thead>
+<tbody>
+`
+
+if(datos.length===0){
+html+=`
+<tr>
+<td colspan="8">SIN REGISTROS PARA IMPRIMIR</td>
+</tr>
+`
+}else{
+datos.forEach(r=>{
+html+=`
+<tr>
+<td>${r["FECHA"]}</td>
+<td>${r["NUMERO"]}</td>
+<td>${r["IDENT MATERIA"]}</td>
+<td>${r["IDENT DOC"]}</td>
+<td>${r["AUTORIDAD"]}</td>
+<td>${r["EJS"]}</td>
+<td>${r["HJS"]}</td>
+<td class="print-materia">${r["MATERIA"]}</td>
+</tr>
+`
+})
+}
+
+html+=`
+</tbody>
+</table>
+`
+return html
+}
+
+function imprimirPDF(){
+let lista=obtenerRegistrosFiltrados()
+printArea.innerHTML=construirTablaImpresion(lista)
+printArea.style.display="block"
+window.print()
+setTimeout(()=>{
+printArea.style.display="none"
+printArea.innerHTML=""
+},300)
+}
+
+/* =====================================================
+MODULO 16
+EXPORTAR EXCEL
+Exporta solo desde FECHA hasta MATERIA
+===================================================== */
+
 function exportarExcel(){
-let ws = XLSX.utils.json_to_sheet(registros)
-let wb = XLSX.utils.book_new()
-XLSX.utils.book_append_sheet(wb, ws, "Datos")
-XLSX.writeFile(wb, "registro.xlsx")
+let lista=obtenerRegistrosFiltrados()
+let datosExcel=obtenerDatosExportacion(lista)
+
+if(datosExcel.length===0){
+alert("No hay registros para exportar.")
+return
+}
+
+let ws=XLSX.utils.json_to_sheet(datosExcel)
+
+ws["!cols"]=[
+{wch:14},
+{wch:14},
+{wch:18},
+{wch:18},
+{wch:18},
+{wch:10},
+{wch:10},
+{wch:40}
+]
+
+let wb=XLSX.utils.book_new()
+XLSX.utils.book_append_sheet(wb,ws,"Registro")
+XLSX.writeFile(wb,"registro_documental.xlsx")
 }
 
 </script>
