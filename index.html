@@ -744,16 +744,22 @@ ENVIO A GOOGLE SHEETS
 ===================================================== */
 
 function enviarAScript(datos){
-if(!API_URL) return
 
 fetch(API_URL,{
 method:"POST",
-mode:"no-cors",
-headers:{"Content-Type":"application/json"},
+headers:{
+"Content-Type":"application/json"
+},
 body:JSON.stringify(datos)
-}).catch(error=>{
-console.log("No se pudo enviar al Apps Script:",error)
 })
+.then(res => res.json())
+.then(res => {
+console.log("Respuesta servidor:", res)
+})
+.catch(err=>{
+console.error("Error enviando datos:", err)
+})
+
 }
 
 /* =====================================================
