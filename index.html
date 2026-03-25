@@ -813,9 +813,8 @@ buscarNumero.addEventListener("input",render)
 buscarFecha.addEventListener("input",render)
 buscarProcedencia.addEventListener("input",render)
 
-window.onload=function(){
-render()
-}
+window.onload = cargarDatos 
+
 
 /* =====================================================
 MODULO 13
@@ -1021,7 +1020,23 @@ let wb=XLSX.utils.book_new()
 XLSX.utils.book_append_sheet(wb,ws,"Registro")
 XLSX.writeFile(wb,"registro_documental.xlsx")
 }
+/* =====================================================
+MODULO 17
+CARGA DESDE GOOGLE SHEETS (MULTIUSUARIO)
+===================================================== */
 
+async function cargarDatos(){
+
+let res = await fetch(API_URL)
+let data = await res.json()
+
+if(data.status==="ok"){
+registros = data.registros
+render()
+}
+
+}
+  
 </script>
 
 </body>
