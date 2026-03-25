@@ -634,9 +634,23 @@ return t
 
 function fechaCL(f){
 if(!f) return ""
+
+// SI VIENE COMO ISO (con T)
+if(f.includes("T")){
+let fecha = new Date(f)
+let d = String(fecha.getDate()).padStart(2,"0")
+let m = String(fecha.getMonth()+1).padStart(2,"0")
+let y = fecha.getFullYear()
+return `${d}-${m}-${y}`
+}
+
+// FORMATO NORMAL
 let p=f.split("-")
-if(p.length!==3) return f
+if(p.length===3){
 return `${p[2]}-${p[1]}-${p[0]}`
+}
+
+return f
 }
 
 function diasNumero(pl){
@@ -1039,25 +1053,25 @@ CARGA DESDE GOOGLE SHEETS (MULTIUSUARIO)
 async function cargarDatos(){
 
 try{
+
 let res = await fetch(API_URL)
 let data = await res.json()
 
-if(data.status==="ok" && data.registros.length>0){
-registros = data.registros
+if(data.status==="ok" && data.registros){
+
+// 👇 IMPORTANTE: convertir fechas correctamente
+registros = data.registros.map(r=>({
+...r,
+fecha: (r.fecha || "").toString().split("T")[0],
+plazo: (r.plazo || "").toString().split("T")[0]
+}))
+
 localStorage.setItem("registros",JSON.stringify(registros))
+
 }
 
 }catch(e){
-console.log("Error cargando nube")
-}
-
-// SI NO HAY DATOS EN NUBE → USA LOCAL
-if(registros.length===0){
-try{
-registros=JSON.parse(localStorage.getItem("registros"))||[]
-}catch{
-registros=[]
-}
+console.log("Error cargando datos:", e)
 }
 
 render()
