@@ -773,6 +773,13 @@ tbody.innerHTML=""
 
 let lista=obtenerRegistrosFiltrados()
 
+// ORDENAR POR FECHA (NUEVO → ANTIGUO)
+lista.sort((a,b)=>{
+if(!a.fecha) return 1
+if(!b.fecha) return -1
+return new Date(b.fecha) - new Date(a.fecha)
+})
+
 lista.forEach(r=>{
 let d=diasNumero(r.plazo)
 let clasePlazo=obtenerClasePlazo(d)
