@@ -626,6 +626,11 @@ MODULO 8
 FUNCIONES AUXILIARES
 ===================================================== */
 
+/* =====================================================
+MODULO 8
+FUNCIONES AUXILIARES
+===================================================== */
+
 function mayus(t){
 t=(t||"").toString().toUpperCase().trim()
 t=t.replace("PUBLICO","PÚBLICO")
@@ -635,19 +640,22 @@ return t
 function fechaCL(f){
 if(!f) return ""
 
-// SI VIENE COMO ISO (con T)
-if(f.includes("T")){
+// SI VIENE COMO ISO (desde Google Sheets)
+if(typeof f === "string" && f.includes("T")){
 let fecha = new Date(f)
+if(isNaN(fecha)) return ""
 let d = String(fecha.getDate()).padStart(2,"0")
 let m = String(fecha.getMonth()+1).padStart(2,"0")
 let y = fecha.getFullYear()
 return `${d}-${m}-${y}`
 }
 
-// FORMATO NORMAL
-let p=f.split("-")
-if(p.length===3){
-return `${p[2]}-${p[1]}-${p[0]}`
+// SI YA VIENE COMO YYYY-MM-DD
+if(typeof f === "string" && f.includes("-")){
+let partes = f.split("-")
+if(partes.length===3){
+return `${partes[2]}-${partes[1]}-${partes[0]}`
+}
 }
 
 return f
@@ -655,6 +663,12 @@ return f
 
 function diasNumero(pl){
 if(!pl) return null
+
+// LIMPIAR FORMATO ISO
+if(typeof pl === "string" && pl.includes("T")){
+pl = pl.split("T")[0]
+}
+
 let hoy=new Date()
 hoy.setHours(0,0,0,0)
 
@@ -662,6 +676,8 @@ let p=pl.split("-")
 if(p.length!==3) return null
 
 let f=new Date(Number(p[0]),Number(p[1])-1,Number(p[2]))
+if(isNaN(f)) return null
+
 return Math.floor((f-hoy)/86400000)
 }
 
@@ -686,7 +702,7 @@ return registros
 .map((r,indexOriginal)=>({ ...r, indexOriginal }))
 .filter(r=>{
 let okNumero=!numeroBuscado || normalizarComparacion(r.numero).includes(numeroBuscado)
-let okFecha=!fechaBuscada || r.fecha===fechaBuscada
+let okFecha=!fechaBuscada || (r.fecha||"").includes(fechaBuscada)
 let okProced=!procedBuscada || normalizarComparacion(r.procedencia).includes(procedBuscada)
 return okNumero && okFecha && okProced
 })
@@ -717,7 +733,6 @@ return lista.map(r=>({
 "MATERIA":valorSeguro(r.materia)
 }))
 }
-
 /* =====================================================
 MODULO 9
 GUARDAR DATOS
