@@ -754,14 +754,12 @@ body:JSON.stringify(datos)
 })
 .then(res => res.json())
 .then(res => {
-console.log("RESPUESTA:", res)
+console.log("GUARDADO:", res)
 })
 .catch(err=>{
 console.error("ERROR:", err)
 })
-
 }
-
 /* =====================================================
 MODULO 11
 RENDER TABLA Y LOGICA VISUAL
@@ -1040,13 +1038,29 @@ CARGA DESDE GOOGLE SHEETS (MULTIUSUARIO)
 
 async function cargarDatos(){
 
+try{
 let res = await fetch(API_URL)
 let data = await res.json()
 
-if(data.status==="ok"){
+if(data.status==="ok" && data.registros.length>0){
 registros = data.registros
-render()
+localStorage.setItem("registros",JSON.stringify(registros))
 }
+
+}catch(e){
+console.log("Error cargando nube")
+}
+
+// SI NO HAY DATOS EN NUBE → USA LOCAL
+if(registros.length===0){
+try{
+registros=JSON.parse(localStorage.getItem("registros"))||[]
+}catch{
+registros=[]
+}
+}
+
+render()
 
 }
   
