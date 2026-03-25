@@ -598,6 +598,8 @@ const buscarProcedencia=document.getElementById("buscarProcedencia")
 const tabla=document.getElementById("tabla")
 const printArea=document.getElementById("printArea")
 
+let usuarioActual = localStorage.getItem("usuario") || "SIN_USUARIO"
+
 /* =====================================================
 MODULO 6
 CONFIGURACION API (AQUI VA EL SCRIPT)
@@ -722,7 +724,8 @@ procedencia:mayus(procedencia.value),
 clasificacion:mayus(clasificacion.value),
 archivo:mayus(archivo.value),
 llegsal:mayus(llegsal.value),
-observ:mayus(observ.value)
+observ:mayus(observ.value),
+usuario: usuarioActual 
 }
 
 if(editIndex!==null){
@@ -1060,6 +1063,24 @@ registros=[]
 render()
 
 }
+
+/* =====================================================
+MODULO 18
+ACTUALIZACION AUTOMATICA
+===================================================== */
+
+setInterval(()=>{
+cargarDatos()
+},5000)
+
+  /* =====================================================
+MODULO 19
+USUARIO ACTUAL
+===================================================== */
+
+let usuarioActual = localStorage.getItem("usuario") || ""
+
+
   
 </script>
 
