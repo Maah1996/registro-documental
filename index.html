@@ -626,53 +626,63 @@ MODULO 8
 FUNCIONES AUXILIARES
 ===================================================== */
 
-/* =====================================================
-MODULO 8
-FUNCIONES AUXILIARES
-===================================================== */
-
 function mayus(t){
 t=(t||"").toString().toUpperCase().trim()
 t=t.replace("PUBLICO","PÚBLICO")
 return t
 }
 
-function fechaCL(f){
-if(!f) return ""
+function normalizarFechaISO(valor){
+if(!valor) return ""
 
-// SI VIENE COMO ISO (desde Google Sheets)
-if(typeof f === "string" && f.includes("T")){
-let fecha = new Date(f)
-if(isNaN(fecha)) return ""
-let d = String(fecha.getDate()).padStart(2,"0")
-let m = String(fecha.getMonth()+1).padStart(2,"0")
-let y = fecha.getFullYear()
-return `${d}-${m}-${y}`
+if(Object.prototype.toString.call(valor)==="[object Date]" && !isNaN(valor)){
+let y=valor.getFullYear()
+let m=String(valor.getMonth()+1).padStart(2,"0")
+let d=String(valor.getDate()).padStart(2,"0")
+return `${y}-${m}-${d}`
 }
 
-// SI YA VIENE COMO YYYY-MM-DD
-if(typeof f === "string" && f.includes("-")){
-let partes = f.split("-")
-if(partes.length===3){
+let texto=String(valor).trim()
+
+if(texto.includes("T")){
+let fecha=new Date(texto)
+if(!isNaN(fecha)){
+let y=fecha.getFullYear()
+let m=String(fecha.getMonth()+1).padStart(2,"0")
+let d=String(fecha.getDate()).padStart(2,"0")
+return `${y}-${m}-${d}`
+}
+}
+
+if(/^\d{4}-\d{2}-\d{2}$/.test(texto)){
+return texto
+}
+
+if(/^\d{2}-\d{2}-\d{4}$/.test(texto)){
+let partes=texto.split("-")
 return `${partes[2]}-${partes[1]}-${partes[0]}`
 }
+
+return texto
 }
 
-return f
+function fechaCL(f){
+let normal=normalizarFechaISO(f)
+if(!normal) return ""
+
+let p=normal.split("-")
+if(p.length!==3) return normal
+return `${p[2]}-${p[1]}-${p[0]}`
 }
 
 function diasNumero(pl){
-if(!pl) return null
-
-// LIMPIAR FORMATO ISO
-if(typeof pl === "string" && pl.includes("T")){
-pl = pl.split("T")[0]
-}
+let normal=normalizarFechaISO(pl)
+if(!normal) return null
 
 let hoy=new Date()
 hoy.setHours(0,0,0,0)
 
-let p=pl.split("-")
+let p=normal.split("-")
 if(p.length!==3) return null
 
 let f=new Date(Number(p[0]),Number(p[1])-1,Number(p[2]))
@@ -701,8 +711,9 @@ let procedBuscada=normalizarComparacion(buscarProcedencia.value)
 return registros
 .map((r,indexOriginal)=>({ ...r, indexOriginal }))
 .filter(r=>{
+let fechaRegistro=normalizarFechaISO(r.fecha)
 let okNumero=!numeroBuscado || normalizarComparacion(r.numero).includes(numeroBuscado)
-let okFecha=!fechaBuscada || (r.fecha||"").includes(fechaBuscada)
+let okFecha=!fechaBuscada || fechaRegistro===fechaBuscada
 let okProced=!procedBuscada || normalizarComparacion(r.procedencia).includes(procedBuscada)
 return okNumero && okFecha && okProced
 })
@@ -733,6 +744,7 @@ return lista.map(r=>({
 "MATERIA":valorSeguro(r.materia)
 }))
 }
+
 /* =====================================================
 MODULO 9
 GUARDAR DATOS
@@ -740,7 +752,7 @@ GUARDAR DATOS
 
 function guardar(){
 let r={
-fecha:fecha.value,
+fecha:normalizarFechaISO(fecha.value),
 numero:mayus(numero.value),
 identMateria:mayus(identMateria.value),
 identDoc:mayus(identDoc.value),
@@ -748,13 +760,13 @@ autoridad:mayus(autoridad.value),
 ejs:mayus(ejs.value),
 hjs:mayus(hjs.value),
 materia:mayus(materia.value),
-plazo:plazo.value,
+plazo:normalizarFechaISO(plazo.value),
 procedencia:mayus(procedencia.value),
 clasificacion:mayus(clasificacion.value),
 archivo:mayus(archivo.value),
 llegsal:mayus(llegsal.value),
 observ:mayus(observ.value),
-usuario: usuarioActual 
+usuario: usuarioActual
 }
 
 if(editIndex!==null){
@@ -789,6 +801,7 @@ headers:{
 console.log("Enviado a Apps Script")
 
 }
+
 /* =====================================================
 MODULO 11
 RENDER TABLA Y LOGICA VISUAL
@@ -800,11 +813,12 @@ tbody.innerHTML=""
 
 let lista=obtenerRegistrosFiltrados()
 
-// ORDENAR POR FECHA (NUEVO → ANTIGUO)
 lista.sort((a,b)=>{
-if(!a.fecha) return 1
-if(!b.fecha) return -1
-return new Date(b.fecha) - new Date(a.fecha)
+let fechaA=normalizarFechaISO(a.fecha)
+let fechaB=normalizarFechaISO(b.fecha)
+if(!fechaA) return 1
+if(!fechaB) return -1
+return new Date(fechaB) - new Date(fechaA)
 })
 
 lista.forEach(r=>{
@@ -853,8 +867,7 @@ buscarNumero.addEventListener("input",render)
 buscarFecha.addEventListener("input",render)
 buscarProcedencia.addEventListener("input",render)
 
-window.onload = cargarDatos 
-
+window.onload = cargarDatos
 
 /* =====================================================
 MODULO 13
@@ -865,7 +878,7 @@ function editar(i){
 let r=registros[i]
 if(!r) return
 
-fecha.value=r.fecha||""
+fecha.value=normalizarFechaISO(r.fecha)||""
 numero.value=r.numero||""
 identMateria.value=r.identMateria||""
 identDoc.value=r.identDoc||""
@@ -873,7 +886,7 @@ autoridad.value=r.autoridad||""
 ejs.value=r.ejs||""
 hjs.value=r.hjs||""
 materia.value=r.materia||""
-plazo.value=r.plazo||""
+plazo.value=normalizarFechaISO(r.plazo)||""
 procedencia.value=r.procedencia||""
 clasificacion.value=r.clasificacion||"RESERVADO"
 archivo.value=r.archivo||""
@@ -1060,6 +1073,7 @@ let wb=XLSX.utils.book_new()
 XLSX.utils.book_append_sheet(wb,ws,"Registro")
 XLSX.writeFile(wb,"registro_documental.xlsx")
 }
+
 /* =====================================================
 MODULO 17
 CARGA DESDE GOOGLE SHEETS (MULTIUSUARIO)
@@ -1068,25 +1082,27 @@ CARGA DESDE GOOGLE SHEETS (MULTIUSUARIO)
 async function cargarDatos(){
 
 try{
-
 let res = await fetch(API_URL)
 let data = await res.json()
 
-if(data.status==="ok" && data.registros){
-
-// 👇 IMPORTANTE: convertir fechas correctamente
+if(data.status==="ok" && Array.isArray(data.registros)){
 registros = data.registros.map(r=>({
 ...r,
-fecha: (r.fecha || "").toString().split("T")[0],
-plazo: (r.plazo || "").toString().split("T")[0]
+fecha: normalizarFechaISO(r.fecha),
+plazo: normalizarFechaISO(r.plazo)
 }))
-
 localStorage.setItem("registros",JSON.stringify(registros))
-
+}else{
+registros = JSON.parse(localStorage.getItem("registros")) || []
 }
 
 }catch(e){
 console.log("Error cargando datos:", e)
+try{
+registros = JSON.parse(localStorage.getItem("registros")) || []
+}catch(error){
+registros = []
+}
 }
 
 render()
@@ -1102,15 +1118,15 @@ setInterval(()=>{
 cargarDatos()
 },5000)
 
-  /* =====================================================
+/* =====================================================
 MODULO 19
 USUARIO ACTUAL
 ===================================================== */
 
-let usuarioActual = localStorage.getItem("usuario") || ""
+if(!localStorage.getItem("usuario")){
+localStorage.setItem("usuario","SIN_USUARIO")
+}
 
-
-  
 </script>
 
 </body>
