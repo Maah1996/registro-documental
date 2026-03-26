@@ -737,7 +737,12 @@ return "plazoAmarillo"
 }
 
 function obtenerTextoDia(d){
+
 if(d===null) return ""
+
+// 🟢 VENCIDO → NO MOSTRAR NADA
+if(d < 0) return ""
+
 return d
 }
 
