@@ -766,6 +766,7 @@ GUARDAR DATOS
 
 function guardar(){
 let r={
+
 fecha:normalizarFechaISO(fecha.value),
 numero:mayus(numero.value),
 identMateria:mayus(identMateria.value),
@@ -781,12 +782,22 @@ archivo:mayus(archivo.value),
 llegsal:mayus(llegsal.value),
 observ:mayus(observ.value),
 usuario: usuarioActual
+
 }
 
 if(editIndex!==null){
+
+// 🔥 MANTENER EL MISMO ID AL EDITAR
+r.id = registros[editIndex].id
+
 registros[editIndex]=r
 editIndex=null
+
 }else{
+
+// 🔥 CREAR ID NUEVO
+r.id = Date.now()
+
 registros.push(r)
 }
 
