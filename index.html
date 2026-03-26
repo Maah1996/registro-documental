@@ -226,26 +226,26 @@ text-align:left;
 /* COLORES PLAZO */
 
 .plazoRojo{
-background:#ff3b30;
+background:#ff3b30; /* ROJO */
 color:#fff;
 font-weight:700;
 }
 
-.plazoVerde{
-background:#b9f6ca;
-color:#000;
+.plazoAzul{
+background:#4da6ff; /* AZUL */
+color:#fff;
 font-weight:700;
 }
 
 .plazoAmarillo{
-background:#fff176;
+background:#fff176; /* AMARILLO */
 color:#000;
 font-weight:700;
 }
 
 .plazoVencido{
-background:#b3e5fc;
-color:#000;
+background:#00c853; /* VERDE REAL */
+color:#fff;
 font-weight:700;
 }
 
@@ -720,10 +720,19 @@ return okNumero && okFecha && okProced
 }
 
 function obtenerClasePlazo(d){
+
 if(d===null) return ""
-if(d<0) return "plazoVencido"
-if(d<=5) return "plazoRojo"
-if(d<=15) return "plazoVerde"
+
+// 🟢 VENCIDO
+if(d < 0) return "plazoVencido"
+
+// 🔴 0 a 5
+if(d >= 0 && d <= 5) return "plazoRojo"
+
+// 🔵 6 a 15
+if(d > 5 && d <= 15) return "plazoAzul"
+
+// 🟡 +15
 return "plazoAmarillo"
 }
 
