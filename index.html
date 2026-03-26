@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="es">
 
@@ -989,10 +990,9 @@ MODULO 15
 IMPRESION PDF
 Imprime solo desde FECHA hasta MATERIA
 ===================================================== */
-
 function construirTablaImpresion(lista){
 
-// ORDENAR POR FECHA (NUEVO → ANTIGUO)
+// ✅ ORDENAR POR FECHA (NUEVO → ANTIGUO)
 lista.sort((a,b)=>{
 let fechaA = new Date(a.fecha)
 let fechaB = new Date(b.fecha)
@@ -1033,7 +1033,7 @@ html+=`
 <td>${r["NUMERO"]}</td>
 <td>${r["IDENT MATERIA"]}</td>
 <td>${r["IDENT DOC"]}</td>
-<td>${r["AUTORIDAD QUE FIRMA"]}</td>
+<td>${r["AUTORIDAD"]}</td>
 <td>${r["EJS"]}</td>
 <td>${r["HJS"]}</td>
 <td class="print-materia">${r["MATERIA"]}</td>
@@ -1047,6 +1047,20 @@ html+=`
 </table>
 `
 return html
+}
+
+function imprimirPDF(){
+let lista=obtenerRegistrosFiltrados()
+printArea.innerHTML=construirTablaImpresion(lista)
+
+requestAnimationFrame(()=>{
+requestAnimationFrame(()=>{
+window.print()
+setTimeout(()=>{
+printArea.innerHTML=""
+},300)
+})
+})
 }
 
 /* =====================================================
