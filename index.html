@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="es">
 
@@ -172,7 +171,7 @@ color:#b9770e;
 
 .search{
 display:grid;
-grid-template-columns:repeat(3,minmax(160px,1fr));
+grid-template-columns:repeat(4,minmax(160px,1fr));
 gap:10px;
 margin-bottom:12px;
 }
@@ -227,25 +226,25 @@ text-align:left;
 /* COLORES PLAZO */
 
 .plazoRojo{
-background:#ff3b30; /* ROJO */
+background:#ff3b30;
 color:#fff;
 font-weight:700;
 }
 
 .plazoAzul{
-background:#4da6ff; /* AZUL */
+background:#4da6ff;
 color:#fff;
 font-weight:700;
 }
 
 .plazoAmarillo{
-background:#fff176; /* AMARILLO */
+background:#fff176;
 color:#000;
 font-weight:700;
 }
 
 .plazoVencido{
-background:#00c853; /* VERDE REAL */
+background:#00c853;
 color:#fff;
 font-weight:700;
 }
@@ -526,6 +525,7 @@ TABLA Y VISUALIZACION DE DATOS
 <input id="buscarNumero" placeholder="Buscar número">
 <input type="date" id="buscarFecha">
 <input id="buscarProcedencia" placeholder="Buscar procedencia">
+<input id="buscarArchivo" placeholder="Buscar archivo">
 </div>
 
 <div class="export">
@@ -595,6 +595,7 @@ const observ=document.getElementById("observ")
 const buscarNumero=document.getElementById("buscarNumero")
 const buscarFecha=document.getElementById("buscarFecha")
 const buscarProcedencia=document.getElementById("buscarProcedencia")
+const buscarArchivo=document.getElementById("buscarArchivo")
 
 const tabla=document.getElementById("tabla")
 const printArea=document.getElementById("printArea")
@@ -708,6 +709,7 @@ function obtenerRegistrosFiltrados(){
 let numeroBuscado=normalizarComparacion(buscarNumero.value)
 let fechaBuscada=buscarFecha.value
 let procedBuscada=normalizarComparacion(buscarProcedencia.value)
+let archivoBuscado=normalizarComparacion(buscarArchivo.value)
 
 return registros
 .map((r,indexOriginal)=>({ ...r, indexOriginal }))
@@ -716,7 +718,8 @@ let fechaRegistro=normalizarFechaISO(r.fecha)
 let okNumero=!numeroBuscado || normalizarComparacion(r.numero).includes(numeroBuscado)
 let okFecha=!fechaBuscada || fechaRegistro===fechaBuscada
 let okProced=!procedBuscada || normalizarComparacion(r.procedencia).includes(procedBuscada)
-return okNumero && okFecha && okProced
+let okArchivo=!archivoBuscado || normalizarComparacion(r.archivo).includes(archivoBuscado)
+return okNumero && okFecha && okProced && okArchivo
 })
 }
 
@@ -881,6 +884,7 @@ INICIO DEL SISTEMA
 buscarNumero.addEventListener("input",render)
 buscarFecha.addEventListener("input",render)
 buscarProcedencia.addEventListener("input",render)
+buscarArchivo.addEventListener("input",render)
 
 window.onload = cargarDatos
 
@@ -990,9 +994,9 @@ MODULO 15
 IMPRESION PDF
 Imprime solo desde FECHA hasta MATERIA
 ===================================================== */
+
 function construirTablaImpresion(lista){
 
-// ✅ ORDENAR POR FECHA (NUEVO → ANTIGUO)
 lista.sort((a,b)=>{
 let fechaA = new Date(a.fecha)
 let fechaB = new Date(b.fecha)
@@ -1033,7 +1037,7 @@ html+=`
 <td>${r["NUMERO"]}</td>
 <td>${r["IDENT MATERIA"]}</td>
 <td>${r["IDENT DOC"]}</td>
-<td>${r["AUTORIDAD"]}</td>
+<td>${r["AUTORIDAD QUE FIRMA"]}</td>
 <td>${r["EJS"]}</td>
 <td>${r["HJS"]}</td>
 <td class="print-materia">${r["MATERIA"]}</td>
@@ -1085,7 +1089,7 @@ ws["!cols"]=[
 {wch:14},
 {wch:18},
 {wch:18},
-{wch:18},
+{wch:22},
 {wch:10},
 {wch:10},
 {wch:40}
