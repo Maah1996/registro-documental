@@ -1,1165 +1,204 @@
-<!DOCTYPE html>
-<html lang="es">
-
-<!-- =====================================================
-MODULO 0
-CONFIGURACION GENERAL DEL HTML
-Metadatos, iconos y librerías externas
-===================================================== -->
-
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>REGISTRO DOCUMENTAL</title>
-
-<link rel="icon" type="image/png" href="icono.png">
-<link rel="apple-touch-icon" href="icono.png">
-
-<script src="https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js"></script>
-
-<!-- =====================================================
+/* =====================================================
 MODULO 1
-ESTILOS DEL SISTEMA (CSS)
-===================================================== -->
+CONFIGURACION GENERAL DEL SISTEMA
+Define nombres de hojas y utilidades del sistema
+===================================================== */
 
-<style>
+const HOJA_REGISTRO = "REGISTRO";
+const HOJA_USUARIOS = "usuarios";
 
-body{
-font-family:"Segoe UI",Arial,sans-serif;
-background:#dfeaf5;
-margin:0;
-padding:20px;
-color:#243447;
-}
 
-h1{
-text-align:center;
-margin:0 0 18px 0;
-color:#243447;
-}
-
-h3{
-text-align:center;
-margin:0 0 12px 0;
-color:#243447;
-font-size:18px;
-}
-
-.layout{
-display:grid;
-grid-template-columns:320px 1fr;
-gap:18px;
-align-items:start;
-}
-
-.panel{
-background:#fff;
-border-radius:12px;
-box-shadow:0 2px 10px rgba(0,0,0,.08);
-padding:16px;
-}
-
-label{
-display:block;
-font-size:12px;
-font-weight:700;
-margin-top:8px;
-}
-
-input,select,textarea{
-width:100%;
-box-sizing:border-box;
-margin-top:4px;
-padding:8px 10px;
-border:1px solid #cfd8e3;
-border-radius:8px;
-font-size:13px;
-background:#fff;
-}
-
-textarea{
-min-height:68px;
-resize:vertical;
-}
-
-.row2{
-display:grid;
-grid-template-columns:1fr 1fr;
-gap:10px;
-}
-
-.actions{
-display:flex;
-gap:8px;
-margin-top:12px;
-}
-
-button{
-border:none;
-border-radius:8px;
-padding:9px 12px;
-cursor:pointer;
-background:#34495e;
-color:#fff;
-font-weight:600;
-transition:.2s ease;
-}
-
-button:hover{
-background:#2c3e50;
-}
-
-button.sec{
-background:#7f8c8d;
-}
-
-button.sec:hover{
-background:#667071;
-}
-
-/* TARJETAS */
-
-.stats{
-display:grid;
-grid-template-columns:repeat(5,minmax(135px,1fr));
-gap:18px;
-margin-bottom:12px;
-align-items:stretch;
-}
-
-.card{
-background:#f7fafc;
-border:1px solid #e5edf5;
-border-radius:10px;
-padding:12px 10px;
-text-align:center;
-display:flex;
-flex-direction:column;
-justify-content:center;
-align-items:center;
-min-height:62px;
-line-height:1.15;
-}
-
-.card b{
-display:block;
-font-size:28px;
-margin-bottom:8px;
-line-height:1;
-letter-spacing:.5px;
-}
-
-.card.secret{
-border-color:#f4c7c3;
-background:#fff5f5;
-}
-
-.card.secret b{
-color:#c0392b;
-}
-
-.card.warning{
-border-color:#f7dc6f;
-background:#fffbea;
-}
-
-.card.warning b{
-color:#b9770e;
-}
-
-/* BUSQUEDA */
-
-.search{
-display:grid;
-grid-template-columns:repeat(3,minmax(160px,1fr));
-gap:10px;
-margin-bottom:12px;
-}
-
-.export{
-display:flex;
-gap:8px;
-justify-content:flex-end;
-margin-bottom:10px;
-}
-
-/* TABLA */
-
-.table-wrap{
-overflow:auto;
-border:1px solid #e3e9ef;
-border-radius:10px;
-}
-
-table{
-width:100%;
-border-collapse:collapse;
-font-size:12px;
-background:#fff;
-}
-
-th,td{
-border:1px solid #e5edf5;
-padding:8px 6px;
-text-align:center;
-vertical-align:middle;
-}
-
-th{
-background:#eef4f9;
-position:sticky;
-top:0;
-z-index:1;
-white-space:nowrap;
-}
-
-td{
-white-space:nowrap;
-}
-
-td.col-materia{
-white-space:normal;
-min-width:170px;
-text-align:left;
-}
-
-/* COLORES PLAZO */
-
-.plazoRojo{
-background:#ff3b30; /* ROJO */
-color:#fff;
-font-weight:700;
-}
-
-.plazoAzul{
-background:#4da6ff; /* AZUL */
-color:#fff;
-font-weight:700;
-}
-
-.plazoAmarillo{
-background:#fff176; /* AMARILLO */
-color:#000;
-font-weight:700;
-}
-
-.plazoVencido{
-background:#00c853; /* VERDE REAL */
-color:#fff;
-font-weight:700;
-}
-
-/* CLASIFICACION */
-
-.secret-cell{
-background:#c62828 !important;
-color:#fff !important;
-font-weight:700;
-}
-
-/* TEXTO SUAVE */
-
-.muted{
-color:#6b7b8c;
-font-size:12px;
-margin-top:10px;
-}
-
-/* BOTONES DE ACCION */
-
-.acciones-wrap{
-display:flex;
-justify-content:center;
-gap:6px;
-}
-
-.btn-tabla{
-min-width:36px;
-height:34px;
-padding:0;
-display:inline-flex;
-align-items:center;
-justify-content:center;
-font-size:15px;
-border-radius:8px;
-}
-
-.btn-editar{
-background:#34495e;
-}
-
-.btn-editar:hover{
-background:#2c3e50;
-}
-
-.btn-borrar{
-background:#4b5d73;
-}
-
-.btn-borrar:hover{
-background:#38485c;
-}
-
-/* AREA OCULTA DE IMPRESION */
-
-.print-only{
-display:none;
-}
-
-/* IMPRESION PDF */
-
-@page{
-size:auto;
-margin:10mm;
-}
-
-@media print{
-
-html,body{
-background:#fff !important;
-margin:0 !important;
-padding:0 !important;
-}
-
-body > *{
-display:none !important;
-}
-
-#printArea{
-display:block !important;
-position:static !important;
-width:100% !important;
-margin:0 !important;
-padding:0 !important;
-background:#fff !important;
-}
-
-#printArea h2{
-display:block !important;
-text-align:center;
-margin:0 0 16px 0;
-padding:0;
-font-size:22px;
-font-weight:900;
-letter-spacing:.8px;
-color:#000;
-text-transform:uppercase;
-}
-
-#printArea table{
-display:table !important;
-width:100%;
-border-collapse:collapse;
-font-size:12px;
-background:#fff;
-}
-
-#printArea thead{
-display:table-header-group;
-}
-
-#printArea tbody{
-display:table-row-group;
-}
-
-#printArea tr{
-display:table-row;
-}
-
-#printArea th,
-#printArea td{
-display:table-cell !important;
-border:1px solid #000 !important;
-padding:6px;
-text-align:center;
-vertical-align:middle;
-white-space:normal;
-color:#000 !important;
-background:#fff !important;
-}
-
-#printArea td.print-materia{
-text-align:left;
-white-space:normal;
-word-break:break-word;
-}
-
-}
-
-@media (max-width:1100px){
-.layout{
-grid-template-columns:1fr;
-}
-
-.stats{
-grid-template-columns:repeat(2,minmax(140px,1fr));
-}
-
-.search{
-grid-template-columns:1fr;
-}
-}
-
-</style>
-</head>
-
-<body>
-
-<!-- =====================================================
+/* =====================================================
 MODULO 2
-TITULO PRINCIPAL
-===================================================== -->
+VALIDACION DE USUARIOS
+Verifica si un correo tiene acceso al sistema
+===================================================== */
 
-<h1>REGISTRO DOCUMENTAL</h1>
+function usuarioActivo(email){
 
-<div class="layout">
+  if(!email) return false;
 
-<!-- =====================================================
+  const sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName(HOJA_USUARIOS);
+
+  if(!sheet) return false;
+
+  const data = sheet.getDataRange().getValues();
+
+  for (let i = 1; i < data.length; i++){
+
+    const correo = String(data[i][0]).trim().toLowerCase();
+    const estado = String(data[i][1]).trim().toLowerCase();
+
+    if(
+      correo === String(email).trim().toLowerCase() &&
+      estado === "si"
+    ){
+      return true;
+    }
+
+  }
+
+  return false;
+
+}
+
+
+/* =====================================================
 MODULO 3
-FORMULARIO DE INGRESO
-===================================================== -->
+LECTURA DE REGISTROS (GET) - CORREGIDO
+Entrega datos como JSON estructurado
+===================================================== */
 
-<div class="panel left">
+function doGet() {
 
-<h3>REGISTRAR AQUÍ</h3>
+  try{
 
-<label>Fecha Doc</label>
-<input type="date" id="fecha">
+    const sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName(HOJA_REGISTRO);
 
-<label>Número</label>
-<input id="numero">
+    if(!sheet){
+      return respuestaJSON({
+        status:"error",
+        mensaje:"Hoja REGISTRO no encontrada"
+      });
+    }
 
-<div class="row2">
-<div>
-<label>Ident. Materia</label>
-<input id="identMateria">
-</div>
-<div>
-<label>Ident. Documento</label>
-<input id="identDoc">
-</div>
-</div>
+    const data = sheet.getDataRange().getValues();
 
-<label>Autoridad que firma</label>
-<input id="autoridad">
+    if(data.length === 0){
+      return respuestaJSON({
+        status:"ok",
+        registros:[]
+      });
+    }
 
-<div class="row2">
-<div>
-<label>Cant. Ejs</label>
-<input id="ejs">
-</div>
-<div>
-<label>Cant. Hjs</label>
-<input id="hjs">
-</div>
-</div>
+    const headers = [
+      "fecha",
+      "numero",
+      "identMateria",
+      "identDoc",
+      "autoridad",
+      "ejs",
+      "hjs",
+      "materia",
+      "plazo",
+      "procedencia",
+      "clasificacion",
+      "archivo",
+      "llegsal",
+      "observ"
+    ];
 
-<label>Materia</label>
-<textarea id="materia"></textarea>
+    const registros = data.slice(1).map(row => {
+      let obj = {};
+      headers.forEach((h,i)=>{
+        obj[h] = row[i] || "";
+      });
+      return obj;
+    });
 
-<div class="row2">
-<div>
-<label>Plazo</label>
-<input type="date" id="plazo">
-</div>
-<div>
-<label>Procedencia</label>
-<input id="procedencia">
-</div>
-</div>
+    return respuestaJSON({
+      status:"ok",
+      registros:registros
+    });
 
-<div class="row2">
-<div>
-<label>Clasificación</label>
-<select id="clasificacion">
-<option>RESERVADO</option>
-<option>SECRETO</option>
-<option>PÚBLICO</option>
-</select>
-</div>
-<div>
-<label>Archivo</label>
-<input id="archivo">
-</div>
-</div>
+  }
+  catch(error){
 
-<div class="row2">
-<div>
-<label>Lleg/Sal</label>
-<select id="llegsal">
-<option>LLEGADO</option>
-<option>SALIDO</option>
-</select>
-</div>
-<div>
-<label>Observ</label>
-<input id="observ">
-</div>
-</div>
+    return respuestaJSON({
+      status:"error",
+      mensaje:error.toString()
+    });
 
-<div class="actions">
-<button onclick="guardar()">GUARDAR</button>
-<button class="sec" onclick="limpiar()">LIMPIAR</button>
-</div>
+  }
 
-<div class="muted">La URL del Apps Script se pega en el MODULO 6</div>
+}
 
-</div>
-
-<!-- =====================================================
+/* =====================================================
 MODULO 4
-TABLA Y VISUALIZACION DE DATOS
-===================================================== -->
+REGISTRO DE DOCUMENTOS (POST)
+Recibe datos desde la aplicación web
+===================================================== */
 
-<div class="panel right">
+function doPost(e) {
 
-<div class="stats">
-<div class="card"><b id="res">0</b>Reservados</div>
-<div class="card secret"><b id="sec">0</b>Secretos</div>
-<div class="card"><b id="pub">0</b>Públicos</div>
-<div class="card"><b id="total">0</b>Total</div>
-<div class="card warning"><b id="porVencer">0</b>Por vencer</div>
-</div>
+  try{
 
-<div class="search">
-<input id="buscarNumero" placeholder="Buscar número">
-<input type="date" id="buscarFecha">
-<input id="buscarProcedencia" placeholder="Buscar procedencia">
-</div>
+    const sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName(HOJA_REGISTRO);
 
-<div class="export">
-<button class="sec" onclick="imprimirPDF()">PDF</button>
-<button class="sec" onclick="exportarExcel()">EXCEL</button>
-</div>
+    if(!sheet){
+      return respuestaJSON({
+        status:"error",
+        mensaje:"Hoja REGISTRO no encontrada"
+      });
+    }
 
-<div class="table-wrap">
-<table id="tabla">
-<thead>
-<tr>
-<th>FECHA</th>
-<th>NUMERO</th>
-<th>IDENT MATERIA</th>
-<th>IDENT DOC</th>
-<th>AUTORIDAD QUE FIRMA</th>
-<th>EJS</th>
-<th>HJS</th>
-<th>MATERIA</th>
-<th>PLAZO</th>
-<th>DÍAS</th>
-<th>PROCED</th>
-<th>CLASIF</th>
-<th>ARCH</th>
-<th>L/S</th>
-<th>OBS</th>
-<th>ACCIONES</th>
-</tr>
-</thead>
-<tbody></tbody>
-</table>
-</div>
+    if(!e.postData || !e.postData.contents){
+      return respuestaJSON({
+        status:"error",
+        mensaje:"No se recibieron datos"
+      });
+    }
 
-</div>
-</div>
+    const data = JSON.parse(e.postData.contents);
 
-<!-- =====================================================
-MODULO 4.1
-AREA OCULTA DE IMPRESION PDF
-Solo imprime desde FECHA hasta MATERIA
-===================================================== -->
+    sheet.appendRow([
+      data.fecha || "",
+      data.numero || "",
+      data.identMateria || "",
+      data.identDoc || "",
+      data.autoridad || "",
+      data.ejs || "",
+      data.hjs || "",
+      data.materia || "",
+      data.plazo || "",
+      data.procedencia || "",
+      data.clasificacion || "",
+      data.archivo || "",
+      data.llegsal || "",
+      data.observ || ""
+    ]);
 
-<div id="printArea" class="print-only"></div>
+    return respuestaJSON({
+      status:"ok",
+      mensaje:"Documento registrado correctamente"
+    });
 
-<script>
+  }
+  catch(error){
+
+    return respuestaJSON({
+      status:"error",
+      mensaje:error.toString()
+    });
+
+  }
+
+}
+
 
 /* =====================================================
 MODULO 5
-VARIABLES DEL SISTEMA
+SOPORTE CORS
+Permite que la aplicación web pueda comunicarse
+con el Apps Script desde cualquier dominio
 ===================================================== */
 
-const fecha=document.getElementById("fecha")
-const numero=document.getElementById("numero")
-const identMateria=document.getElementById("identMateria")
-const identDoc=document.getElementById("identDoc")
-const autoridad=document.getElementById("autoridad")
-const ejs=document.getElementById("ejs")
-const hjs=document.getElementById("hjs")
-const materia=document.getElementById("materia")
-const plazo=document.getElementById("plazo")
-const procedencia=document.getElementById("procedencia")
-const clasificacion=document.getElementById("clasificacion")
-const archivo=document.getElementById("archivo")
-const llegsal=document.getElementById("llegsal")
-const observ=document.getElementById("observ")
+function doOptions(){
+  return ContentService.createTextOutput("");
+}
 
-const buscarNumero=document.getElementById("buscarNumero")
-const buscarFecha=document.getElementById("buscarFecha")
-const buscarProcedencia=document.getElementById("buscarProcedencia")
-
-const tabla=document.getElementById("tabla")
-const printArea=document.getElementById("printArea")
-
-let usuarioActual = localStorage.getItem("usuario") || "SIN_USUARIO"
 
 /* =====================================================
 MODULO 6
-CONFIGURACION API (AQUI VA EL SCRIPT)
+RESPUESTA JSON DEL SERVIDOR
 ===================================================== */
 
-const API_URL="https://script.google.com/macros/s/AKfycbx9zpmtrGsvy3JL4tJyFahA_Ein432egOfhwUDoY9TR6vNQdXfHdNJxPWMW9HLKO61n/exec"
+function respuestaJSON(data){
 
-let registros=[]
-let editIndex=null
+  return ContentService
+    .createTextOutput(JSON.stringify(data))
+    .setMimeType(ContentService.MimeType.JSON);
 
-/* =====================================================
-MODULO 7
-CARGA LOCAL
-===================================================== */
 
-try{
-registros=JSON.parse(localStorage.getItem("registros"))||[]
-}catch(error){
-registros=[]
-}
-
-/* =====================================================
-MODULO 8
-FUNCIONES AUXILIARES
-===================================================== */
-
-function mayus(t){
-t=(t||"").toString().toUpperCase().trim()
-t=t.replace("PUBLICO","PÚBLICO")
-return t
-}
-
-function normalizarFechaISO(valor){
-if(!valor) return ""
-
-if(Object.prototype.toString.call(valor)==="[object Date]" && !isNaN(valor)){
-let y=valor.getFullYear()
-let m=String(valor.getMonth()+1).padStart(2,"0")
-let d=String(valor.getDate()).padStart(2,"0")
-return `${y}-${m}-${d}`
-}
-
-let texto=String(valor).trim()
-
-if(texto.includes("T")){
-let fecha=new Date(texto)
-if(!isNaN(fecha)){
-let y=fecha.getFullYear()
-let m=String(fecha.getMonth()+1).padStart(2,"0")
-let d=String(fecha.getDate()).padStart(2,"0")
-return `${y}-${m}-${d}`
-}
-}
-
-if(/^\d{4}-\d{2}-\d{2}$/.test(texto)){
-return texto
-}
-
-if(/^\d{2}-\d{2}-\d{4}$/.test(texto)){
-let partes=texto.split("-")
-return `${partes[2]}-${partes[1]}-${partes[0]}`
-}
-
-return texto
-}
-
-function fechaCL(f){
-let normal=normalizarFechaISO(f)
-if(!normal) return ""
-
-let p=normal.split("-")
-if(p.length!==3) return normal
-return `${p[2]}-${p[1]}-${p[0]}`
-}
-
-function diasNumero(pl){
-let normal=normalizarFechaISO(pl)
-if(!normal) return null
-
-let hoy=new Date()
-hoy.setHours(0,0,0,0)
-
-let p=normal.split("-")
-if(p.length!==3) return null
-
-let f=new Date(Number(p[0]),Number(p[1])-1,Number(p[2]))
-if(isNaN(f)) return null
-
-return Math.floor((f-hoy)/86400000)
-}
-
-function valorSeguro(v){
-return (v??"").toString()
-}
-
-function limpiarTextoBusqueda(v){
-return mayus(v).normalize("NFD").replace(/[\u0300-\u036f]/g,"")
-}
-
-function normalizarComparacion(v){
-return limpiarTextoBusqueda(v||"")
-}
-
-function obtenerRegistrosFiltrados(){
-let numeroBuscado=normalizarComparacion(buscarNumero.value)
-let fechaBuscada=buscarFecha.value
-let procedBuscada=normalizarComparacion(buscarProcedencia.value)
-
-return registros
-.map((r,indexOriginal)=>({ ...r, indexOriginal }))
-.filter(r=>{
-let fechaRegistro=normalizarFechaISO(r.fecha)
-let okNumero=!numeroBuscado || normalizarComparacion(r.numero).includes(numeroBuscado)
-let okFecha=!fechaBuscada || fechaRegistro===fechaBuscada
-let okProced=!procedBuscada || normalizarComparacion(r.procedencia).includes(procedBuscada)
-return okNumero && okFecha && okProced
-})
-}
-
-function obtenerClasePlazo(d){
-
-if(d===null) return ""
-
-// 🟢 VENCIDO
-if(d < 0) return "plazoVencido"
-
-// 🔴 0 a 5
-if(d >= 0 && d <= 5) return "plazoRojo"
-
-// 🔵 6 a 15
-if(d > 5 && d <= 15) return "plazoAzul"
-
-// 🟡 +15
-return "plazoAmarillo"
-}
-
-function obtenerTextoDia(d){
-
-if(d===null) return ""
-
-// 🟢 VENCIDO → NO MOSTRAR NADA
-if(d < 0) return ""
-
-return d
-}
-
-function obtenerDatosExportacion(lista){
-return lista.map(r=>({
-"FECHA":fechaCL(r.fecha),
-"NUMERO":valorSeguro(r.numero),
-"IDENT MATERIA":valorSeguro(r.identMateria),
-"IDENT DOC":valorSeguro(r.identDoc),
-"AUTORIDAD QUE FIRMA":valorSeguro(r.autoridad),
-"EJS":valorSeguro(r.ejs),
-"HJS":valorSeguro(r.hjs),
-"MATERIA":valorSeguro(r.materia)
-}))
-}
-
-/* =====================================================
-MODULO 9
-GUARDAR DATOS
-===================================================== */
-
-function guardar(){
-let r={
-
-fecha:normalizarFechaISO(fecha.value),
-numero:mayus(numero.value),
-identMateria:mayus(identMateria.value),
-identDoc:mayus(identDoc.value),
-autoridad:mayus(autoridad.value),
-ejs:mayus(ejs.value),
-hjs:mayus(hjs.value),
-materia:mayus(materia.value),
-plazo:normalizarFechaISO(plazo.value),
-procedencia:mayus(procedencia.value),
-clasificacion:mayus(clasificacion.value),
-archivo:mayus(archivo.value),
-llegsal:mayus(llegsal.value),
-observ:mayus(observ.value),
-usuario: usuarioActual
 
 }
-
-if(editIndex!==null){
-
-// 🔥 MANTENER EL MISMO ID AL EDITAR
-r.id = registros[editIndex].id
-
-registros[editIndex]=r
-editIndex=null
-
-}else{
-
-// 🔥 CREAR ID NUEVO
-r.id = Date.now()
-
-registros.push(r)
-}
-
-localStorage.setItem("registros",JSON.stringify(registros))
-enviarAScript(r)
-render()
-limpiar()
-}
-
-/* =====================================================
-MODULO 10
-ENVIO A GOOGLE SHEETS
-===================================================== */
-
-function enviarAScript(datos){
-
-fetch(API_URL,{
-method:"POST",
-mode:"no-cors",
-body:JSON.stringify(datos),
-headers:{
-"Content-Type":"application/json"
-}
-})
-
-console.log("Enviado a Apps Script")
-
-}
-
-/* =====================================================
-MODULO 11
-RENDER TABLA Y LOGICA VISUAL
-===================================================== */
-
-function render(){
-let tbody=document.querySelector("#tabla tbody")
-tbody.innerHTML=""
-
-let lista=obtenerRegistrosFiltrados()
-
-lista.sort((a,b)=>{
-let fechaA=normalizarFechaISO(a.fecha)
-let fechaB=normalizarFechaISO(b.fecha)
-if(!fechaA) return 1
-if(!fechaB) return -1
-return new Date(fechaB) - new Date(fechaA)
-})
-
-lista.forEach(r=>{
-let d=diasNumero(r.plazo)
-let clasePlazo=obtenerClasePlazo(d)
-let textoDia=obtenerTextoDia(d)
-let claseClasif=r.clasificacion==="SECRETO"?"secret-cell":""
-
-let tr=document.createElement("tr")
-
-tr.innerHTML=`
-<td>${fechaCL(r.fecha)}</td>
-<td>${valorSeguro(r.numero)}</td>
-<td>${valorSeguro(r.identMateria)}</td>
-<td>${valorSeguro(r.identDoc)}</td>
-<td>${valorSeguro(r.autoridad)}</td>
-<td>${valorSeguro(r.ejs)}</td>
-<td>${valorSeguro(r.hjs)}</td>
-<td class="col-materia">${valorSeguro(r.materia)}</td>
-<td>${fechaCL(r.plazo)}</td>
-<td class="${clasePlazo}">${textoDia}</td>
-<td>${valorSeguro(r.procedencia)}</td>
-<td class="${claseClasif}">${valorSeguro(r.clasificacion)}</td>
-<td>${valorSeguro(r.archivo)}</td>
-<td>${valorSeguro(r.llegsal)}</td>
-<td>${valorSeguro(r.observ)}</td>
-<td>
-<div class="acciones-wrap">
-<button class="btn-tabla btn-editar" data-action="editar" data-index="${r.indexOriginal}" title="Editar">✏</button>
-<button class="btn-tabla btn-borrar" data-action="borrar" data-index="${r.indexOriginal}" title="Eliminar">🗑</button>
-</div>
-</td>
-`
-tbody.appendChild(tr)
-})
-
-actualizarResumen()
-}
-
-/* =====================================================
-MODULO 12
-INICIO DEL SISTEMA
-===================================================== */
-
-buscarNumero.addEventListener("input",render)
-buscarFecha.addEventListener("input",render)
-buscarProcedencia.addEventListener("input",render)
-
-window.onload = cargarDatos
-
-/* =====================================================
-MODULO 13
-FUNCIONES AGREGADAS (ARREGLOS)
-===================================================== */
-
-function editar(i){
-let r=registros[i]
-if(!r) return
-
-fecha.value=normalizarFechaISO(r.fecha)||""
-numero.value=r.numero||""
-identMateria.value=r.identMateria||""
-identDoc.value=r.identDoc||""
-autoridad.value=r.autoridad||""
-ejs.value=r.ejs||""
-hjs.value=r.hjs||""
-materia.value=r.materia||""
-plazo.value=normalizarFechaISO(r.plazo)||""
-procedencia.value=r.procedencia||""
-clasificacion.value=r.clasificacion||"RESERVADO"
-archivo.value=r.archivo||""
-llegsal.value=r.llegsal||"LLEGADO"
-observ.value=r.observ||""
-
-editIndex=i
-window.scrollTo({top:0,behavior:"smooth"})
-}
-
-function borrar(i){
-if(confirm("¿Eliminar registro?")){
-registros.splice(i,1)
-localStorage.setItem("registros",JSON.stringify(registros))
-if(editIndex===i){
-editIndex=null
-}
-render()
-}
-}
-
-function limpiar(){
-fecha.value=""
-numero.value=""
-identMateria.value=""
-identDoc.value=""
-autoridad.value=""
-ejs.value=""
-hjs.value=""
-materia.value=""
-plazo.value=""
-procedencia.value=""
-clasificacion.value="RESERVADO"
-archivo.value=""
-llegsal.value="LLEGADO"
-observ.value=""
-editIndex=null
-}
-
-function actualizarResumen(){
-let res=0
-let sec=0
-let pub=0
-let vencer=0
-
-registros.forEach(r=>{
-if(r.clasificacion==="RESERVADO") res++
-if(r.clasificacion==="SECRETO") sec++
-if(r.clasificacion==="PÚBLICO") pub++
-
-let d=diasNumero(r.plazo)
-if(d!==null && d<=5 && d>=0) vencer++
-})
-
-document.getElementById("res").innerText=res
-document.getElementById("sec").innerText=sec
-document.getElementById("pub").innerText=pub
-document.getElementById("total").innerText=registros.length
-document.getElementById("porVencer").innerText=vencer
-}
-
-/* =====================================================
-MODULO 14
-EVENTOS DE ACCIONES EN TABLA
-Editar y borrar con delegacion de eventos
-===================================================== */
-
-tabla.addEventListener("click",function(e){
-let btn=e.target.closest("button[data-action]")
-if(!btn) return
-
-let accion=btn.dataset.action
-let index=Number(btn.dataset.index)
-
-if(accion==="editar"){
-editar(index)
-}
-
-if(accion==="borrar"){
-borrar(index)
-}
-})
-
-/* =====================================================
-MODULO 15
-IMPRESION PDF
-Imprime solo desde FECHA hasta MATERIA
-===================================================== */
-function construirTablaImpresion(lista){
-
-// ✅ ORDENAR POR FECHA (NUEVO → ANTIGUO)
-lista.sort((a,b)=>{
-let fechaA = new Date(a.fecha)
-let fechaB = new Date(b.fecha)
-return fechaB - fechaA
-})
-
-let datos=obtenerDatosExportacion(lista)
-
-let html=`
-<h2>REGISTRO DOCUMENTAL</h2>
-<table>
-<thead>
-<tr>
-<th>FECHA</th>
-<th>NUMERO</th>
-<th>IDENT MATERIA</th>
-<th>IDENT DOC</th>
-<th>AUTORIDAD QUE FIRMA</th>
-<th>EJS</th>
-<th>HJS</th>
-<th>MATERIA</th>
-</tr>
-</thead>
-<tbody>
-`
-
-if(datos.length===0){
-html+=`
-<tr>
-<td colspan="8">SIN REGISTROS PARA IMPRIMIR</td>
-</tr>
-`
-}else{
-datos.forEach(r=>{
-html+=`
-<tr>
-<td>${r["FECHA"]}</td>
-<td>${r["NUMERO"]}</td>
-<td>${r["IDENT MATERIA"]}</td>
-<td>${r["IDENT DOC"]}</td>
-<td>${r["AUTORIDAD"]}</td>
-<td>${r["EJS"]}</td>
-<td>${r["HJS"]}</td>
-<td class="print-materia">${r["MATERIA"]}</td>
-</tr>
-`
-})
-}
-
-html+=`
-</tbody>
-</table>
-`
-return html
-}
-
-function imprimirPDF(){
-let lista=obtenerRegistrosFiltrados()
-printArea.innerHTML=construirTablaImpresion(lista)
-
-requestAnimationFrame(()=>{
-requestAnimationFrame(()=>{
-window.print()
-setTimeout(()=>{
-printArea.innerHTML=""
-},300)
-})
-})
-}
-
-/* =====================================================
-MODULO 16
-EXPORTAR EXCEL
-Exporta solo desde FECHA hasta MATERIA
-===================================================== */
-
-function exportarExcel(){
-let lista=obtenerRegistrosFiltrados()
-let datosExcel=obtenerDatosExportacion(lista)
-
-if(datosExcel.length===0){
-alert("No hay registros para exportar.")
-return
-}
-
-let ws=XLSX.utils.json_to_sheet(datosExcel)
-
-ws["!cols"]=[
-{wch:14},
-{wch:14},
-{wch:18},
-{wch:18},
-{wch:18},
-{wch:10},
-{wch:10},
-{wch:40}
-]
-
-let wb=XLSX.utils.book_new()
-XLSX.utils.book_append_sheet(wb,ws,"Registro")
-XLSX.writeFile(wb,"registro_documental.xlsx")
-}
-
-/* =====================================================
-MODULO 17
-CARGA DESDE GOOGLE SHEETS (MULTIUSUARIO)
-===================================================== */
-
-async function cargarDatos(){
-
-try{
-let res = await fetch(API_URL)
-let data = await res.json()
-
-if(data.status==="ok" && Array.isArray(data.registros)){
-registros = data.registros.map(r=>({
-...r,
-fecha: normalizarFechaISO(r.fecha),
-plazo: normalizarFechaISO(r.plazo)
-}))
-localStorage.setItem("registros",JSON.stringify(registros))
-}else{
-registros = JSON.parse(localStorage.getItem("registros")) || []
-}
-
-}catch(e){
-console.log("Error cargando datos:", e)
-try{
-registros = JSON.parse(localStorage.getItem("registros")) || []
-}catch(error){
-registros = []
-}
-}
-
-render()
-
-}
-
-/* =====================================================
-MODULO 18
-ACTUALIZACION AUTOMATICA
-===================================================== */
-
-setInterval(()=>{
-cargarDatos()
-},5000)
-
-/* =====================================================
-MODULO 19
-USUARIO ACTUAL
-===================================================== */
-
-if(!localStorage.getItem("usuario")){
-localStorage.setItem("usuario","SIN_USUARIO")
-}
-
-</script>
-
-</body>
-</html>
