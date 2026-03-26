@@ -989,8 +989,15 @@ MODULO 15
 IMPRESION PDF
 Imprime solo desde FECHA hasta MATERIA
 ===================================================== */
-
 function construirTablaImpresion(lista){
+
+// ✅ ORDENAR POR FECHA (NUEVO → ANTIGUO)
+lista.sort((a,b)=>{
+let fechaA = new Date(a.fecha)
+let fechaB = new Date(b.fecha)
+return fechaB - fechaA
+})
+
 let datos=obtenerDatosExportacion(lista)
 
 let html=`
@@ -1025,10 +1032,7 @@ html+=`
 <td>${r["NUMERO"]}</td>
 <td>${r["IDENT MATERIA"]}</td>
 <td>${r["IDENT DOC"]}</td>
-
-<!-- 🔥 CORRECCIÓN AQUÍ -->
 <td>${r["AUTORIDAD"]}</td>
-
 <td>${r["EJS"]}</td>
 <td>${r["HJS"]}</td>
 <td class="print-materia">${r["MATERIA"]}</td>
