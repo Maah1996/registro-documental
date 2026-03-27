@@ -608,7 +608,9 @@ CONFIGURACION API (AQUI VA EL SCRIPT)
 ===================================================== */
 
 const API_URL="https://script.google.com/macros/s/AKfycbx9zpmtrGsvy3JL4tJyFahA_Ein432egOfhwUDoY9TR6vNQdXfHdNJxPWMW9HLKO61n/exec"
-const CLAVE_ACCESO = "1234"
+const CLAVE_ACCESO = "1996"
+const TIEMPO_BLOQUEO = 120000
+const DIAS_CAMBIO_CLAVE = 15
 
 let registros=[]
 let editIndex=null
@@ -913,6 +915,20 @@ return false
 }
 
 sessionStorage.setItem("claveAcceso",clave)
+localStorage.setItem("fechaLogin", Date.now())
+}
+
+let fechaLogin = localStorage.getItem("fechaLogin")
+
+if(fechaLogin){
+
+let ahora = Date.now()
+let dias = (ahora - Number(fechaLogin)) / (1000 * 60 * 60 * 24)
+
+if(dias >= DIAS_CAMBIO_CLAVE){
+alert("🔐 Recuerda cambiar la clave por seguridad del sistema")
+localStorage.setItem("fechaLogin", Date.now())
+}
 }
 
 return true
@@ -932,7 +948,7 @@ iniciarControlInactividad()
 }
 
 /* =====================================================
-CONTROL DE INACTIVIDAD (3 MINUTOS)
+CONTROL DE INACTIVIDAD
 ===================================================== */
 
 let tiempoInactivo
@@ -959,7 +975,7 @@ alert("🔒 Sesión bloqueada por inactividad")
 
 location.reload()
 
-},180000) // 3 minutos
+},TIEMPO_BLOQUEO)
 
 }
 /* =====================================================
