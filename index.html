@@ -887,9 +887,13 @@ buscarFecha.addEventListener("input",render)
 buscarProcedencia.addEventListener("input",render)
 buscarArchivo.addEventListener("input",render)
 
+/* =====================================================
+VALIDACION DE ACCESO
+===================================================== */
+
 function validarAcceso(){
 
-let claveGuardada = localStorage.getItem("claveAcceso")
+let claveGuardada = sessionStorage.getItem("claveAcceso")
 
 if(claveGuardada !== CLAVE_ACCESO){
 
@@ -908,18 +912,56 @@ ACCESO BLOQUEADO
 return false
 }
 
-localStorage.setItem("claveAcceso",clave)
+sessionStorage.setItem("claveAcceso",clave)
 }
 
 return true
 }
 
+/* =====================================================
+INICIO DEL SISTEMA
+===================================================== */
+
 window.onload = ()=>{
+
 if(validarAcceso()){
 cargarDatos()
-}
+iniciarControlInactividad()
 }
 
+}
+
+/* =====================================================
+CONTROL DE INACTIVIDAD (3 MINUTOS)
+===================================================== */
+
+let tiempoInactivo
+
+function iniciarControlInactividad(){
+
+resetTimer()
+
+["click","mousemove","keypress","scroll"].forEach(event=>{
+document.addEventListener(event,resetTimer)
+})
+
+}
+
+function resetTimer(){
+
+clearTimeout(tiempoInactivo)
+
+tiempoInactivo = setTimeout(()=>{
+
+sessionStorage.clear()
+
+alert("🔒 Sesión bloqueada por inactividad")
+
+location.reload()
+
+},180000) // 3 minutos
+
+}
 /* =====================================================
 MODULO 13
 FUNCIONES AGREGADAS (ARREGLOS)
