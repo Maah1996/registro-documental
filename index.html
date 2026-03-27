@@ -898,11 +898,15 @@ function validarAcceso(){
 
 let claveGuardada = sessionStorage.getItem("claveAcceso")
 
-if(claveGuardada !== CLAVE_ACCESO){
+// 🔐 NUEVO: CLAVE DINÁMICA
+let claveSistema = localStorage.getItem("claveSistema") || CLAVE_ACCESO
+
+if(claveGuardada !== claveSistema){
 
 let clave = prompt("🔐 Ingrese clave de acceso")
 
-if(clave !== CLAVE_ACCESO){
+// 🔐 CAMBIO AQUÍ
+if(clave !== claveSistema){
 
 alert("❌ Acceso denegado")
 
