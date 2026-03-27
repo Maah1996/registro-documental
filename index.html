@@ -969,9 +969,8 @@ function iniciarControlInactividad(){
 
 resetTimer()
 
-["click","mousemove","keypress"].forEach(event=>{
-document.addEventListener(event,resetTimer)
-})
+document.addEventListener("click",resetTimer)
+document.addEventListener("mousemove",resetTimer)
 
 }
 
