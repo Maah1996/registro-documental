@@ -992,6 +992,59 @@ location.reload()
 
 }
 /* =====================================================
+INICIO DEL SISTEMA
+===================================================== */
+
+window.onload = ()=>{
+
+if(validarAcceso()){
+
+cargarDatos()
+iniciarControlInactividad()
+
+// 🔐 MOSTRAR BOTON SOLO ADMIN
+if(localStorage.getItem("usuario")==="ADMIN"){
+let btn = document.getElementById("btnClave")
+if(btn) btn.style.display = "inline-block"
+}
+
+}
+
+}
+
+/* =====================================================
+CONTROL DE INACTIVIDAD
+===================================================== */
+
+let tiempoInactivo
+
+function iniciarControlInactividad(){
+
+resetTimer()
+
+// ✅ SIN SCROLL (CORREGIDO)
+["click","mousemove","keypress"].forEach(event=>{
+document.addEventListener(event,resetTimer)
+})
+
+}
+
+function resetTimer(){
+
+clearTimeout(tiempoInactivo)
+
+tiempoInactivo = setTimeout(()=>{
+
+sessionStorage.clear()
+
+alert("🔒 Sesión bloqueada por inactividad")
+
+location.reload()
+
+},TIEMPO_BLOQUEO)
+
+}
+/* =====================================================
 MODULO 13
 FUNCIONES AGREGADAS (ARREGLOS)
 ===================================================== */
