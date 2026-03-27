@@ -1122,6 +1122,39 @@ document.getElementById("porVencer").innerText=vencer
 }
 
 /* =====================================================
+FUNCION ADMIN — CAMBIAR CLAVE
+===================================================== */
+
+function cambiarClave(){
+
+let actual = prompt("🔐 Ingresa clave actual")
+
+if(actual !== CLAVE_ACCESO){
+alert("❌ Clave incorrecta")
+return
+}
+
+let nueva = prompt("🆕 Ingresa nueva clave")
+
+if(!nueva || nueva.length < 3){
+alert("⚠️ Clave muy corta")
+return
+}
+
+let confirmar = prompt("🔁 Confirma nueva clave")
+
+if(nueva !== confirmar){
+alert("❌ No coinciden")
+return
+}
+
+localStorage.setItem("CLAVE_ADMIN", nueva)
+
+alert("✅ Clave cambiada correctamente")
+
+}
+
+/* =====================================================
 MODULO 14
 EVENTOS DE ACCIONES EN TABLA
 Editar y borrar con delegacion de eventos
