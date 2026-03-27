@@ -942,10 +942,17 @@ INICIO DEL SISTEMA
 window.onload = ()=>{
 
 if(validarAcceso()){
+
 cargarDatos()
 iniciarControlInactividad()
+
+// 🔐 MOSTRAR BOTON SOLO ADMIN
+if(localStorage.getItem("usuario")==="ADMIN"){
+let btn = document.getElementById("btnClave")
+if(btn) btn.style.display = "inline-block"
 }
 
+}
 }
 
 /* =====================================================
