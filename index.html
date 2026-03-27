@@ -1021,10 +1021,9 @@ function iniciarControlInactividad(){
 
 resetTimer()
 
-// ✅ SIN SCROLL (CORREGIDO)
-["click","mousemove","keypress"].forEach(event=>{
-document.addEventListener(event,resetTimer)
-})
+// ✅ EVENTOS CORREGIDOS (SIN KEYPRESS)
+document.addEventListener("click",resetTimer)
+document.addEventListener("mousemove",resetTimer)
 
 }
 
