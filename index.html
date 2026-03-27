@@ -919,6 +919,7 @@ sessionStorage.setItem("claveAcceso",clave)
 localStorage.setItem("fechaLogin", Date.now())
 }
 
+// 🔔 RECORDATORIO CAMBIO CLAVE
 let fechaLogin = localStorage.getItem("fechaLogin")
 
 if(fechaLogin){
@@ -927,8 +928,10 @@ let ahora = Date.now()
 let dias = (ahora - Number(fechaLogin)) / (1000 * 60 * 60 * 24)
 
 if(dias >= DIAS_CAMBIO_CLAVE){
+
 alert("🔐 Recuerda cambiar la clave por seguridad del sistema")
 localStorage.setItem("fechaLogin", Date.now())
+
 }
 }
 
@@ -953,6 +956,7 @@ if(btn) btn.style.display = "inline-block"
 }
 
 }
+
 }
 
 /* =====================================================
@@ -965,7 +969,8 @@ function iniciarControlInactividad(){
 
 resetTimer()
 
-["click","mousemove","keypress","scroll"].forEach(event=>{
+// ✅ SIN SCROLL (CORREGIDO)
+["click","mousemove","keypress"].forEach(event=>{
 document.addEventListener(event,resetTimer)
 })
 
