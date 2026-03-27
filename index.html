@@ -1339,6 +1339,34 @@ USUARIO ACTUAL
 if(!localStorage.getItem("usuario")){
 localStorage.setItem("usuario","ADMIN") // ← SOLO TU
 }
+
+/* =====================================================
+MODULO 20
+CAMBIAR CLAVE DESDE LA PAGINA
+===================================================== */
+
+function cambiarClave(){
+
+let claveActual = prompt("Ingrese la clave actual")
+if(claveActual !== CLAVE_ACCESO){
+alert("Clave actual incorrecta")
+return
+}
+
+let nuevaClave = prompt("Ingrese la nueva clave")
+if(!nuevaClave || nuevaClave.trim()===""){
+alert("La nueva clave no puede estar vacía")
+return
+}
+
+let confirmarClave = prompt("Confirme la nueva clave")
+if(nuevaClave !== confirmarClave){
+alert("Las claves no coinciden")
+return
+}
+
+alert("La nueva clave fue guardada solo en esta sesión de la página. Si quieres que quede permanente, hay que actualizar el valor de CLAVE_ACCESO en el código.")
+}
 </script>
 
 </body>
