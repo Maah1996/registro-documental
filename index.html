@@ -1378,6 +1378,55 @@ localStorage.setItem("claveSistema", nuevaClave)
 alert("✅ Clave cambiada correctamente")
 
 }
+
+/*======================================
+MODULO 20.1
+FILTRAR DOC POR VENCER
+========================================
+/* =====================================================
+MODULO 20.1
+FILTRO CLICK "POR VENCER"
+(No modifica lógica existente)
+===================================================== */
+
+let filtroPorVencerActivo = false
+
+// CLICK EN TARJETA
+document.querySelector(".card.warning").addEventListener("click",()=>{
+
+filtroPorVencerActivo = !filtroPorVencerActivo
+
+render()
+
+})
+
+/* =====================================================
+MODIFICACION MINIMA EN FILTRO GENERAL
+(Sin romper lo existente)
+===================================================== */
+
+// 🔥 INTERCEPTAMOS LA FUNCION ORIGINAL
+const obtenerRegistrosFiltradosOriginal = obtenerRegistrosFiltrados
+
+obtenerRegistrosFiltrados = function(){
+
+let lista = obtenerRegistrosFiltradosOriginal()
+
+if(filtroPorVencerActivo){
+
+lista = lista.filter(r=>{
+let d = diasNumero(r.plazo)
+return d !== null && d <= 5 && d >= 0
+})
+
+}
+
+return lista
+}
+
+
+
+
 </script>
 
 </body>
