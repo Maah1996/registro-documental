@@ -117,6 +117,41 @@ button.sec:hover{
 background:#667071;
 }
 
+.session-bar{
+display:flex;
+justify-content:center;
+align-items:center;
+gap:12px;
+margin:-6px 0 18px 0;
+flex-wrap:wrap;
+}
+
+.session-timer{
+background:#fff;
+border:1px solid #cfd8e3;
+border-radius:999px;
+box-shadow:0 2px 8px rgba(0,0,0,.06);
+padding:8px 14px;
+font-size:13px;
+font-weight:700;
+color:#243447;
+}
+
+.session-timer span{
+font-variant-numeric:tabular-nums;
+font-size:16px;
+color:#c0392b;
+margin-left:6px;
+}
+
+.btn-lock{
+background:#c0392b;
+}
+
+.btn-lock:hover{
+background:#922b21;
+}
+
 /* TARJETAS */
 
 .stats{
@@ -412,6 +447,11 @@ TITULO PRINCIPAL
 
 <h1>REGISTRO DOCUMENTAL</h1>
 
+<div class="session-bar">
+<div class="session-timer">Bloqueo automático en <span id="temporizadorSesion">02:00</span></div>
+<button class="btn-lock" id="btnBloquearManual" type="button">BLOQUEAR</button>
+</div>
+
 <div class="layout">
 
 <!-- =====================================================
@@ -597,6 +637,9 @@ const buscarNumero=document.getElementById("buscarNumero")
 const buscarFecha=document.getElementById("buscarFecha")
 const buscarProcedencia=document.getElementById("buscarProcedencia")
 const buscarArchivo=document.getElementById("buscarArchivo")
+
+const temporizadorSesion=document.getElementById("temporizadorSesion")
+const btnBloquearManual=document.getElementById("btnBloquearManual")
 
 const tabla=document.getElementById("tabla")
 const printArea=document.getElementById("printArea")
@@ -964,87 +1007,57 @@ if(btn) btn.style.display = "inline-block"
 }
 
 /* =====================================================
-CONTROL DE INACTIVIDAD
+CONTROL DE INACTIVIDAD Y BLOQUEO MANUAL
 ===================================================== */
 
 var tiempoInactivo
+let segundosInactividad = Math.floor(TIEMPO_BLOQUEO / 1000)
+const eventosActividad = ["click","mousemove","keydown","input","scroll","touchstart"]
+
+function formatearTemporizador(segundos){
+let minutos = Math.floor(segundos / 60)
+let resto = segundos % 60
+return `${String(minutos).padStart(2,"0")}:${String(resto).padStart(2,"0")}`
+}
+
+function actualizarTemporizadorSesion(){
+if(temporizadorSesion){
+temporizadorSesion.innerText = formatearTemporizador(segundosInactividad)
+}
+}
+
+function bloquearSesion(manual){
+clearInterval(tiempoInactivo)
+sessionStorage.clear()
+alert(manual ? "🔒 Sesión bloqueada manualmente" : "🔒 Sesión bloqueada por inactividad")
+location.reload()
+}
 
 function iniciarControlInactividad(){
-
 resetTimer()
 
-// ✅ EVENTOS SEGUROS 
-document.addEventListener("click",resetTimer)
-document.addEventListener("mousemove",resetTimer)
+eventosActividad.forEach(evento=>{
+document.addEventListener(evento,resetTimer,{ passive:true })
+})
 
+if(btnBloquearManual){
+btnBloquearManual.addEventListener("click",()=>bloquearSesion(true))
+}
 }
 
 function resetTimer(){
+clearInterval(tiempoInactivo)
+segundosInactividad = Math.floor(TIEMPO_BLOQUEO / 1000)
+actualizarTemporizadorSesion()
 
-clearTimeout(tiempoInactivo)
+tiempoInactivo = setInterval(()=>{
+segundosInactividad--
+actualizarTemporizadorSesion()
 
-tiempoInactivo = setTimeout(()=>{
-
-sessionStorage.clear()
-
-alert("🔒 Sesión bloqueada por inactividad")
-
-location.reload()
-
-},TIEMPO_BLOQUEO)
-
+if(segundosInactividad <= 0){
+bloquearSesion(false)
 }
-/* =====================================================
-INICIO DEL SISTEMA
-===================================================== */
-
-window.onload = ()=>{
-
-if(validarAcceso()){
-
-cargarDatos()
-iniciarControlInactividad()
-
-// 🔐 MOSTRAR BOTON SOLO ADMIN
-if(localStorage.getItem("usuario")==="ADMIN"){
-let btn = document.getElementById("btnClave")
-if(btn) btn.style.display = "inline-block"
-}
-
-}
-
-}
-
-/* =====================================================
-CONTROL DE INACTIVIDAD
-===================================================== */
-
-var tiempoInactivo
-
-function iniciarControlInactividad(){
-
-resetTimer()
-
-// ✅ EVENTOS CORREGIDOS 
-document.addEventListener("click",resetTimer)
-document.addEventListener("mousemove",resetTimer)
-
-}
-
-function resetTimer(){
-
-clearTimeout(tiempoInactivo)
-
-tiempoInactivo = setTimeout(()=>{
-
-sessionStorage.clear()
-
-alert("🔒 Sesión bloqueada por inactividad")
-
-location.reload()
-
-},TIEMPO_BLOQUEO)
-
+},1000)
 }
 /* =====================================================
 MODULO 13
