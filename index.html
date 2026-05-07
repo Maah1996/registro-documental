@@ -152,6 +152,39 @@ background:#c0392b;
 background:#922b21;
 }
 
+.clock-card{
+background:linear-gradient(135deg,#243447,#34495e);
+border-radius:12px;
+box-shadow:0 2px 10px rgba(0,0,0,.12);
+color:#fff;
+margin-bottom:14px;
+padding:16px 12px;
+text-align:center;
+}
+
+.clock-time{
+font-size:34px;
+font-weight:800;
+font-variant-numeric:tabular-nums;
+letter-spacing:1px;
+line-height:1;
+}
+
+.clock-date{
+font-size:14px;
+font-weight:700;
+letter-spacing:.2px;
+margin-top:8px;
+text-transform:capitalize;
+}
+
+.clock-day-number{
+color:#dfeaf5;
+font-size:12px;
+font-weight:600;
+margin-top:4px;
+}
+
 /* TARJETAS */
 
 .stats{
@@ -461,6 +494,12 @@ FORMULARIO DE INGRESO
 
 <div class="panel left">
 
+<div class="clock-card" aria-live="polite">
+<div class="clock-time" id="relojHora">00:00:00</div>
+<div class="clock-date" id="relojFecha">miércoles 6 de mayo de 2026</div>
+<div class="clock-day-number" id="relojDiaNumero">Día 6</div>
+</div>
+
 <h3>REGISTRAR AQUÍ</h3>
 
 <label>Fecha Doc</label>
@@ -640,6 +679,9 @@ const buscarArchivo=document.getElementById("buscarArchivo")
 
 const temporizadorSesion=document.getElementById("temporizadorSesion")
 const btnBloquearManual=document.getElementById("btnBloquearManual")
+const relojHora=document.getElementById("relojHora")
+const relojFecha=document.getElementById("relojFecha")
+const relojDiaNumero=document.getElementById("relojDiaNumero")
 
 const tabla=document.getElementById("tabla")
 const printArea=document.getElementById("printArea")
@@ -742,6 +784,32 @@ return Math.floor((f-hoy)/86400000)
 
 function valorSeguro(v){
 return (v??"").toString()
+}
+
+function actualizarReloj(){
+let ahora=new Date()
+
+if(relojHora){
+relojHora.innerText=ahora.toLocaleTimeString("es-CL",{
+hour:"2-digit",
+minute:"2-digit",
+second:"2-digit",
+hour12:false
+})
+}
+
+if(relojFecha){
+relojFecha.innerText=ahora.toLocaleDateString("es-CL",{
+weekday:"long",
+year:"numeric",
+month:"long",
+day:"numeric"
+})
+}
+
+if(relojDiaNumero){
+relojDiaNumero.innerText=`Día ${ahora.getDate()}`
+}
 }
 
 function limpiarTextoBusqueda(v){
@@ -932,6 +1000,9 @@ buscarNumero.addEventListener("input",render)
 buscarFecha.addEventListener("input",render)
 buscarProcedencia.addEventListener("input",render)
 buscarArchivo.addEventListener("input",render)
+
+actualizarReloj()
+setInterval(actualizarReloj,1000)
 
 /* =====================================================
 VALIDACION DE ACCESO
