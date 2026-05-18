@@ -1136,8 +1136,9 @@ const badge = document.getElementById("badge-usuario")
 const badgeRol = document.getElementById("badge-rol")
 const btnAdmin = document.getElementById("btn-usuarios-admin")
 if(badge) badge.textContent = "👤 " + usuarioActual
-if(badgeRol) badgeRol.textContent = rolActual === "admin" ? "ADMINISTRADOR" : "USUARIO"
-if(btnAdmin) btnAdmin.style.display = rolActual === "admin" ? "" : "none"
+const esAdmin = (rolActual||"").toLowerCase()==="admin"
+if(badgeRol) badgeRol.textContent = esAdmin ? "ADMINISTRADOR" : "USUARIO"
+if(btnAdmin) btnAdmin.style.display = esAdmin ? "" : "none"
 }
 
 async function hacerLogin(){
@@ -1590,11 +1591,12 @@ errEl.textContent="❌ Error al guardar. Intenta de nuevo."
 }
 
 function abrirModalUsuarios(){
-if(rolActual!=="admin") return
+if((rolActual||"").toLowerCase()!=="admin") return
 document.getElementById("nu-usuario").value=""
 document.getElementById("nu-clave").value=""
 document.getElementById("nu-error").textContent=""
-document.getElementById("modal-usuarios").classList.add("open")
+const m=document.getElementById("modal-usuarios")
+if(m){ m.style.display="flex"; m.classList.add("open") }
 cargarListaUsuarios()
 }
 function cerrarModalUsuarios(){
