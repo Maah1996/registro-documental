@@ -854,7 +854,7 @@ window[cb]=function(resp){
 }
 s.onerror=function(){if(!done){done=true;delete window[cb];reject(new Error('Sheet no accesible. Comparte el Sheet como "Cualquier persona con el enlace → Lector"'))}}
 setTimeout(function(){if(!done){done=true;delete window[cb];reject(new Error('Tiempo de espera agotado leyendo Sheet'))}},15000)
-s.src='https://docs.google.com/spreadsheets/d/'+SHEET_ID_RGDOC+'/gviz/tq?sheet='+encodeURIComponent(sheetName)+'&callback='+cb
+s.src='https://docs.google.com/spreadsheets/d/'+SHEET_ID_RGDOC+'/gviz/tq?sheet='+encodeURIComponent(sheetName)+'&tqx=responseHandler:'+cb
 document.head.appendChild(s)
 })
 }
