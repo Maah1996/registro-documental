@@ -597,6 +597,7 @@ TITULO PRINCIPAL
 </div>
 
 <h1>REGISTRO DOCUMENTAL</h1>
+<div id="api-status" style="display:none;background:#fff3cd;border:1px solid #ffc107;color:#856404;border-radius:8px;padding:8px 14px;margin:0 0 10px 0;font-size:13px;text-align:center;"></div>
 
 <div class="session-bar">
 <div class="session-timer">Bloqueo automático en <span id="temporizadorSesion">02:00</span></div>
@@ -1150,7 +1151,8 @@ if(!u || !c){ errEl.textContent = "Complete usuario y clave."; return }
 errEl.textContent = "Verificando..."
 try{
 const res = await fetch(API_URL + "?u=" + encodeURIComponent(u) + "&c=" + encodeURIComponent(c))
-const data = await res.json()
+const rawText = await res.text()
+let data; try{ data = JSON.parse(rawText) }catch(pe){ throw new Error("HTTP "+res.status+": "+rawText.substring(0,120)) }
 if(data.status === "ok"){
 sessionStorage.setItem("rdUsuario", u)
 sessionStorage.setItem("rdClave", c)
@@ -1519,7 +1521,14 @@ const c = sessionStorage.getItem("rdClave")
 if(!u || !c){ mostrarLogin(); return; }
 try{
 let res = await fetch(API_URL + "?u=" + encodeURIComponent(u) + "&c=" + encodeURIComponent(c))
-let data = await res.json()
+let rawText = await res.text()
+let data
+try{ data = JSON.parse(rawText) }catch(pe){
+  console.warn("API no-JSON HTTP:", res.status, rawText.substring(0,200))
+  mostrarEstadoAPI("⚠️ Sin respuesta válida del servidor (HTTP "+res.status+")")
+  try{ registros = JSON.parse(localStorage.getItem("registros")) || [] }catch(e){ registros = [] }
+  render(); return
+}
 if(data.status==="ok" && Array.isArray(data.registros)){
 registros = data.registros.map(r=>({
 ...r,
@@ -1527,14 +1536,25 @@ fecha: normalizarFechaISO(r.fecha),
 plazo: normalizarFechaISO(r.plazo)
 }))
 localStorage.setItem("registros",JSON.stringify(registros))
+mostrarEstadoAPI("")
 }else{
+console.warn("API error:", data)
+mostrarEstadoAPI("⚠️ API: "+(data.mensaje||data.msg||JSON.stringify(data).substring(0,80)))
 registros = JSON.parse(localStorage.getItem("registros")) || []
 }
 }catch(e){
 console.log("Error cargando datos:", e)
+mostrarEstadoAPI("⚠️ Sin conexión con Apps Script")
 try{ registros = JSON.parse(localStorage.getItem("registros")) || [] }catch(err){ registros = [] }
 }
 render()
+}
+
+function mostrarEstadoAPI(msg){
+const el = document.getElementById("api-status")
+if(!el) return
+el.textContent = msg
+el.style.display = msg ? "block" : "none"
 }
 
 /* =====================================================
