@@ -1544,7 +1544,8 @@ registros = JSON.parse(localStorage.getItem("registros")) || []
 }
 }catch(e){
 console.log("Error cargando datos:", e)
-mostrarEstadoAPI("⚠️ Sin conexión con Apps Script")
+const errMsg = e && e.message ? e.message : String(e)
+mostrarEstadoAPI("⚠️ Error fetch: "+errMsg.substring(0,120))
 try{ registros = JSON.parse(localStorage.getItem("registros")) || [] }catch(err){ registros = [] }
 }
 render()
