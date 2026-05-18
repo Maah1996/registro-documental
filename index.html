@@ -1168,7 +1168,24 @@ document.getElementById("login-clave").value = ""
 errEl.textContent = "❌ Usuario o clave incorrectos."
 }
 }catch(e){
-errEl.textContent = "❌ Error de conexión. Intenta de nuevo."
+// Fallback: usar credenciales guardadas localmente si el servidor no responde
+const local = JSON.parse(localStorage.getItem("rdLocalUsers") || '[{"usuario":"ADMIN","clave":"1996","rol":"admin"}]')
+const localUser = local.find(x => x.usuario === u && x.clave === c)
+if(localUser){
+sessionStorage.setItem("rdUsuario", u)
+sessionStorage.setItem("rdClave", c)
+sessionStorage.setItem("rdRol", localUser.rol)
+usuarioActual = u
+rolActual = localUser.rol
+registros = JSON.parse(localStorage.getItem("registros") || "[]")
+ocultarLogin()
+mostrarSegunRol()
+iniciarControlInactividad()
+render()
+errEl.textContent = "⚠️ Modo sin conexión — datos locales"
+}else{
+errEl.textContent = "❌ Sin conexión al servidor. Verifica la implementación del Apps Script."
+}
 }
 }
 
