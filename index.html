@@ -1142,6 +1142,21 @@ if(badgeRol) badgeRol.textContent = esAdmin ? "ADMINISTRADOR" : "USUARIO"
 if(btnAdmin) btnAdmin.style.display = esAdmin ? "" : "none"
 }
 
+// ── JSONP helper: bypasea CORS usando <script> ──────────────────
+function fetchGAS(url){
+return new Promise(function(resolve,reject){
+var cb='_gcb'+Date.now()+Math.random().toString(36).slice(2,7)
+var s=document.createElement('script')
+var done=false
+window[cb]=function(d){done=true;delete window[cb];s.parentNode&&s.parentNode.removeChild(s);resolve(d)}
+s.onerror=function(){if(!done){done=true;delete window[cb];s.parentNode&&s.parentNode.removeChild(s);reject(new Error('JSONP error'))}}
+setTimeout(function(){if(!done){done=true;delete window[cb];reject(new Error('Sin respuesta del servidor (timeout)'))}},15000)
+s.src=url+(url.indexOf('?')>=0?'&':'?')+'callback='+cb
+document.head.appendChild(s)
+})
+}
+// ────────────────────────────────────────────────────────────────
+
 async function hacerLogin(){
 const u = (document.getElementById("login-usuario").value || "").trim().toUpperCase()
 const c = (document.getElementById("login-clave").value || "").trim()
@@ -1150,9 +1165,7 @@ errEl.textContent = ""
 if(!u || !c){ errEl.textContent = "Complete usuario y clave."; return }
 errEl.textContent = "Verificando..."
 try{
-const res = await fetch(API_URL + "?u=" + encodeURIComponent(u) + "&c=" + encodeURIComponent(c), {credentials:"omit"})
-const rawText = await res.text()
-let data; try{ data = JSON.parse(rawText) }catch(pe){ throw new Error("HTTP "+res.status+": "+rawText.substring(0,120)) }
+const data = await fetchGAS(API_URL + "?u=" + encodeURIComponent(u) + "&c=" + encodeURIComponent(c))
 if(data.status === "ok"){
 sessionStorage.setItem("rdUsuario", u)
 sessionStorage.setItem("rdClave", c)
@@ -1168,7 +1181,7 @@ render()
 document.getElementById("login-usuario").value = ""
 document.getElementById("login-clave").value = ""
 }else{
-errEl.textContent = "❌ Usuario o clave incorrectos."
+errEl.textContent = "❌ "+(data.mensaje||"Usuario o clave incorrectos.")
 }
 }catch(e){
 // Fallback: usar credenciales guardadas localmente si el servidor no responde
@@ -1187,7 +1200,7 @@ iniciarControlInactividad()
 render()
 errEl.textContent = "⚠️ Modo sin conexión — datos locales"
 }else{
-errEl.textContent = "❌ Sin conexión al servidor. Verifica la implementación del Apps Script."
+errEl.textContent = "❌ "+e.message
 }
 }
 }
@@ -1520,15 +1533,7 @@ const u = sessionStorage.getItem("rdUsuario")
 const c = sessionStorage.getItem("rdClave")
 if(!u || !c){ mostrarLogin(); return; }
 try{
-let res = await fetch(API_URL + "?u=" + encodeURIComponent(u) + "&c=" + encodeURIComponent(c), {credentials:"omit"})
-let rawText = await res.text()
-let data
-try{ data = JSON.parse(rawText) }catch(pe){
-  console.warn("API no-JSON HTTP:", res.status, rawText.substring(0,200))
-  mostrarEstadoAPI("⚠️ Sin respuesta válida del servidor (HTTP "+res.status+")")
-  try{ registros = JSON.parse(localStorage.getItem("registros")) || [] }catch(e){ registros = [] }
-  render(); return
-}
+const data = await fetchGAS(API_URL + "?u=" + encodeURIComponent(u) + "&c=" + encodeURIComponent(c))
 if(data.status==="ok" && Array.isArray(data.registros)){
 registros = data.registros.map(r=>({
 ...r,
@@ -1538,14 +1543,11 @@ plazo: normalizarFechaISO(r.plazo)
 localStorage.setItem("registros",JSON.stringify(registros))
 mostrarEstadoAPI("")
 }else{
-console.warn("API error:", data)
-mostrarEstadoAPI("⚠️ API: "+(data.mensaje||data.msg||JSON.stringify(data).substring(0,80)))
+mostrarEstadoAPI("⚠️ "+(data.mensaje||data.msg||JSON.stringify(data).substring(0,80)))
 registros = JSON.parse(localStorage.getItem("registros")) || []
 }
 }catch(e){
-console.log("Error cargando datos:", e)
-const errMsg = e && e.message ? e.message : String(e)
-mostrarEstadoAPI("⚠️ Error fetch: "+errMsg.substring(0,120))
+mostrarEstadoAPI("⚠️ "+(e.message||String(e)))
 try{ registros = JSON.parse(localStorage.getItem("registros")) || [] }catch(err){ registros = [] }
 }
 render()
@@ -1629,8 +1631,7 @@ const c=sessionStorage.getItem("rdClave")
 const lista=document.getElementById("lista-usuarios")
 lista.innerHTML="<div style='color:#718096;font-size:12px;'>Cargando...</div>"
 try{
-const res=await fetch(API_URL+"?u="+encodeURIComponent(u)+"&c="+encodeURIComponent(c)+"&action=usuarios",{credentials:"omit"})
-const data=await res.json()
+const data=await fetchGAS(API_URL+"?u="+encodeURIComponent(u)+"&c="+encodeURIComponent(c)+"&action=usuarios")
 if(data.status==="ok"&&Array.isArray(data.usuarios)){
 lista.innerHTML=data.usuarios.map(us=>`
 <div class="usuario-item ${us.rol==='admin'?'admin-u':''}">
