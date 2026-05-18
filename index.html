@@ -484,15 +484,117 @@ grid-template-columns:1fr;
 }
 }
 
+/* LOGIN OVERLAY */
+#login-overlay{position:fixed;inset:0;background:#dfeaf5;z-index:9999;display:flex;align-items:center;justify-content:center;}
+.login-box{background:#fff;border-radius:16px;padding:36px 32px;width:340px;max-width:95vw;box-shadow:0 20px 60px rgba(0,0,0,.2);}
+.login-box h2{text-align:center;color:#243447;margin:0 0 4px;font-size:22px;}
+.login-box p{text-align:center;color:#718096;font-size:11px;margin:0 0 24px;}
+.login-box label{display:block;font-size:11px;font-weight:700;color:#4a5568;margin-bottom:4px;text-transform:uppercase;}
+.login-box input{width:100%;box-sizing:border-box;font-size:15px;padding:10px 12px;border:1.5px solid #e2e8f0;border-radius:8px;margin-bottom:14px;color:#243447;font-family:inherit;}
+.login-box input:focus{outline:none;border-color:#243447;}
+.btn-ingresar{width:100%;padding:12px;font-size:13px;font-weight:700;background:#243447;color:#fff;border:none;border-radius:8px;cursor:pointer;margin-top:4px;}
+.btn-ingresar:hover{background:#1a2738;}
+.login-error{color:#c62828;font-size:12px;text-align:center;margin-top:10px;min-height:18px;}
+/* MODAL CAMBIAR CLAVE */
+#modal-clave{display:none;position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:8000;align-items:center;justify-content:center;}
+#modal-clave.open{display:flex;}
+.modal-clave-box{background:#fff;border-radius:12px;padding:28px;width:320px;max-width:95vw;box-shadow:0 20px 50px rgba(0,0,0,.25);}
+.modal-clave-box h3{margin:0 0 18px;color:#243447;font-size:15px;}
+.modal-clave-box label{display:block;font-size:11px;font-weight:700;color:#4a5568;margin-bottom:3px;text-transform:uppercase;}
+.modal-clave-box input{width:100%;box-sizing:border-box;font-size:13px;padding:8px 10px;border:1px solid #cbd5e0;border-radius:6px;margin-bottom:12px;font-family:inherit;}
+.modal-clave-btns{display:flex;gap:8px;margin-top:4px;}
+.modal-clave-btns button{flex:1;padding:9px;border-radius:6px;border:none;cursor:pointer;font-size:12px;font-weight:700;}
+.btn-cancelar-clave{background:#e2e8f0;color:#4a5568;}
+.btn-guardar-clave{background:#243447;color:#fff;}
+/* MODAL USUARIOS (admin) */
+#modal-usuarios{display:none;position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:8000;align-items:center;justify-content:center;}
+#modal-usuarios.open{display:flex;}
+.modal-usuarios-box{background:#fff;border-radius:12px;padding:28px;width:420px;max-width:95vw;box-shadow:0 20px 50px rgba(0,0,0,.25);max-height:80vh;overflow-y:auto;}
+.modal-usuarios-box h3{margin:0 0 16px;color:#243447;font-size:15px;}
+.usuario-item{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:8px;background:#f8fafc;margin-bottom:8px;border-left:4px solid #243447;}
+.usuario-item.admin-u{border-left-color:#c8960a;}
+.usuario-nombre{flex:1;font-weight:700;font-size:13px;color:#243447;}
+.usuario-rol{font-size:11px;color:#718096;}
+.btn-del-user{background:#fff0f0;border:1px solid #fed7d7;color:#c62828;border-radius:6px;padding:4px 10px;cursor:pointer;font-size:11px;font-weight:700;}
+.nuevo-usuario-form{margin-top:16px;border-top:1px solid #e2e8f0;padding-top:16px;}
+.nuevo-usuario-form label{display:block;font-size:11px;font-weight:700;color:#4a5568;margin-bottom:3px;text-transform:uppercase;}
+.nuevo-usuario-form input,.nuevo-usuario-form select{width:100%;box-sizing:border-box;font-size:13px;padding:7px 10px;border:1px solid #cbd5e0;border-radius:6px;margin-bottom:10px;font-family:inherit;}
+/* BADGE USUARIO EN HEADER */
+.user-badge-bar{background:#243447;color:#fff;padding:6px 20px;display:flex;align-items:center;justify-content:space-between;font-size:12px;margin:-20px -20px 20px -20px;}
+.user-badge-bar span{font-weight:700;}
+
 </style>
 </head>
 
 <body>
 
+<!-- LOGIN OVERLAY -->
+<div id="login-overlay">
+  <div class="login-box">
+    <h2>REG.DOC</h2>
+    <p>REGISTRO DOCUMENTAL — ACCESO</p>
+    <label>Usuario</label>
+    <input type="text" id="login-usuario" placeholder="Nombre de usuario" autocomplete="username" oninput="this.value=this.value.toUpperCase()">
+    <label>Contraseña</label>
+    <input type="password" id="login-clave" placeholder="Clave de acceso" autocomplete="current-password" onkeydown="if(event.key==='Enter') hacerLogin()">
+    <button class="btn-ingresar" onclick="hacerLogin()">INGRESAR</button>
+    <div class="login-error" id="login-error"></div>
+  </div>
+</div>
+
+<!-- MODAL CAMBIAR CLAVE -->
+<div id="modal-clave">
+  <div class="modal-clave-box">
+    <h3>🔐 Cambiar contraseña</h3>
+    <label>Clave actual</label>
+    <input type="password" id="mc-actual" placeholder="Tu clave actual">
+    <label>Nueva clave</label>
+    <input type="password" id="mc-nueva" placeholder="Nueva clave">
+    <label>Confirmar nueva clave</label>
+    <input type="password" id="mc-confirmar" placeholder="Repite la nueva clave">
+    <div class="login-error" id="mc-error"></div>
+    <div class="modal-clave-btns">
+      <button class="btn-cancelar-clave" onclick="cerrarModalClave()">Cancelar</button>
+      <button class="btn-guardar-clave" onclick="guardarClave()">Guardar</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL USUARIOS (solo admin) -->
+<div id="modal-usuarios">
+  <div class="modal-usuarios-box">
+    <h3>👥 Gestión de usuarios</h3>
+    <div id="lista-usuarios"></div>
+    <div class="nuevo-usuario-form">
+      <b style="font-size:13px;color:#243447;">+ Agregar usuario</b>
+      <label style="margin-top:10px;">Usuario</label>
+      <input type="text" id="nu-usuario" placeholder="Nombre (ej: JUAN)" oninput="this.value=this.value.toUpperCase()">
+      <label>Clave inicial</label>
+      <input type="password" id="nu-clave" placeholder="Clave de acceso">
+      <label>Rol</label>
+      <select id="nu-rol"><option value="usuario">Usuario</option><option value="admin">Administrador</option></select>
+      <div class="login-error" id="nu-error"></div>
+      <button class="btn-ingresar" onclick="crearUsuario()">+ Crear usuario</button>
+    </div>
+    <div style="margin-top:12px;text-align:right;">
+      <button class="btn-cancelar-clave" onclick="cerrarModalUsuarios()">Cerrar</button>
+    </div>
+  </div>
+</div>
+
 <!-- =====================================================
 MODULO 2
 TITULO PRINCIPAL
 ===================================================== -->
+
+<div class="user-badge-bar">
+  <span id="badge-usuario">—</span>
+  <div style="display:flex;gap:8px;align-items:center;">
+    <span id="badge-rol" style="background:rgba(255,255,255,.15);padding:2px 10px;border-radius:10px;font-size:11px;"></span>
+    <button onclick="abrirModalClave()" style="background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.3);color:#fff;padding:3px 10px;border-radius:5px;font-size:11px;cursor:pointer;">🔐 Clave</button>
+    <button id="btn-usuarios-admin" onclick="abrirModalUsuarios()" style="display:none;background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.3);color:#fff;padding:3px 10px;border-radius:5px;font-size:11px;cursor:pointer;">👥 Usuarios</button>
+  </div>
+</div>
 
 <h1>REGISTRO DOCUMENTAL</h1>
 
@@ -702,7 +804,8 @@ const relojDiaNumero=document.getElementById("relojDiaNumero")
 const tabla=document.getElementById("tabla")
 const printArea=document.getElementById("printArea")
 
-let usuarioActual = localStorage.getItem("usuario") || "SIN_USUARIO"
+let usuarioActual = sessionStorage.getItem("rdUsuario") || ""
+let rolActual = sessionStorage.getItem("rdRol") || "usuario"
 
 /* =====================================================
 MODULO 6
@@ -710,9 +813,7 @@ CONFIGURACION API (AQUI VA EL SCRIPT)
 ===================================================== */
 
 const API_URL="https://script.google.com/macros/s/AKfycbxIgs6Rcj2t23dkiCVrfPbIQ9jxb9J9gfDg2ujRabQ7ikyGJTpEVTWjUgiKZTCTGsPS/exec"
-const CLAVE_ACCESO = "1996"
 const TIEMPO_BLOQUEO = 120000
-const DIAS_CAMBIO_CLAVE = 15
 
 let registros=[]
 let editIndex=null
@@ -1022,52 +1123,53 @@ setInterval(actualizarReloj,1000)
 VALIDACION DE ACCESO
 ===================================================== */
 
-function validarAcceso(){
-
-let claveGuardada = sessionStorage.getItem("claveAcceso")
-
-// 🔐 NUEVO: CLAVE DINÁMICA
-let claveSistema = localStorage.getItem("claveSistema") || CLAVE_ACCESO
-
-if(claveGuardada !== claveSistema){
-
-let clave = prompt("🔐 Ingrese clave de acceso")
-
-// 🔐 CAMBIO AQUÍ
-if(clave !== claveSistema){
-
-alert("❌ Acceso denegado")
-
-document.body.innerHTML = `
-<h2 style="text-align:center;margin-top:50px">
-ACCESO BLOQUEADO
-</h2>
-`
-
-return false
+function mostrarLogin(){
+document.getElementById("login-overlay").style.display = "flex"
 }
 
-sessionStorage.setItem("claveAcceso",clave)
-localStorage.setItem("fechaLogin", Date.now())
+function ocultarLogin(){
+document.getElementById("login-overlay").style.display = "none"
 }
 
-// 🔔 RECORDATORIO CAMBIO CLAVE
-let fechaLogin = localStorage.getItem("fechaLogin")
-
-if(fechaLogin){
-
-let ahora = Date.now()
-let dias = (ahora - Number(fechaLogin)) / (1000 * 60 * 60 * 24)
-
-if(dias >= DIAS_CAMBIO_CLAVE){
-
-alert("🔐 Recuerda cambiar la clave por seguridad del sistema")
-localStorage.setItem("fechaLogin", Date.now())
-
-}
+function mostrarSegunRol(){
+const badge = document.getElementById("badge-usuario")
+const badgeRol = document.getElementById("badge-rol")
+const btnAdmin = document.getElementById("btn-usuarios-admin")
+if(badge) badge.textContent = "👤 " + usuarioActual
+if(badgeRol) badgeRol.textContent = rolActual === "admin" ? "ADMINISTRADOR" : "USUARIO"
+if(btnAdmin) btnAdmin.style.display = rolActual === "admin" ? "" : "none"
 }
 
-return true
+async function hacerLogin(){
+const u = (document.getElementById("login-usuario").value || "").trim().toUpperCase()
+const c = (document.getElementById("login-clave").value || "").trim()
+const errEl = document.getElementById("login-error")
+errEl.textContent = ""
+if(!u || !c){ errEl.textContent = "Complete usuario y clave."; return }
+errEl.textContent = "Verificando..."
+try{
+const res = await fetch(API_URL + "?u=" + encodeURIComponent(u) + "&c=" + encodeURIComponent(c))
+const data = await res.json()
+if(data.status === "ok"){
+sessionStorage.setItem("rdUsuario", u)
+sessionStorage.setItem("rdClave", c)
+sessionStorage.setItem("rdRol", data.rol || "usuario")
+usuarioActual = u
+rolActual = data.rol || "usuario"
+registros = (data.registros || []).map(r=>({...r, fecha: normalizarFechaISO(r.fecha), plazo: normalizarFechaISO(r.plazo)}))
+localStorage.setItem("registros", JSON.stringify(registros))
+ocultarLogin()
+mostrarSegunRol()
+iniciarControlInactividad()
+render()
+document.getElementById("login-usuario").value = ""
+document.getElementById("login-clave").value = ""
+}else{
+errEl.textContent = "❌ Usuario o clave incorrectos."
+}
+}catch(e){
+errEl.textContent = "❌ Error de conexión. Intenta de nuevo."
+}
 }
 
 /* =====================================================
@@ -1075,20 +1177,18 @@ INICIO DEL SISTEMA
 ===================================================== */
 
 window.onload = ()=>{
-
-if(validarAcceso()){
-
+const u = sessionStorage.getItem("rdUsuario")
+const c = sessionStorage.getItem("rdClave")
+if(u && c){
+usuarioActual = u
+rolActual = sessionStorage.getItem("rdRol") || "usuario"
+ocultarLogin()
+mostrarSegunRol()
 cargarDatos()
 iniciarControlInactividad()
-
-// 🔐 MOSTRAR BOTON SOLO ADMIN
-if(localStorage.getItem("usuario")==="ADMIN"){
-let btn = document.getElementById("btnClave")
-if(btn) btn.style.display = "inline-block"
+}else{
+mostrarLogin()
 }
-
-}
-
 }
 
 /* =====================================================
@@ -1114,8 +1214,9 @@ temporizadorSesion.innerText = formatearTemporizador(segundosInactividad)
 function bloquearSesion(manual){
 clearInterval(tiempoInactivo)
 sessionStorage.clear()
-alert(manual ? "🔒 Sesión bloqueada manualmente" : "🔒 Sesión bloqueada por inactividad")
-location.reload()
+usuarioActual = ""
+rolActual = "usuario"
+mostrarLogin()
 }
 
 function iniciarControlInactividad(){
@@ -1395,11 +1496,12 @@ CARGA DESDE GOOGLE SHEETS (MULTIUSUARIO)
 ===================================================== */
 
 async function cargarDatos(){
-
+const u = sessionStorage.getItem("rdUsuario")
+const c = sessionStorage.getItem("rdClave")
+if(!u || !c){ mostrarLogin(); return; }
 try{
-let res = await fetch(API_URL)
+let res = await fetch(API_URL + "?u=" + encodeURIComponent(u) + "&c=" + encodeURIComponent(c))
 let data = await res.json()
-
 if(data.status==="ok" && Array.isArray(data.registros)){
 registros = data.registros.map(r=>({
 ...r,
@@ -1410,18 +1512,11 @@ localStorage.setItem("registros",JSON.stringify(registros))
 }else{
 registros = JSON.parse(localStorage.getItem("registros")) || []
 }
-
 }catch(e){
 console.log("Error cargando datos:", e)
-try{
-registros = JSON.parse(localStorage.getItem("registros")) || []
-}catch(error){
-registros = []
+try{ registros = JSON.parse(localStorage.getItem("registros")) || [] }catch(err){ registros = [] }
 }
-}
-
 render()
-
 }
 
 /* =====================================================
@@ -1447,35 +1542,89 @@ MODULO 20
 CAMBIAR CLAVE DESDE LA PAGINA
 ===================================================== */
 
-function cambiarClave(){
-
-let claveActual = prompt("Ingrese la clave actual")
-
-let claveSistema = localStorage.getItem("claveSistema") || CLAVE_ACCESO
-
-if(claveActual !== claveSistema){
-alert("❌ Clave actual incorrecta")
-return
+function abrirModalClave(){
+document.getElementById("mc-actual").value=""
+document.getElementById("mc-nueva").value=""
+document.getElementById("mc-confirmar").value=""
+document.getElementById("mc-error").textContent=""
+document.getElementById("modal-clave").classList.add("open")
+}
+function cerrarModalClave(){
+document.getElementById("modal-clave").classList.remove("open")
+}
+async function guardarClave(){
+const actual = document.getElementById("mc-actual").value.trim()
+const nueva = document.getElementById("mc-nueva").value.trim()
+const confirmar = document.getElementById("mc-confirmar").value.trim()
+const errEl = document.getElementById("mc-error")
+errEl.textContent=""
+if(!actual||!nueva||!confirmar){errEl.textContent="Complete todos los campos.";return}
+if(nueva!==confirmar){errEl.textContent="❌ Las claves nuevas no coinciden.";return}
+if(nueva.length<3){errEl.textContent="❌ La clave debe tener al menos 3 caracteres.";return}
+errEl.textContent="Guardando..."
+try{
+await fetch(API_URL,{method:"POST",mode:"no-cors",body:JSON.stringify({action:"cambiarClave",usuario:usuarioActual,claveActual:actual,claveNueva:nueva}),headers:{"Content-Type":"application/json"}})
+sessionStorage.setItem("rdClave",nueva)
+cerrarModalClave()
+alert("✅ Clave cambiada correctamente.")
+}catch(e){
+errEl.textContent="❌ Error al guardar. Intenta de nuevo."
+}
 }
 
-let nuevaClave = prompt("Ingrese la nueva clave")
-if(!nuevaClave || nuevaClave.trim()===""){
-alert("⚠️ La nueva clave no puede estar vacía")
-return
+function abrirModalUsuarios(){
+if(rolActual!=="admin") return
+document.getElementById("nu-usuario").value=""
+document.getElementById("nu-clave").value=""
+document.getElementById("nu-error").textContent=""
+document.getElementById("modal-usuarios").classList.add("open")
+cargarListaUsuarios()
+}
+function cerrarModalUsuarios(){
+document.getElementById("modal-usuarios").classList.remove("open")
+}
+async function cargarListaUsuarios(){
+const u=sessionStorage.getItem("rdUsuario")
+const c=sessionStorage.getItem("rdClave")
+const lista=document.getElementById("lista-usuarios")
+lista.innerHTML="<div style='color:#718096;font-size:12px;'>Cargando...</div>"
+try{
+const res=await fetch(API_URL+"?u="+encodeURIComponent(u)+"&c="+encodeURIComponent(c)+"&action=usuarios")
+const data=await res.json()
+if(data.status==="ok"&&Array.isArray(data.usuarios)){
+lista.innerHTML=data.usuarios.map(us=>`
+<div class="usuario-item ${us.rol==='admin'?'admin-u':''}">
+<div><div class="usuario-nombre">${us.usuario}</div><div class="usuario-rol">${us.rol==='admin'?'Administrador':'Usuario'}</div></div>
+${us.usuario!==usuarioActual?`<button class="btn-del-user" onclick="eliminarUsuario('${us.usuario}')">✕ Eliminar</button>`:'<span style="font-size:11px;color:#718096;">(tú)</span>'}
+</div>`).join("")
+}
+}catch(e){ lista.innerHTML="<div style='color:#c62828;font-size:12px;'>Error al cargar usuarios.</div>" }
+}
+async function crearUsuario(){
+const u=document.getElementById("nu-usuario").value.trim().toUpperCase()
+const c=document.getElementById("nu-clave").value.trim()
+const r=document.getElementById("nu-rol").value
+const errEl=document.getElementById("nu-error")
+errEl.textContent=""
+if(!u||!c){errEl.textContent="Complete usuario y clave.";return}
+try{
+await fetch(API_URL,{method:"POST",mode:"no-cors",body:JSON.stringify({action:"crearUsuario",adminUsuario:usuarioActual,adminClave:sessionStorage.getItem("rdClave"),nuevoUsuario:u,clave:c,rol:r}),headers:{"Content-Type":"application/json"}})
+errEl.style.color="#0F6E56"
+errEl.textContent="✅ Usuario creado. Recargando..."
+document.getElementById("nu-usuario").value=""
+document.getElementById("nu-clave").value=""
+setTimeout(()=>{ errEl.textContent=""; cargarListaUsuarios() },1500)
+}catch(e){ errEl.textContent="❌ Error al crear usuario." }
+}
+async function eliminarUsuario(nombreUsuario){
+if(!confirm("¿Eliminar usuario "+nombreUsuario+"?")) return
+try{
+await fetch(API_URL,{method:"POST",mode:"no-cors",body:JSON.stringify({action:"eliminarUsuario",adminUsuario:usuarioActual,adminClave:sessionStorage.getItem("rdClave"),usuarioEliminar:nombreUsuario}),headers:{"Content-Type":"application/json"}})
+setTimeout(()=>cargarListaUsuarios(),1000)
+}catch(e){ alert("Error al eliminar usuario.") }
 }
 
-let confirmarClave = prompt("Confirme la nueva clave")
-if(nuevaClave !== confirmarClave){
-alert("❌ Las claves no coinciden")
-return
-}
-
-// 🔥 AQUÍ ESTÁ LA MAGIA REAL
-localStorage.setItem("claveSistema", nuevaClave)
-
-alert("✅ Clave cambiada correctamente")
-
-}
+function cambiarClave(){ abrirModalClave() }
 
 /* =====================================================
 MODULO 20.1
