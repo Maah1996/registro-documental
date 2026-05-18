@@ -814,10 +814,50 @@ CONFIGURACION API (AQUI VA EL SCRIPT)
 ===================================================== */
 
 const API_URL="https://script.google.com/macros/s/AKfycbydfREY_WSruchtCyrjzOHhuppUrSyVefZPnGM5_purq8SOYYuv6Pf-2gEd--C7KRjW/exec"
+const SHEET_ID_RGDOC="19AX5vrwhUjl8Pa_gtUWxFPjt2cw4RjL5-lP_wl1MBps"
+const CAMPOS_RGDOC=["fecha","numero","identMateria","identDoc","autoridad","ejs","hjs","materia","plazo","procedencia","clasificacion","archivo","llegsal","observ","usuario"]
 const TIEMPO_BLOQUEO = 120000
 
 let registros=[]
 let editIndex=null
+
+// ── Lee directamente desde Google Sheets (gviz JSONP, sin pasar por Apps Script) ──
+function leerSheetGviz(sheetName){
+return new Promise(function(resolve,reject){
+var cb='_gv'+Date.now()+Math.random().toString(36).slice(2,6)
+var s=document.createElement('script')
+var done=false
+window[cb]=function(resp){
+  done=true;delete window[cb];s.parentNode&&s.parentNode.removeChild(s)
+  if(!resp||resp.status!=='ok'){reject(new Error('Error Sheet: '+(resp?resp.status:'sin datos')));return}
+  var cols=resp.table.cols||[]
+  var rows=resp.table.rows||[]
+  var regs=rows.map(function(row,i){
+    var obj={rowId:i+2}
+    CAMPOS_RGDOC.forEach(function(campo,j){
+      var cell=row.c?row.c[j]:null
+      var v=''
+      if(cell){
+        var tipo=cols[j]?cols[j].type:''
+        if(tipo==='date'&&cell.v){
+          var mx=String(cell.v).match(/Date\((\d+),(\d+),(\d+)\)/)
+          if(mx) v=mx[1]+'-'+String(Number(mx[2])+1).padStart(2,'0')+'-'+String(mx[3]).padStart(2,'0')
+        }else{
+          v=cell.f!==undefined&&cell.f!==null?String(cell.f):(cell.v!==null&&cell.v!==undefined?String(cell.v):'')
+        }
+      }
+      obj[campo]=v
+    })
+    return obj
+  })
+  resolve(regs)
+}
+s.onerror=function(){if(!done){done=true;delete window[cb];reject(new Error('Sheet no accesible. Comparte el Sheet como "Cualquier persona con el enlace → Lector"'))}}
+setTimeout(function(){if(!done){done=true;delete window[cb];reject(new Error('Tiempo de espera agotado leyendo Sheet'))}},15000)
+s.src='https://docs.google.com/spreadsheets/d/'+SHEET_ID_RGDOC+'/gviz/tq?sheet='+encodeURIComponent(sheetName)+'&callback='+cb
+document.head.appendChild(s)
+})
+}
 
 /* =====================================================
 MODULO 7
@@ -1533,19 +1573,13 @@ const u = sessionStorage.getItem("rdUsuario")
 const c = sessionStorage.getItem("rdClave")
 if(!u || !c){ mostrarLogin(); return; }
 try{
-const data = await fetchGAS(API_URL + "?u=" + encodeURIComponent(u) + "&c=" + encodeURIComponent(c))
-if(data.status==="ok" && Array.isArray(data.registros)){
-registros = data.registros.map(r=>({
-...r,
-fecha: normalizarFechaISO(r.fecha),
-plazo: normalizarFechaISO(r.plazo)
-}))
+const todos = await leerSheetGviz("REGISTRO")
+const rol = sessionStorage.getItem("rdRol") || "usuario"
+registros = rol==="admin"
+  ? todos
+  : todos.filter(r=>String(r.usuario||'').trim().toUpperCase()===u.trim().toUpperCase())
 localStorage.setItem("registros",JSON.stringify(registros))
 mostrarEstadoAPI("")
-}else{
-mostrarEstadoAPI("⚠️ "+(data.mensaje||data.msg||JSON.stringify(data).substring(0,80)))
-registros = JSON.parse(localStorage.getItem("registros")) || []
-}
 }catch(e){
 mostrarEstadoAPI("⚠️ "+(e.message||String(e)))
 try{ registros = JSON.parse(localStorage.getItem("registros")) || [] }catch(err){ registros = [] }
