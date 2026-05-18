@@ -1150,7 +1150,7 @@ errEl.textContent = ""
 if(!u || !c){ errEl.textContent = "Complete usuario y clave."; return }
 errEl.textContent = "Verificando..."
 try{
-const res = await fetch(API_URL + "?u=" + encodeURIComponent(u) + "&c=" + encodeURIComponent(c))
+const res = await fetch(API_URL + "?u=" + encodeURIComponent(u) + "&c=" + encodeURIComponent(c), {credentials:"omit"})
 const rawText = await res.text()
 let data; try{ data = JSON.parse(rawText) }catch(pe){ throw new Error("HTTP "+res.status+": "+rawText.substring(0,120)) }
 if(data.status === "ok"){
@@ -1520,7 +1520,7 @@ const u = sessionStorage.getItem("rdUsuario")
 const c = sessionStorage.getItem("rdClave")
 if(!u || !c){ mostrarLogin(); return; }
 try{
-let res = await fetch(API_URL + "?u=" + encodeURIComponent(u) + "&c=" + encodeURIComponent(c))
+let res = await fetch(API_URL + "?u=" + encodeURIComponent(u) + "&c=" + encodeURIComponent(c), {credentials:"omit"})
 let rawText = await res.text()
 let data
 try{ data = JSON.parse(rawText) }catch(pe){
@@ -1629,7 +1629,7 @@ const c=sessionStorage.getItem("rdClave")
 const lista=document.getElementById("lista-usuarios")
 lista.innerHTML="<div style='color:#718096;font-size:12px;'>Cargando...</div>"
 try{
-const res=await fetch(API_URL+"?u="+encodeURIComponent(u)+"&c="+encodeURIComponent(c)+"&action=usuarios")
+const res=await fetch(API_URL+"?u="+encodeURIComponent(u)+"&c="+encodeURIComponent(c)+"&action=usuarios",{credentials:"omit"})
 const data=await res.json()
 if(data.status==="ok"&&Array.isArray(data.usuarios)){
 lista.innerHTML=data.usuarios.map(us=>`
