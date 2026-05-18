@@ -919,14 +919,17 @@ usuario: usuarioActual
 }
 
 if(editIndex!==null){
+let rowId=registros[editIndex].rowId
+r.rowId=rowId
 registros[editIndex]=r
 editIndex=null
+enviarAScript({action:"actualizar", rowId, ...r})
 }else{
 registros.push(r)
+enviarAScript({action:"guardar", ...r})
 }
 
 localStorage.setItem("registros",JSON.stringify(registros))
-enviarAScript(r)
 render()
 limpiar()
 }
@@ -937,18 +940,13 @@ ENVIO A GOOGLE SHEETS
 ===================================================== */
 
 function enviarAScript(datos){
-
 fetch(API_URL,{
 method:"POST",
 mode:"no-cors",
 body:JSON.stringify(datos),
-headers:{
-"Content-Type":"application/json"
-}
+headers:{"Content-Type":"application/json"}
 })
-
-console.log("Enviado a Apps Script")
-
+console.log("Enviado a Apps Script:", datos.action||"guardar")
 }
 
 /* =====================================================
@@ -1176,11 +1174,11 @@ window.scrollTo({top:0,behavior:"smooth"})
 
 function borrar(i){
 if(confirm("¿Eliminar registro?")){
+let rowId=registros[i].rowId
+if(rowId) enviarAScript({action:"eliminar", rowId})
 registros.splice(i,1)
 localStorage.setItem("registros",JSON.stringify(registros))
-if(editIndex===i){
-editIndex=null
-}
+if(editIndex===i) editIndex=null
 render()
 }
 }
