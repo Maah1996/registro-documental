@@ -528,6 +528,19 @@ grid-template-columns:1fr;
 
 <body>
 
+<!-- LOCK OVERLAY (bloqueo por inactividad) -->
+<div id="lock-overlay" style="display:none;position:fixed;inset:0;background:rgba(15,25,40,0.96);z-index:9998;align-items:center;justify-content:center;backdrop-filter:blur(6px);">
+  <div class="login-box" style="text-align:center;">
+    <div style="font-size:52px;margin-bottom:6px;">🔒</div>
+    <h2 style="margin:0 0 2px;">Sesión bloqueada</h2>
+    <p id="lock-usuario-text" style="color:#718096;font-size:13px;margin:0 0 22px;">—</p>
+    <label style="text-align:left;display:block;">Contraseña</label>
+    <input type="password" id="lock-clave" placeholder="Ingresa tu clave para continuar" autocomplete="current-password" onkeydown="if(event.key==='Enter') desbloquear()" style="margin-bottom:4px;">
+    <button class="btn-ingresar" onclick="desbloquear()">DESBLOQUEAR</button>
+    <div class="login-error" id="lock-error"></div>
+  </div>
+</div>
+
 <!-- LOGIN OVERLAY -->
 <div id="login-overlay">
   <div class="login-box">
@@ -1335,10 +1348,42 @@ temporizadorSesion.innerText = formatearTemporizador(segundosInactividad)
 
 function bloquearSesion(manual){
 clearInterval(tiempoInactivo)
-sessionStorage.clear()
-usuarioActual = ""
-rolActual = "usuario"
-mostrarLogin()
+const lockEl=document.getElementById("lock-overlay")
+const lockUser=document.getElementById("lock-usuario-text")
+const lockClave=document.getElementById("lock-clave")
+const lockErr=document.getElementById("lock-error")
+if(lockUser) lockUser.textContent="👤 "+(usuarioActual||"—")
+if(lockClave) lockClave.value=""
+if(lockErr) lockErr.textContent=""
+if(lockEl) lockEl.style.display="flex"
+setTimeout(()=>{ if(lockClave) lockClave.focus() },150)
+}
+
+async function desbloquear(){
+const clave=document.getElementById("lock-clave").value.trim()
+const errEl=document.getElementById("lock-error")
+errEl.textContent=""
+if(!clave){errEl.textContent="Ingresa tu contraseña.";return}
+// Validar contra sessionStorage
+const claveGuardada=sessionStorage.getItem("rdClave")||""
+if(clave===claveGuardada){
+  document.getElementById("lock-overlay").style.display="none"
+  iniciarControlInactividad()
+  return
+}
+// Fallback: validar contra Sheet
+errEl.textContent="Verificando..."
+try{
+  const users=await leerSheetGviz("usuarios",["usuario","clave","rol"])
+  const found=users.find(x=>String(x.usuario||'').trim().toUpperCase()===usuarioActual&&String(x.clave||'').trim()===clave)
+  if(found){
+    sessionStorage.setItem("rdClave",clave)
+    document.getElementById("lock-overlay").style.display="none"
+    iniciarControlInactividad()
+  }else{
+    errEl.textContent="❌ Clave incorrecta."
+  }
+}catch(e){errEl.textContent="❌ Sin conexión. Verifica tu clave."}
 }
 
 function iniciarControlInactividad(){
