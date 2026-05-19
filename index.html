@@ -545,16 +545,19 @@ grid-template-columns:1fr;
 <!-- MODAL CAMBIAR CLAVE -->
 <div id="modal-clave">
   <div class="modal-clave-box">
-    <h3>🔐 Cambiar contraseña</h3>
-    <label>Clave actual</label>
-    <input type="password" id="mc-actual" placeholder="Tu clave actual">
+    <h3 id="mc-titulo">🔐 Cambiar contraseña</h3>
+    <div id="mc-aviso" style="display:none;background:#fff3cd;border:1px solid #ffc107;color:#856404;border-radius:6px;padding:8px 12px;margin-bottom:12px;font-size:12px;">⚠️ Primera vez — elige una contraseña personal antes de continuar.</div>
+    <div id="mc-actual-wrap">
+      <label>Clave actual</label>
+      <input type="password" id="mc-actual" placeholder="Tu clave actual">
+    </div>
     <label>Nueva clave</label>
     <input type="password" id="mc-nueva" placeholder="Nueva clave">
     <label>Confirmar nueva clave</label>
     <input type="password" id="mc-confirmar" placeholder="Repite la nueva clave">
     <div class="login-error" id="mc-error"></div>
     <div class="modal-clave-btns">
-      <button class="btn-cancelar-clave" onclick="cerrarModalClave()">Cancelar</button>
+      <button id="btn-cancelar-clave" class="btn-cancelar-clave" onclick="cerrarModalClave()">Cancelar</button>
       <button class="btn-guardar-clave" onclick="guardarClave()">Guardar</button>
     </div>
   </div>
@@ -569,10 +572,9 @@ grid-template-columns:1fr;
       <b style="font-size:13px;color:#243447;">+ Agregar usuario</b>
       <label style="margin-top:10px;">Usuario</label>
       <input type="text" id="nu-usuario" placeholder="Nombre (ej: JUAN)" oninput="this.value=this.value.toUpperCase()">
-      <label>Clave inicial</label>
-      <input type="password" id="nu-clave" placeholder="Clave de acceso">
       <label>Rol</label>
       <select id="nu-rol"><option value="usuario">Usuario</option><option value="admin">Administrador</option></select>
+      <div style="background:#e8f5e9;border:1px solid #a5d6a7;color:#2e7d32;border-radius:6px;padding:8px 10px;font-size:11px;margin-bottom:10px;">🔑 Clave inicial automática: <b>1234</b> — el usuario deberá cambiarla al primer ingreso.</div>
       <div class="login-error" id="nu-error"></div>
       <button class="btn-ingresar" onclick="crearUsuario()">+ Crear usuario</button>
     </div>
@@ -1252,6 +1254,7 @@ iniciarControlInactividad()
 render()
 document.getElementById("login-usuario").value = ""
 document.getElementById("login-clave").value = ""
+if(c==="1234") setTimeout(()=>abrirModalClave(true),300)
 }else{
 errEl.textContent = "❌ "+(data.mensaje||"Usuario o clave incorrectos.")
 }
@@ -1274,6 +1277,7 @@ iniciarControlInactividad()
 await cargarDatos()
 document.getElementById("login-usuario").value=""
 document.getElementById("login-clave").value=""
+if(c==="1234") setTimeout(()=>abrirModalClave(true),300)
 }else{
 // Fallback final: ADMIN local hardcoded
 const localUser = u==="ADMIN" && c==="1996"
@@ -1662,31 +1666,49 @@ MODULO 20
 CAMBIAR CLAVE DESDE LA PAGINA
 ===================================================== */
 
-function abrirModalClave(){
-document.getElementById("mc-actual").value=""
+var _cambioClaveObligatorio=false
+function abrirModalClave(obligatorio){
+obligatorio=!!obligatorio
+_cambioClaveObligatorio=obligatorio
+document.getElementById("mc-actual").value=obligatorio?(sessionStorage.getItem("rdClave")||""):""
 document.getElementById("mc-nueva").value=""
 document.getElementById("mc-confirmar").value=""
 document.getElementById("mc-error").textContent=""
+const aviso=document.getElementById("mc-aviso")
+const actualWrap=document.getElementById("mc-actual-wrap")
+const btnCanc=document.getElementById("btn-cancelar-clave")
+const titulo=document.getElementById("mc-titulo")
+if(aviso) aviso.style.display=obligatorio?"block":"none"
+if(actualWrap) actualWrap.style.display=obligatorio?"none":"block"
+if(btnCanc) btnCanc.style.display=obligatorio?"none":""
+if(titulo) titulo.textContent=obligatorio?"🔐 Elige tu contraseña":"🔐 Cambiar contraseña"
 document.getElementById("modal-clave").classList.add("open")
 }
 function cerrarModalClave(){
+if(_cambioClaveObligatorio) return
 document.getElementById("modal-clave").classList.remove("open")
 }
 async function guardarClave(){
-const actual = document.getElementById("mc-actual").value.trim()
-const nueva = document.getElementById("mc-nueva").value.trim()
-const confirmar = document.getElementById("mc-confirmar").value.trim()
-const errEl = document.getElementById("mc-error")
+const actual=_cambioClaveObligatorio?(sessionStorage.getItem("rdClave")||""):document.getElementById("mc-actual").value.trim()
+const nueva=document.getElementById("mc-nueva").value.trim()
+const confirmar=document.getElementById("mc-confirmar").value.trim()
+const errEl=document.getElementById("mc-error")
 errEl.textContent=""
-if(!actual||!nueva||!confirmar){errEl.textContent="Complete todos los campos.";return}
+if(!nueva||!confirmar){errEl.textContent="Complete los campos de nueva clave.";return}
+if(!_cambioClaveObligatorio&&!actual){errEl.textContent="Ingresa tu clave actual.";return}
+if(!_cambioClaveObligatorio&&actual!==(sessionStorage.getItem("rdClave")||"")){errEl.textContent="❌ La clave actual es incorrecta.";return}
+if(nueva==="1234"){errEl.textContent="❌ No puedes usar 1234 como nueva clave.";return}
+if(nueva===actual){errEl.textContent="❌ La nueva clave debe ser diferente a la actual.";return}
 if(nueva!==confirmar){errEl.textContent="❌ Las claves nuevas no coinciden.";return}
 if(nueva.length<3){errEl.textContent="❌ La clave debe tener al menos 3 caracteres.";return}
 errEl.textContent="Guardando..."
 try{
+const eraObligatorio=_cambioClaveObligatorio
 await fetch(API_URL,{method:"POST",mode:"no-cors",body:JSON.stringify({action:"cambiarClave",usuario:usuarioActual,claveActual:actual,claveNueva:nueva}),headers:{"Content-Type":"application/json"}})
 sessionStorage.setItem("rdClave",nueva)
-cerrarModalClave()
-alert("✅ Clave cambiada correctamente.")
+_cambioClaveObligatorio=false
+document.getElementById("modal-clave").classList.remove("open")
+if(!eraObligatorio) alert("✅ Clave cambiada correctamente.")
 }catch(e){
 errEl.textContent="❌ Error al guardar. Intenta de nuevo."
 }
@@ -1719,18 +1741,17 @@ ${us.usuario!==usuarioActual?`<button class="btn-del-user" onclick="eliminarUsua
 }
 async function crearUsuario(){
 const u=document.getElementById("nu-usuario").value.trim().toUpperCase()
-const c=document.getElementById("nu-clave").value.trim()
 const r=document.getElementById("nu-rol").value
 const errEl=document.getElementById("nu-error")
 errEl.textContent=""
-if(!u||!c){errEl.textContent="Complete usuario y clave.";return}
+if(!u){errEl.textContent="Ingrese nombre de usuario.";return}
+const claveInicial="1234"
 try{
-await fetch(API_URL,{method:"POST",mode:"no-cors",body:JSON.stringify({action:"crearUsuario",adminUsuario:usuarioActual,adminClave:sessionStorage.getItem("rdClave"),nuevoUsuario:u,clave:c,rol:r}),headers:{"Content-Type":"application/json"}})
+await fetch(API_URL,{method:"POST",mode:"no-cors",body:JSON.stringify({action:"crearUsuario",adminUsuario:usuarioActual,adminClave:sessionStorage.getItem("rdClave"),nuevoUsuario:u,clave:claveInicial,rol:r}),headers:{"Content-Type":"application/json"}})
 errEl.style.color="#0F6E56"
-errEl.textContent="✅ Usuario creado. Recargando..."
+errEl.textContent="✅ Usuario creado con clave 1234. Recargando..."
 document.getElementById("nu-usuario").value=""
-document.getElementById("nu-clave").value=""
-setTimeout(()=>{ errEl.textContent=""; cargarListaUsuarios() },1500)
+setTimeout(()=>{ errEl.textContent=""; errEl.style.color=""; cargarListaUsuarios() },2000)
 }catch(e){ errEl.textContent="❌ Error al crear usuario." }
 }
 async function eliminarUsuario(nombreUsuario){
