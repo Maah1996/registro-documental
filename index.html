@@ -1717,7 +1717,6 @@ errEl.textContent="❌ Error al guardar. Intenta de nuevo."
 function abrirModalUsuarios(){
 if((rolActual||"").toLowerCase()!=="admin") return
 document.getElementById("nu-usuario").value=""
-document.getElementById("nu-clave").value=""
 document.getElementById("nu-error").textContent=""
 const m=document.getElementById("modal-usuarios")
 if(m){ m.style.display="flex"; m.classList.add("open") }
