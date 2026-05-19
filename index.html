@@ -845,31 +845,50 @@ function _procesarGviz(resp){
   })
 }
 
-function leerSheetGviz(sheetName){
-return new Promise(function(resolve,reject){
-  // Preparar google.visualization.Query.setResponse (formato por defecto de gviz)
-  if(!window.google) window.google={}
-  if(!window.google.visualization) window.google.visualization={}
-  if(!window.google.visualization.Query) window.google.visualization.Query={}
-  var prev=window.google.visualization.Query.setResponse
-  var done=false, timer
-  window.google.visualization.Query.setResponse=function(resp){
-    if(done) return
-    done=true; clearTimeout(timer)
-    window.google.visualization.Query.setResponse=prev
-    if(!resp||resp.status!=='ok'){reject(new Error('gviz: '+(resp?resp.status:'sin datos')));return}
-    resolve(_procesarGviz(resp))
-  }
-  var s=document.createElement('script')
-  s.onerror=function(){
-    if(!done){done=true;clearTimeout(timer);window.google.visualization.Query.setResponse=prev;reject(new Error('No se puede leer el Sheet. Verifica que esté compartido como "Lector"'))}
-  }
-  timer=setTimeout(function(){
-    if(!done){done=true;window.google.visualization.Query.setResponse=prev;reject(new Error('Tiempo agotado leyendo Sheet'))}
-  },20000)
-  s.src='https://docs.google.com/spreadsheets/d/'+SHEET_ID_RGDOC+'/gviz/tq?sheet='+encodeURIComponent(sheetName)
-  document.head.appendChild(s)
-})
+var _gvizOcupado=false, _gvizCola=[]
+
+function leerSheetGviz(sheetName, campos){
+  var fields=campos||CAMPOS_RGDOC
+  return new Promise(function(resolve,reject){
+    function ejecutar(){
+      if(!window.google) window.google={}
+      if(!window.google.visualization) window.google.visualization={}
+      if(!window.google.visualization.Query) window.google.visualization.Query={}
+      var prev=window.google.visualization.Query.setResponse
+      var done=false, timer
+      function terminar(err,data){
+        if(done) return; done=true; clearTimeout(timer)
+        window.google.visualization.Query.setResponse=prev
+        _gvizOcupado=false
+        if(_gvizCola.length) _gvizCola.shift()()
+        if(err) reject(err); else resolve(data)
+      }
+      window.google.visualization.Query.setResponse=function(resp){
+        if(!resp||resp.status!=='ok'){terminar(new Error('gviz: '+(resp?resp.status:'error')));return}
+        var cols=resp.table.cols||[], rows=resp.table.rows||[]
+        var regs=rows.map(function(row,i){
+          var obj={rowId:i+2}
+          fields.forEach(function(campo,j){
+            var cell=row.c?row.c[j]:null, v=''
+            if(cell){
+              var tipo=cols[j]?cols[j].type:''
+              if(tipo==='date'&&cell.v){var mx=String(cell.v).match(/Date\((\d+),(\d+),(\d+)\)/);if(mx) v=mx[1]+'-'+String(Number(mx[2])+1).padStart(2,'0')+'-'+String(mx[3]).padStart(2,'0')}
+              else v=cell.f!=null?String(cell.f):(cell.v!=null?String(cell.v):'')
+            }
+            obj[campo]=v
+          })
+          return obj
+        })
+        terminar(null,regs)
+      }
+      var s=document.createElement('script')
+      s.onerror=function(){terminar(new Error('Sheet inaccesible'))}
+      timer=setTimeout(function(){terminar(new Error('Tiempo agotado leyendo Sheet'))},20000)
+      s.src='https://docs.google.com/spreadsheets/d/'+SHEET_ID_RGDOC+'/gviz/tq?sheet='+encodeURIComponent(sheetName)
+      document.head.appendChild(s)
+    }
+    if(_gvizOcupado){ _gvizCola.push(ejecutar) } else { _gvizOcupado=true; ejecutar() }
+  })
 }
 
 /* =====================================================
@@ -1237,24 +1256,37 @@ document.getElementById("login-clave").value = ""
 errEl.textContent = "❌ "+(data.mensaje||"Usuario o clave incorrectos.")
 }
 }catch(e){
-// Fallback: usar credenciales guardadas localmente si el servidor no responde
-const local = JSON.parse(localStorage.getItem("rdLocalUsers") || '[{"usuario":"ADMIN","clave":"1996","rol":"admin"}]')
-const localUser = local.find(x => x.usuario === u && x.clave === c)
-if(localUser){
+// Fallback: validar contra hoja "usuarios" del Sheet (gviz)
+errEl.textContent = "Verificando..."
+try{
+const users = await leerSheetGviz("usuarios",["usuario","clave","rol"])
+const sheetUser = users.find(x => String(x.usuario||'').trim().toUpperCase()===u && String(x.clave||'').trim()===c)
+if(sheetUser){
+const rol = String(sheetUser.rol||'usuario').toLowerCase()
 sessionStorage.setItem("rdUsuario", u)
 sessionStorage.setItem("rdClave", c)
-sessionStorage.setItem("rdRol", localUser.rol)
+sessionStorage.setItem("rdRol", rol)
 usuarioActual = u
-rolActual = localUser.rol
-registros = JSON.parse(localStorage.getItem("registros") || "[]")
+rolActual = rol
 ocultarLogin()
 mostrarSegunRol()
 iniciarControlInactividad()
-render()
-errEl.textContent = "⚠️ Modo sin conexión — datos locales"
+await cargarDatos()
+document.getElementById("login-usuario").value=""
+document.getElementById("login-clave").value=""
 }else{
-errEl.textContent = "❌ "+e.message
+// Fallback final: ADMIN local hardcoded
+const localUser = u==="ADMIN" && c==="1996"
+if(localUser){
+sessionStorage.setItem("rdUsuario","ADMIN")
+sessionStorage.setItem("rdClave","1996")
+sessionStorage.setItem("rdRol","admin")
+usuarioActual="ADMIN"; rolActual="admin"
+ocultarLogin(); mostrarSegunRol(); iniciarControlInactividad()
+await cargarDatos()
+}else{ errEl.textContent="❌ Usuario o clave incorrectos." }
 }
+}catch(e2){ errEl.textContent="❌ Sin conexión. Verifica usuario y clave." }
 }
 }
 
@@ -1670,23 +1702,20 @@ if(m){ m.style.display="flex"; m.classList.add("open") }
 cargarListaUsuarios()
 }
 function cerrarModalUsuarios(){
-document.getElementById("modal-usuarios").classList.remove("open")
+const m=document.getElementById("modal-usuarios")
+if(m){m.classList.remove("open");m.style.display="none"}
 }
 async function cargarListaUsuarios(){
-const u=sessionStorage.getItem("rdUsuario")
-const c=sessionStorage.getItem("rdClave")
 const lista=document.getElementById("lista-usuarios")
 lista.innerHTML="<div style='color:#718096;font-size:12px;'>Cargando...</div>"
 try{
-const data=await fetchGAS(API_URL+"?u="+encodeURIComponent(u)+"&c="+encodeURIComponent(c)+"&action=usuarios")
-if(data.status==="ok"&&Array.isArray(data.usuarios)){
-lista.innerHTML=data.usuarios.map(us=>`
-<div class="usuario-item ${us.rol==='admin'?'admin-u':''}">
-<div><div class="usuario-nombre">${us.usuario}</div><div class="usuario-rol">${us.rol==='admin'?'Administrador':'Usuario'}</div></div>
+const users=await leerSheetGviz("usuarios",["usuario","clave","rol"])
+lista.innerHTML=users.map(us=>`
+<div class="usuario-item ${(us.rol||'').toLowerCase()==='admin'?'admin-u':''}">
+<div><div class="usuario-nombre">${us.usuario}</div><div class="usuario-rol">${(us.rol||'').toLowerCase()==='admin'?'Administrador':'Usuario'}</div></div>
 ${us.usuario!==usuarioActual?`<button class="btn-del-user" onclick="eliminarUsuario('${us.usuario}')">✕ Eliminar</button>`:'<span style="font-size:11px;color:#718096;">(tú)</span>'}
-</div>`).join("")
-}
-}catch(e){ lista.innerHTML="<div style='color:#c62828;font-size:12px;'>Error al cargar usuarios.</div>" }
+</div>`).join("")||"<div style='color:#718096;font-size:12px;'>Sin usuarios.</div>"
+}catch(e){lista.innerHTML="<div style='color:#c62828;font-size:12px;'>Error: "+e.message+"</div>"}
 }
 async function crearUsuario(){
 const u=document.getElementById("nu-usuario").value.trim().toUpperCase()
