@@ -882,11 +882,11 @@ GANTT OCGR — IDs en Gantt (persiste en localStorage)
 ===================================================== */
 
 const GANTT_OCGR_URL = "https://maah1996.github.io/Carta-Gantt-Maah/"
-const LS_GANTT_IDS   = "rgdoc_en_gantt_v5"
+const LS_GANTT_IDS   = "rgdoc_en_gantt_v6"
 
 // Limpiar versiones anteriores
 try{
-  ["rgdoc_en_gantt","rgdoc_en_gantt_v2","rgdoc_en_gantt_v3","rgdoc_en_gantt_v4"].forEach(k=>localStorage.removeItem(k))
+  ["rgdoc_en_gantt","rgdoc_en_gantt_v2","rgdoc_en_gantt_v3","rgdoc_en_gantt_v4","rgdoc_en_gantt_v5"].forEach(k=>localStorage.removeItem(k))
 }catch(e){}
 
 function _ganttIds(){
@@ -896,10 +896,10 @@ function _ganttIds(){
 function _ganttGuardar(set){
   localStorage.setItem(LS_GANTT_IDS, JSON.stringify([...set]))
 }
-// Clave de identificación: usa número del documento (persiste al recargar desde Sheet)
+// Clave de identificación: usa identMateria (único por documento), fallback a rowId
 function _ganttKey(r){
   if(!r) return null
-  if(r.numero && String(r.numero).trim()) return "n:" + String(r.numero).trim().toUpperCase()
+  if(r.identMateria && String(r.identMateria).trim()) return "im:" + String(r.identMateria).trim().toUpperCase()
   if(r.rowId) return "r:" + String(r.rowId)
   return null
 }
