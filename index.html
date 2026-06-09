@@ -882,12 +882,13 @@ GANTT OCGR — IDs en Gantt (persiste en localStorage)
 ===================================================== */
 
 const GANTT_OCGR_URL = "https://maah1996.github.io/Carta-Gantt-Maah/"
-const LS_GANTT_IDS   = "rgdoc_en_gantt_v3"
+const LS_GANTT_IDS   = "rgdoc_en_gantt_v4"
 
-// Limpiar versiones anteriores del key
-try{ localStorage.removeItem("rgdoc_en_gantt"); localStorage.removeItem("rgdoc_en_gantt_v2") }catch(e){}
+// Limpiar versiones anteriores
+try{
+  ["rgdoc_en_gantt","rgdoc_en_gantt_v2","rgdoc_en_gantt_v3"].forEach(k=>localStorage.removeItem(k))
+}catch(e){}
 
-function _ganttKey(r){ return (r.numero||"")+"_"+(r.identMateria||r.identDoc||"") }
 function _ganttIds(){
   try{ return new Set(JSON.parse(localStorage.getItem(LS_GANTT_IDS))||[]) }
   catch(e){ return new Set() }
@@ -896,8 +897,8 @@ function _ganttGuardar(set){
   localStorage.setItem(LS_GANTT_IDS, JSON.stringify([...set]))
 }
 function estaEnGantt(r){
-  if(!r) return false
-  return _ganttIds().has(_ganttKey(r))
+  if(!r || !r.rowId) return false
+  return _ganttIds().has(String(r.rowId))
 }
 function _construirActoGantt(r){
   return {
@@ -914,8 +915,9 @@ function _construirActoGantt(r){
   }
 }
 function _marcarEnGantt(r){
+  if(!r || !r.rowId) return
   const ids = _ganttIds()
-  ids.add(_ganttKey(r))
+  ids.add(String(r.rowId))
   _ganttGuardar(ids)
 }
 
