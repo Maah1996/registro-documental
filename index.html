@@ -884,7 +884,7 @@ GANTT OCGR — IDs en Gantt (persiste en localStorage)
 const GANTT_OCGR_URL = "https://maah1996.github.io/Carta-Gantt-Maah/"
 const LS_GANTT_IDS   = "rgdoc_en_gantt"
 
-function _ganttKey(r){ return (r.numero||"")+"_"+(normalizarFechaISO(r.fecha)||"") }
+function _ganttKey(r){ return (r.numero||"")+"_"+(normalizarFechaISO(r.fecha)||"")+"_"+(r.identDoc||"") }
 function _ganttIds(){
   try{ return new Set(JSON.parse(localStorage.getItem(LS_GANTT_IDS))||[]) }
   catch(e){ return new Set() }
@@ -1248,7 +1248,6 @@ if(enviarGantt){
     localStorage.setItem("rgdoc_to_gantt", JSON.stringify(_construirActoGantt(r)))
     _marcarEnGantt(r)
     render()
-    window.open(GANTT_OCGR_URL, "_blank")
   }
 }
 }
