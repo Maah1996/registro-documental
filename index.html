@@ -708,6 +708,7 @@ FORMULARIO DE INGRESO
 <div>
 <label>Plazo</label>
 <input type="date" id="plazo">
+<button type="button" id="btnGanttForm" onclick="enviarFormAGantt()" title="Enviar a Carta Gantt OCGR" style="margin-top:6px;width:100%;padding:7px 10px;font-size:12px;font-weight:700;background:#1a3f6f;color:#fff;border:none;border-radius:7px;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:5px;">📅 Enviar a Carta Gantt OCGR</button>
 </div>
 <div>
 <label>Procedencia</label>
@@ -864,6 +865,7 @@ GANTT OCGR — IDs en Gantt (persiste en localStorage)
 const GANTT_OCGR_URL = "https://maah1996.github.io/Carta-Gantt-Maah/"
 const LS_GANTT_IDS   = "rgdoc_en_gantt"
 
+function _ganttKey(r){ return (r.numero||"")+"_"+(normalizarFechaISO(r.fecha)||"") }
 function _ganttIds(){
   try{ return new Set(JSON.parse(localStorage.getItem(LS_GANTT_IDS))||[]) }
   catch(e){ return new Set() }
@@ -871,17 +873,12 @@ function _ganttIds(){
 function _ganttGuardar(set){
   localStorage.setItem(LS_GANTT_IDS, JSON.stringify([...set]))
 }
-function estaEnGantt(rowId){
-  return rowId != null && _ganttIds().has(String(rowId))
+function estaEnGantt(r){
+  if(!r) return false
+  return _ganttIds().has(_ganttKey(r))
 }
-function enviarAGanttOCGR(indexOriginal){
-  const r = registros[indexOriginal]
-  if(!r || !r.plazo) return
-  if(estaEnGantt(r.rowId)){
-    alert("Este documento ya está en la Carta Gantt OCGR.")
-    return
-  }
-  const acto = {
+function _construirActoGantt(r){
+  return {
     id: Date.now(),
     act: (r.numero ? "["+r.numero+"] " : "") + (r.materia||"").substring(0,80),
     obs: ["Proced: "+(r.procedencia||"—"), "Autoridad: "+(r.autoridad||"—"), "Clasif: "+(r.clasificacion||"—")].join(" | "),
@@ -893,10 +890,29 @@ function enviarAGanttOCGR(indexOriginal){
     fromRGDOC: true,
     rgdocNumero: r.numero || ""
   }
-  localStorage.setItem("rgdoc_to_gantt", JSON.stringify(acto))
+}
+function _marcarEnGantt(r){
   const ids = _ganttIds()
-  ids.add(String(r.rowId))
+  ids.add(_ganttKey(r))
   _ganttGuardar(ids)
+}
+
+// Llamado desde el botón del formulario
+function enviarFormAGantt(){
+  const r = {
+    numero:       mayus(document.getElementById("numero").value),
+    fecha:        normalizarFechaISO(document.getElementById("fecha").value),
+    materia:      mayus(document.getElementById("materia").value),
+    plazo:        normalizarFechaISO(document.getElementById("plazo").value),
+    procedencia:  mayus(document.getElementById("procedencia").value),
+    autoridad:    mayus(document.getElementById("autoridad").value),
+    clasificacion:mayus(document.getElementById("clasificacion").value)
+  }
+  if(!r.plazo){ alert("Debes ingresar una fecha de Plazo antes de enviar a la Gantt."); return }
+  if(!r.numero && !r.materia){ alert("Completa al menos Número o Materia antes de enviar."); return }
+  if(estaEnGantt(r)){ alert("Este documento ya está en la Carta Gantt OCGR."); return }
+  localStorage.setItem("rgdoc_to_gantt", JSON.stringify(_construirActoGantt(r)))
+  _marcarEnGantt(r)
   render()
   window.open(GANTT_OCGR_URL, "_blank")
 }
@@ -1248,11 +1264,8 @@ let claseClasif=r.clasificacion==="SECRETO"?"secret-cell":""
 
 let tr=document.createElement("tr")
 
-const enGantt = estaEnGantt(r.rowId)
+const enGantt = estaEnGantt(r)
 const claseFecha = enGantt ? "fecha-en-gantt" : ""
-const btnGantt = r.plazo
-  ? `<button class="btn-gantt-plazo${enGantt?' ya-gantt':''}" data-action="gantt" data-index="${esc(String(r.indexOriginal))}" title="${enGantt?'Ya está en Carta Gantt OCGR':'Enviar a Carta Gantt OCGR'}">${enGantt?'✔ Gantt':'📅 Gantt'}</button>`
-  : ''
 
 tr.innerHTML=`
 <td class="${esc(claseFecha)}">${esc(fechaCL(r.fecha))}</td>
@@ -1263,7 +1276,7 @@ tr.innerHTML=`
 <td>${esc(valorSeguro(r.ejs))}</td>
 <td>${esc(valorSeguro(r.hjs))}</td>
 <td class="col-materia">${esc(valorSeguro(r.materia))}</td>
-<td>${esc(fechaCL(r.plazo))}${btnGantt}</td>
+<td>${esc(fechaCL(r.plazo))}</td>
 <td class="${esc(clasePlazo)}">${esc(String(textoDia))}</td>
 <td>${esc(valorSeguro(r.procedencia))}</td>
 <td class="${esc(claseClasif)}">${esc(valorSeguro(r.clasificacion))}</td>
@@ -1625,9 +1638,6 @@ if(accion==="borrar"){
 borrar(index)
 }
 
-if(accion==="gantt"){
-enviarAGanttOCGR(index)
-}
 })
 
 /* =====================================================
