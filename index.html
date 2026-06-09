@@ -882,12 +882,12 @@ GANTT OCGR — IDs en Gantt (persiste en localStorage)
 ===================================================== */
 
 const GANTT_OCGR_URL = "https://maah1996.github.io/Carta-Gantt-Maah/"
-const LS_GANTT_IDS   = "rgdoc_en_gantt_v2"
+const LS_GANTT_IDS   = "rgdoc_en_gantt_v3"
 
 // Limpiar versiones anteriores del key
-try{ localStorage.removeItem("rgdoc_en_gantt") }catch(e){}
+try{ localStorage.removeItem("rgdoc_en_gantt"); localStorage.removeItem("rgdoc_en_gantt_v2") }catch(e){}
 
-function _ganttKey(r){ return (r.numero||"")+"_"+(r.identDoc||"") }
+function _ganttKey(r){ return (r.numero||"")+"_"+(r.identMateria||r.identDoc||"") }
 function _ganttIds(){
   try{ return new Set(JSON.parse(localStorage.getItem(LS_GANTT_IDS))||[]) }
   catch(e){ return new Set() }
