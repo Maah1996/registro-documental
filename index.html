@@ -899,13 +899,13 @@ function estaEnGantt(r){
 function _construirActoGantt(r){
   return {
     id: Date.now(),
-    act: (r.numero ? "["+r.numero+"] " : "") + (r.materia||"").substring(0,80),
-    obs: ["Proced: "+(r.procedencia||"—"), "Autoridad: "+(r.autoridad||"—"), "Clasif: "+(r.clasificacion||"—")].join(" | "),
+    act: (r.materia||"").substring(0,120),
+    obs: "PLAZO | " + (r.procedencia||"—"),
     fecha: normalizarFechaISO(r.plazo),
-    fechaInicio: normalizarFechaISO(r.fecha) || null,
+    fechaInicio: null,
     type: "plazo",
     freq: "puntual",
-    priori: false,
+    priori: true,
     fromRGDOC: true,
     rgdocNumero: r.numero || ""
   }
