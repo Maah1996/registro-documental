@@ -922,6 +922,11 @@ MODULO 8
 FUNCIONES AUXILIARES
 ===================================================== */
 
+function esc(v){
+var s=(v==null?"":String(v))
+return s.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;").replace(/'/g,"&#39;")
+}
+
 function mayus(t){
 t=(t||"").toString().toUpperCase().trim()
 t=t.replace("PUBLICO","PÚBLICO")
@@ -1166,25 +1171,25 @@ let claseClasif=r.clasificacion==="SECRETO"?"secret-cell":""
 let tr=document.createElement("tr")
 
 tr.innerHTML=`
-<td>${fechaCL(r.fecha)}</td>
-<td>${valorSeguro(r.numero)}</td>
-<td>${valorSeguro(r.identMateria)}</td>
-<td>${valorSeguro(r.identDoc)}</td>
-<td>${valorSeguro(r.autoridad)}</td>
-<td>${valorSeguro(r.ejs)}</td>
-<td>${valorSeguro(r.hjs)}</td>
-<td class="col-materia">${valorSeguro(r.materia)}</td>
-<td>${fechaCL(r.plazo)}</td>
-<td class="${clasePlazo}">${textoDia}</td>
-<td>${valorSeguro(r.procedencia)}</td>
-<td class="${claseClasif}">${valorSeguro(r.clasificacion)}</td>
-<td>${valorSeguro(r.archivo)}</td>
-<td>${valorSeguro(r.llegsal)}</td>
-<td>${valorSeguro(r.observ)}</td>
+<td>${esc(fechaCL(r.fecha))}</td>
+<td>${esc(valorSeguro(r.numero))}</td>
+<td>${esc(valorSeguro(r.identMateria))}</td>
+<td>${esc(valorSeguro(r.identDoc))}</td>
+<td>${esc(valorSeguro(r.autoridad))}</td>
+<td>${esc(valorSeguro(r.ejs))}</td>
+<td>${esc(valorSeguro(r.hjs))}</td>
+<td class="col-materia">${esc(valorSeguro(r.materia))}</td>
+<td>${esc(fechaCL(r.plazo))}</td>
+<td class="${esc(clasePlazo)}">${esc(String(textoDia))}</td>
+<td>${esc(valorSeguro(r.procedencia))}</td>
+<td class="${esc(claseClasif)}">${esc(valorSeguro(r.clasificacion))}</td>
+<td>${esc(valorSeguro(r.archivo))}</td>
+<td>${esc(valorSeguro(r.llegsal))}</td>
+<td>${esc(valorSeguro(r.observ))}</td>
 <td>
 <div class="acciones-wrap">
-<button class="btn-tabla btn-editar" data-action="editar" data-index="${r.indexOriginal}" title="Editar">✏</button>
-<button class="btn-tabla btn-borrar" data-action="borrar" data-index="${r.indexOriginal}" title="Eliminar">🗑</button>
+<button class="btn-tabla btn-editar" data-action="editar" data-index="${esc(String(r.indexOriginal))}" title="Editar">✏</button>
+<button class="btn-tabla btn-borrar" data-action="borrar" data-index="${esc(String(r.indexOriginal))}" title="Eliminar">🗑</button>
 </div>
 </td>
 `
@@ -1292,16 +1297,7 @@ document.getElementById("login-usuario").value=""
 document.getElementById("login-clave").value=""
 if(c==="1234") setTimeout(()=>abrirModalClave(true),300)
 }else{
-// Fallback final: ADMIN local hardcoded
-const localUser = u==="ADMIN" && c==="1996"
-if(localUser){
-sessionStorage.setItem("rdUsuario","ADMIN")
-sessionStorage.setItem("rdClave","1996")
-sessionStorage.setItem("rdRol","admin")
-usuarioActual="ADMIN"; rolActual="admin"
-ocultarLogin(); mostrarSegunRol(); iniciarControlInactividad()
-await cargarDatos()
-}else{ errEl.textContent="❌ Usuario o clave incorrectos." }
+errEl.textContent="❌ Usuario o clave incorrectos."
 }
 }catch(e2){ errEl.textContent="❌ Sin conexión. Verifica usuario y clave." }
 }
@@ -1590,14 +1586,14 @@ html+=`
 datos.forEach(r=>{
 html+=`
 <tr>
-<td>${r["FECHA"]}</td>
-<td>${r["NUMERO"]}</td>
-<td>${r["IDENT MATERIA"]}</td>
-<td>${r["IDENT DOC"]}</td>
-<td>${r["AUTORIDAD QUE FIRMA"]}</td>
-<td>${r["EJS"]}</td>
-<td>${r["HJS"]}</td>
-<td class="print-materia">${r["MATERIA"]}</td>
+<td>${esc(r["FECHA"])}</td>
+<td>${esc(r["NUMERO"])}</td>
+<td>${esc(r["IDENT MATERIA"])}</td>
+<td>${esc(r["IDENT DOC"])}</td>
+<td>${esc(r["AUTORIDAD QUE FIRMA"])}</td>
+<td>${esc(r["EJS"])}</td>
+<td>${esc(r["HJS"])}</td>
+<td class="print-materia">${esc(r["MATERIA"])}</td>
 </tr>
 `
 })
@@ -1778,10 +1774,13 @@ try{
 const users=await leerSheetGviz("usuarios",["usuario","clave","rol"])
 lista.innerHTML=users.map(us=>`
 <div class="usuario-item ${(us.rol||'').toLowerCase()==='admin'?'admin-u':''}">
-<div><div class="usuario-nombre">${us.usuario}</div><div class="usuario-rol">${(us.rol||'').toLowerCase()==='admin'?'Administrador':'Usuario'}</div></div>
-${us.usuario!==usuarioActual?`<button class="btn-del-user" onclick="eliminarUsuario('${us.usuario}')">✕ Eliminar</button>`:'<span style="font-size:11px;color:#718096;">(tú)</span>'}
+<div><div class="usuario-nombre">${esc(us.usuario)}</div><div class="usuario-rol">${(us.rol||'').toLowerCase()==='admin'?'Administrador':'Usuario'}</div></div>
+${us.usuario!==usuarioActual?`<button class="btn-del-user" data-uname="${esc(us.usuario)}">✕ Eliminar</button>`:'<span style="font-size:11px;color:#718096;">(tú)</span>'}
 </div>`).join("")||"<div style='color:#718096;font-size:12px;'>Sin usuarios.</div>"
-}catch(e){lista.innerHTML="<div style='color:#c62828;font-size:12px;'>Error: "+e.message+"</div>"}
+lista.querySelectorAll(".btn-del-user[data-uname]").forEach(btn=>{
+btn.addEventListener("click",()=>eliminarUsuario(btn.dataset.uname))
+})
+}catch(e){lista.innerHTML="<div style='color:#c62828;font-size:12px;'>Error al cargar usuarios.</div>"}
 }
 async function crearUsuario(){
 const u=document.getElementById("nu-usuario").value.trim().toUpperCase()
