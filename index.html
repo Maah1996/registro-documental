@@ -919,7 +919,7 @@ function _construirActoGantt(r){
     freq: "puntual",
     priori: true,
     fromRGDOC: true,
-    rgdocNumero: r.numero || ""
+    rgdocNumero: r.identMateria || r.numero || ""
   }
 }
 function _marcarEnGantt(r){
