@@ -882,11 +882,11 @@ GANTT OCGR — IDs en Gantt (persiste en localStorage)
 ===================================================== */
 
 const GANTT_OCGR_URL = "https://maah1996.github.io/Carta-Gantt-Maah/"
-const LS_GANTT_IDS   = "rgdoc_en_gantt_v4"
+const LS_GANTT_IDS   = "rgdoc_en_gantt_v5"
 
 // Limpiar versiones anteriores
 try{
-  ["rgdoc_en_gantt","rgdoc_en_gantt_v2","rgdoc_en_gantt_v3"].forEach(k=>localStorage.removeItem(k))
+  ["rgdoc_en_gantt","rgdoc_en_gantt_v2","rgdoc_en_gantt_v3","rgdoc_en_gantt_v4"].forEach(k=>localStorage.removeItem(k))
 }catch(e){}
 
 function _ganttIds(){
@@ -896,9 +896,17 @@ function _ganttIds(){
 function _ganttGuardar(set){
   localStorage.setItem(LS_GANTT_IDS, JSON.stringify([...set]))
 }
+// Clave de identificación: usa número del documento (persiste al recargar desde Sheet)
+function _ganttKey(r){
+  if(!r) return null
+  if(r.numero && String(r.numero).trim()) return "n:" + String(r.numero).trim().toUpperCase()
+  if(r.rowId) return "r:" + String(r.rowId)
+  return null
+}
 function estaEnGantt(r){
-  if(!r || !r.rowId) return false
-  return _ganttIds().has(String(r.rowId))
+  const k = _ganttKey(r)
+  if(!k) return false
+  return _ganttIds().has(k)
 }
 function _construirActoGantt(r){
   return {
@@ -915,9 +923,10 @@ function _construirActoGantt(r){
   }
 }
 function _marcarEnGantt(r){
-  if(!r || !r.rowId) return
+  const k = _ganttKey(r)
+  if(!k) return
   const ids = _ganttIds()
-  ids.add(String(r.rowId))
+  ids.add(k)
   _ganttGuardar(ids)
 }
 
@@ -1253,6 +1262,7 @@ if(enviarGantt){
     const payload = _construirActoGantt(r)
     const encoded = btoa(unescape(encodeURIComponent(JSON.stringify(payload))))
     const urlGantt = GANTT_OCGR_URL + "#rgdoc=" + encoded
+    localStorage.setItem("rgdoc_to_gantt", JSON.stringify(payload))
     _marcarEnGantt(r)
     render()
     window.open(urlGantt, "_blank")
