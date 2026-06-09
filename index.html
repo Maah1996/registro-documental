@@ -189,8 +189,8 @@ margin-top:4px;
 
 .stats{
 display:grid;
-grid-template-columns:repeat(5,minmax(135px,1fr));
-gap:18px;
+grid-template-columns:repeat(6,minmax(90px,1fr));
+gap:8px;
 margin-bottom:12px;
 align-items:stretch;
 }
@@ -198,14 +198,14 @@ align-items:stretch;
 .card{
 background:#f7fafc;
 border:1px solid #e5edf5;
-border-radius:10px;
-padding:12px 10px;
+border-radius:8px;
+padding:7px 6px;
 text-align:center;
 display:flex;
 flex-direction:column;
 justify-content:center;
 align-items:center;
-min-height:62px;
+min-height:48px;
 line-height:1.15;
 }
 
@@ -217,7 +217,7 @@ user-select:none;
 .card.filter-card:hover,
 .card.filter-card.active{
 border-color:#34495e;
-box-shadow:0 3px 12px rgba(52,73,94,.22);
+box-shadow:0 2px 8px rgba(52,73,94,.18);
 transform:translateY(-1px);
 }
 
@@ -227,8 +227,8 @@ outline:2px solid #34495e;
 
 .card b{
 display:block;
-font-size:28px;
-margin-bottom:8px;
+font-size:20px;
+margin-bottom:4px;
 line-height:1;
 letter-spacing:.5px;
 }
@@ -249,6 +249,19 @@ background:#fffbea;
 
 .card.warning b{
 color:#b9770e;
+}
+
+.card.gantt-card{
+border-color:#b3d9f7;
+background:#eaf4fd;
+}
+
+.card.gantt-card b{
+color:#1a3f6f;
+}
+
+.card.gantt-card.active{
+outline:2px solid #1a3f6f;
 }
 
 /* BUSQUEDA */
@@ -772,6 +785,7 @@ TABLA Y VISUALIZACION DE DATOS
 <div class="card filter-card" data-resumen-filtro="PÚBLICO" role="button" tabindex="0"><b id="pub">0</b>Públicos</div>
 <div class="card filter-card" data-resumen-filtro="TOTAL" role="button" tabindex="0"><b id="total">0</b>Total</div>
 <div class="card warning filter-card" data-resumen-filtro="POR_VENCER" role="button" tabindex="0"><b id="porVencer">0</b>Por vencer</div>
+<div class="card gantt-card filter-card" data-resumen-filtro="EN_GANTT" role="button" tabindex="0"><b id="enGanttCount">0</b>En Gantt</div>
 </div>
 
 <div class="search">
@@ -1582,18 +1596,15 @@ if(chkGantt) chkGantt.checked=false
 }
 
 function actualizarResumen(){
-let res=0
-let sec=0
-let pub=0
-let vencer=0
+let res=0, sec=0, pub=0, vencer=0, enGantt=0
 
 registros.forEach(r=>{
 if(r.clasificacion==="RESERVADO") res++
 if(r.clasificacion==="SECRETO") sec++
 if(r.clasificacion==="PÚBLICO") pub++
-
 let d=diasNumero(r.plazo)
 if(d!==null && d<=5 && d>=0) vencer++
+if(estaEnGantt(r)) enGantt++
 })
 
 document.getElementById("res").innerText=res
@@ -1601,6 +1612,7 @@ document.getElementById("sec").innerText=sec
 document.getElementById("pub").innerText=pub
 document.getElementById("total").innerText=registros.length
 document.getElementById("porVencer").innerText=vencer
+document.getElementById("enGanttCount").innerText=enGantt
 }
 
 /* =====================================================
@@ -1984,6 +1996,10 @@ return d !== null && d <= 5 && d >= 0
 
 if(["RESERVADO","SECRETO","PÚBLICO"].includes(filtroResumenActivo)){
 lista = lista.filter(r=>mayus(r.clasificacion) === filtroResumenActivo)
+}
+
+if(filtroResumenActivo === "EN_GANTT"){
+lista = lista.filter(r=>estaEnGantt(r))
 }
 
 return lista
