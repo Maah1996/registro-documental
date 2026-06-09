@@ -307,6 +307,40 @@ min-width:170px;
 text-align:left;
 }
 
+/* FECHA EN GANTT */
+
+.fecha-en-gantt{
+background:#b3d9f7 !important;
+color:#1a3f6f;
+font-weight:700;
+}
+
+/* BOTON GANTT EN CELDA PLAZO */
+
+.btn-gantt-plazo{
+display:block;
+margin:4px auto 0;
+padding:2px 7px;
+font-size:10px;
+font-weight:700;
+background:#1a3f6f;
+color:#fff;
+border:none;
+border-radius:5px;
+cursor:pointer;
+white-space:nowrap;
+}
+
+.btn-gantt-plazo:hover{
+background:#15325a;
+}
+
+.btn-gantt-plazo.ya-gantt{
+background:#b3d9f7;
+color:#1a3f6f;
+cursor:default;
+}
+
 /* COLORES PLAZO */
 
 .plazoRojo{
@@ -824,6 +858,50 @@ let usuarioActual = sessionStorage.getItem("rdUsuario") || ""
 let rolActual = sessionStorage.getItem("rdRol") || "usuario"
 
 /* =====================================================
+GANTT OCGR — IDs en Gantt (persiste en localStorage)
+===================================================== */
+
+const GANTT_OCGR_URL = "https://maah1996.github.io/Carta-Gantt-Maah/"
+const LS_GANTT_IDS   = "rgdoc_en_gantt"
+
+function _ganttIds(){
+  try{ return new Set(JSON.parse(localStorage.getItem(LS_GANTT_IDS))||[]) }
+  catch(e){ return new Set() }
+}
+function _ganttGuardar(set){
+  localStorage.setItem(LS_GANTT_IDS, JSON.stringify([...set]))
+}
+function estaEnGantt(rowId){
+  return rowId != null && _ganttIds().has(String(rowId))
+}
+function enviarAGanttOCGR(indexOriginal){
+  const r = registros[indexOriginal]
+  if(!r || !r.plazo) return
+  if(estaEnGantt(r.rowId)){
+    alert("Este documento ya está en la Carta Gantt OCGR.")
+    return
+  }
+  const acto = {
+    id: Date.now(),
+    act: (r.numero ? "["+r.numero+"] " : "") + (r.materia||"").substring(0,80),
+    obs: ["Proced: "+(r.procedencia||"—"), "Autoridad: "+(r.autoridad||"—"), "Clasif: "+(r.clasificacion||"—")].join(" | "),
+    fecha: normalizarFechaISO(r.plazo),
+    fechaInicio: normalizarFechaISO(r.fecha) || null,
+    type: "plazo",
+    freq: "puntual",
+    priori: false,
+    fromRGDOC: true,
+    rgdocNumero: r.numero || ""
+  }
+  localStorage.setItem("rgdoc_to_gantt", JSON.stringify(acto))
+  const ids = _ganttIds()
+  ids.add(String(r.rowId))
+  _ganttGuardar(ids)
+  render()
+  window.open(GANTT_OCGR_URL, "_blank")
+}
+
+/* =====================================================
 MODULO 6
 CONFIGURACION API (AQUI VA EL SCRIPT)
 ===================================================== */
@@ -1170,8 +1248,14 @@ let claseClasif=r.clasificacion==="SECRETO"?"secret-cell":""
 
 let tr=document.createElement("tr")
 
+const enGantt = estaEnGantt(r.rowId)
+const claseFecha = enGantt ? "fecha-en-gantt" : ""
+const btnGantt = r.plazo
+  ? `<button class="btn-gantt-plazo${enGantt?' ya-gantt':''}" data-action="gantt" data-index="${esc(String(r.indexOriginal))}" title="${enGantt?'Ya está en Carta Gantt OCGR':'Enviar a Carta Gantt OCGR'}">${enGantt?'✔ Gantt':'📅 Gantt'}</button>`
+  : ''
+
 tr.innerHTML=`
-<td>${esc(fechaCL(r.fecha))}</td>
+<td class="${esc(claseFecha)}">${esc(fechaCL(r.fecha))}</td>
 <td>${esc(valorSeguro(r.numero))}</td>
 <td>${esc(valorSeguro(r.identMateria))}</td>
 <td>${esc(valorSeguro(r.identDoc))}</td>
@@ -1179,7 +1263,7 @@ tr.innerHTML=`
 <td>${esc(valorSeguro(r.ejs))}</td>
 <td>${esc(valorSeguro(r.hjs))}</td>
 <td class="col-materia">${esc(valorSeguro(r.materia))}</td>
-<td>${esc(fechaCL(r.plazo))}</td>
+<td>${esc(fechaCL(r.plazo))}${btnGantt}</td>
 <td class="${esc(clasePlazo)}">${esc(String(textoDia))}</td>
 <td>${esc(valorSeguro(r.procedencia))}</td>
 <td class="${esc(claseClasif)}">${esc(valorSeguro(r.clasificacion))}</td>
@@ -1539,6 +1623,10 @@ editar(index)
 
 if(accion==="borrar"){
 borrar(index)
+}
+
+if(accion==="gantt"){
+enviarAGanttOCGR(index)
 }
 })
 
