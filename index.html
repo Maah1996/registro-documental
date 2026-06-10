@@ -1392,6 +1392,12 @@ tbody.innerHTML=""
 
 let lista=obtenerRegistrosFiltrados()
 
+// Filtrar por usuario: cada usuario ve solo sus documentos (admin ve todos)
+const esAdmin=(rolActual||"").toLowerCase()==="admin"
+if(!esAdmin){
+  lista=lista.filter(r=>(r.usuario||"").toUpperCase().trim()===usuarioActual.toUpperCase().trim())
+}
+
 lista.sort((a,b)=>{
 let fechaA=normalizarFechaISO(a.fecha)
 let fechaB=normalizarFechaISO(b.fecha)
