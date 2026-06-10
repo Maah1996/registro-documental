@@ -1058,7 +1058,7 @@ function leerSheetGviz(sheetName, campos){
       var s=document.createElement('script')
       s.onerror=function(){terminar(new Error('Sheet inaccesible'))}
       timer=setTimeout(function(){terminar(new Error('Tiempo agotado leyendo Sheet'))},20000)
-      s.src='https://docs.google.com/spreadsheets/d/'+SHEET_ID_RGDOC+'/gviz/tq?sheet='+encodeURIComponent(sheetName)
+      s.src='https://docs.google.com/spreadsheets/d/'+SHEET_ID_RGDOC+'/gviz/tq?sheet='+encodeURIComponent(sheetName)+'&_cb='+Date.now()
       document.head.appendChild(s)
     }
     if(_gvizOcupado){ _gvizCola.push(ejecutar) } else { _gvizOcupado=true; ejecutar() }
