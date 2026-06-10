@@ -2007,7 +2007,7 @@ return `<div class="usuario-item ${esAdmin?"admin-u":""} ${esBloqueado?"bloquead
 <div style="flex:1"><div class="usuario-nombre">${esc(us.usuario)}</div><div class="usuario-rol">${esAdmin?"Administrador":"Usuario"}</div></div>
 ${!esSelf?`
 <button class="btn-toggle-bloqueo ${esBloqueado?"bloqueado":""}" data-uname="${esc(us.usuario)}">${esBloqueado?"🔴 Bloqueado":"🟢 Activo"}</button>
-<button class="btn-gantt-sync" data-uname="${esc(us.usuario)}" data-rol="${esc(us.rol||'usuario')}" title="Crear/sincronizar usuario en Gantt OCGR" style="font-size:11px;padding:3px 8px;border-radius:4px;border:1px solid #b3d9f7;background:#e8f4fd;color:#1a3f6f;cursor:pointer;font-weight:700;">📅</button>
+<button class="btn-gantt-sync" data-uname="${esc(us.usuario)}" data-rol="${esc(us.rol||'usuario')}" title="Crear usuario en Gantt OCGR" style="font-size:11px;padding:3px 8px;border-radius:4px;border:1px solid #b3d9f7;background:#e8f4fd;color:#1a3f6f;cursor:pointer;font-weight:700;">📅</button>
 <button class="btn-del-user" data-uname="${esc(us.usuario)}">✕</button>
 `:'<span style="font-size:11px;color:#718096;">(tú)</span>'}
 </div>`
@@ -2025,16 +2025,15 @@ btn.addEventListener("click",()=>sincronizarUsuarioEnGantt(btn.dataset.uname, bt
 }
 
 function sincronizarUsuarioEnGantt(nombre, rol){
-  const payload = {nombre: nombre, pass: "1234", rol: rol, ts: Date.now()}
-  localStorage.setItem("rgdoc_new_user", JSON.stringify(payload))
-  // Llamar directo al iframe si está cargado
-  const iframe = document.getElementById("gantt-iframe")
-  if(iframe && iframe.contentWindow && typeof iframe.contentWindow.crearUsuarioDesdeRGDOC === "function"){
-    iframe.contentWindow.crearUsuarioDesdeRGDOC()
-    alert("✅ Usuario " + nombre + " sincronizado en Gantt OCGR.")
-  } else {
-    alert("⚠️ Abre el tab Gantt OCGR primero para sincronizar.")
-  }
+const payload = {nombre: nombre, pass: "1234", rol: rol, ts: Date.now()}
+localStorage.setItem("rgdoc_new_user", JSON.stringify(payload))
+const iframe = document.getElementById("gantt-iframe")
+if(iframe && iframe.contentWindow){
+  iframe.contentWindow.postMessage({type: "rgdoc_new_user", payload: payload}, "*")
+  alert("✅ Usuario " + nombre + " enviado a Gantt OCGR.")
+} else {
+  alert("⚠️ Abre el tab Gantt OCGR primero y vuelve a intentarlo.")
+}
 }
 
 function toggleBloqueoUsuario(nombre){
