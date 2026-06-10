@@ -1471,7 +1471,9 @@ if(c==="1234") setTimeout(()=>abrirModalClave(true),300)
 // GAS rechazó — intentar fallback gviz antes de mostrar error
 try{
 const users2 = await leerSheetGviz("usuarios",["usuario","clave","rol"])
-const su2 = users2.find(x => String(x.usuario||'').trim().toUpperCase()===u && String(x.clave||'').trim()===c)
+const _normClave=v=>String(v||'').replace(/[\s ]/g,'')
+const su2 = users2.find(x => String(x.usuario||'').trim().toUpperCase()===u && _normClave(x.clave)===_normClave(c))
+console.log('[LOGIN gviz fallback1] usuarios leídos:',users2.map(x=>({u:x.usuario,c:x.clave})),'buscando:',u,c)
 if(su2){
 const rol2 = String(su2.rol||'usuario').toLowerCase()
 sessionStorage.setItem("rdUsuario",u); sessionStorage.setItem("rdClave",c); sessionStorage.setItem("rdRol",rol2)
@@ -1489,7 +1491,9 @@ if(c==="1234") setTimeout(()=>abrirModalClave(true),300)
 errEl.textContent = "Verificando..."
 try{
 const users = await leerSheetGviz("usuarios",["usuario","clave","rol"])
-const sheetUser = users.find(x => String(x.usuario||'').trim().toUpperCase()===u && String(x.clave||'').trim()===c)
+const _nc=v=>String(v||'').replace(/[\s ]/g,'')
+const sheetUser = users.find(x => String(x.usuario||'').trim().toUpperCase()===u && _nc(x.clave)===_nc(c))
+console.log('[LOGIN gviz fallback2] usuarios leídos:',users.map(x=>({u:x.usuario,c:x.clave})),'buscando:',u,c)
 if(sheetUser){
 const rol = String(sheetUser.rol||'usuario').toLowerCase()
 sessionStorage.setItem("rdUsuario", u)
