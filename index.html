@@ -2127,15 +2127,18 @@ actualizarTarjetasResumenActivas()
 // ── Vista Gantt OCGR embebida ──────────────────────────────
 const GANTT_OCGR_IFRAME_URL = "https://maah1996.github.io/Carta-Gantt-Maah/"
 let _ganttIframeCargado = false
+let _ganttIframeUser = null
 
 function mostrarVistaGantt(){
   document.getElementById("tab-regdoc").classList.remove("active")
   document.getElementById("tab-gantt").classList.add("active")
   const wrap = document.getElementById("gantt-iframe-wrap")
   wrap.style.display = "block"
-  if(!_ganttIframeCargado){
+  // Recargar iframe si cambió el usuario (ej: admin → LUIS)
+  if(!_ganttIframeCargado || _ganttIframeUser !== usuarioActual){
     document.getElementById("gantt-iframe").src = GANTT_OCGR_IFRAME_URL
     _ganttIframeCargado = true
+    _ganttIframeUser = usuarioActual
   }
 }
 
