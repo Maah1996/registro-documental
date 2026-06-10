@@ -1275,7 +1275,10 @@ if(!enviarGantt && yaEstabaEnGantt){
   render()
   window.open(GANTT_OCGR_URL, "_blank")
 } else if(enviarGantt && yaEstabaEnGantt){
-  // Ya estaba en Gantt y sigue marcado → no re-enviar, solo actualizar marca
+  // Ya estaba en Gantt → enviar actualización silenciosa
+  const payload = _construirActoGantt(r)
+  payload.update = true
+  localStorage.setItem("rgdoc_to_gantt", JSON.stringify(payload))
   _marcarEnGantt(r)
   render()
 } else if(enviarGantt && !yaEstabaEnGantt){
