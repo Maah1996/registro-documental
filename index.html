@@ -18,6 +18,7 @@ Metadatos, iconos y librerías externas
 <script src="https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.13.2/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.13.2/firebase-database-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.13.2/firebase-auth-compat.js"></script>
 
 <!-- =====================================================
 MODULO 1
@@ -999,6 +1000,7 @@ let _fbdb = null
     const cfg={apiKey:"AIzaSyB0f_Sh2xiDgvB9_-nyp76Ol-XvhhyvcXA",authDomain:"gantt-maah.firebaseapp.com",databaseURL:"https://gantt-maah-default-rtdb.firebaseio.com",projectId:"gantt-maah",storageBucket:"gantt-maah.firebasestorage.app",appId:"1:299934642229:web:87681b489cdc2a5452c17c"}
     if(!firebase.apps.length) firebase.initializeApp(cfg)
     _fbdb = firebase.database()
+    firebase.auth().signInAnonymously().catch(e=>console.warn('[RegDoc] Firebase anon auth:',e))
   }catch(e){ console.warn('[RegDoc] Firebase no disponible:', e) }
 })()
 
