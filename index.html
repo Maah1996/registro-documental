@@ -930,6 +930,15 @@ function _marcarEnGantt(r){
   ids.add(k)
   _ganttGuardar(ids)
 }
+function _desmarcarDeGantt(r){
+  const k = _ganttKey(r)
+  if(!k) return
+  const ids = _ganttIds()
+  ids.delete(k)
+  _ganttGuardar(ids)
+  // Señal para que la Gantt elimine la actividad
+  try{ localStorage.setItem("rgdoc_remove_gantt", JSON.stringify({rgdocNumero: r.identMateria||r.numero||"", act: (r.materia||"").toUpperCase().trim()})) }catch(e){}
+}
 
 // Llamado desde el botón del formulario
 function enviarFormAGantt(){
@@ -1255,9 +1264,20 @@ localStorage.setItem("registros",JSON.stringify(registros))
 render()
 
 const enviarGantt = document.getElementById("chkGantt") && document.getElementById("chkGantt").checked
+const yaEstabaEnGantt = estaEnGantt(r)
 limpiar()
 
-if(enviarGantt){
+if(!enviarGantt && yaEstabaEnGantt){
+  // Desmarcó el checkbox → eliminar de la Gantt
+  _desmarcarDeGantt(r)
+  render()
+  window.open(GANTT_OCGR_URL, "_blank")
+} else if(enviarGantt && yaEstabaEnGantt){
+  // Ya estaba en Gantt y sigue marcado → no re-enviar, solo actualizar marca
+  _marcarEnGantt(r)
+  render()
+} else if(enviarGantt && !yaEstabaEnGantt){
+  // Nuevo envío a la Gantt
   if(!r.plazo){ alert("El documento no tiene Plazo — no se puede enviar a la Gantt.") }
   else{
     const payload = _construirActoGantt(r)
@@ -1579,6 +1599,9 @@ llegsal.value=r.llegsal||"LLEGADO"
 observ.value=r.observ||""
 
 editIndex=i
+// Pre-marcar checkbox si el registro ya está en Gantt
+const chk = document.getElementById("chkGantt")
+if(chk) chk.checked = estaEnGantt(r)
 window.scrollTo({top:0,behavior:"smooth"})
 }
 
