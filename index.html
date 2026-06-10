@@ -1437,6 +1437,7 @@ usuarioActual = u
 rolActual = data.rol || "usuario"
 registros = (data.registros || []).map(r=>({...r, fecha: normalizarFechaISO(r.fecha), plazo: normalizarFechaISO(r.plazo)}))
 localStorage.setItem("registros", JSON.stringify(registros))
+localStorage.setItem("rgdoc_session", JSON.stringify({nombre: u, expira: Date.now() + 30*60*1000}))
 ocultarLogin()
 mostrarSegunRol()
 iniciarControlInactividad()
@@ -1460,6 +1461,7 @@ sessionStorage.setItem("rdClave", c)
 sessionStorage.setItem("rdRol", rol)
 usuarioActual = u
 rolActual = rol
+localStorage.setItem("rgdoc_session", JSON.stringify({nombre: u, expira: Date.now() + 30*60*1000}))
 ocultarLogin()
 mostrarSegunRol()
 iniciarControlInactividad()
