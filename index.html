@@ -666,6 +666,7 @@ TITULO PRINCIPAL
     <span id="badge-rol" style="background:rgba(255,255,255,.15);padding:2px 10px;border-radius:10px;font-size:11px;"></span>
     <button onclick="abrirModalClave()" style="background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.3);color:#fff;padding:3px 10px;border-radius:5px;font-size:11px;cursor:pointer;">🔐 Clave</button>
     <button id="btn-usuarios-admin" onclick="abrirModalUsuarios()" style="display:none;background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.3);color:#fff;padding:3px 10px;border-radius:5px;font-size:11px;cursor:pointer;">👥 Usuarios</button>
+    <button onclick="cerrarSesion()" style="background:rgba(220,53,69,.35);border:1px solid rgba(220,53,69,.6);color:#fff;padding:3px 10px;border-radius:5px;font-size:11px;cursor:pointer;">↪ Salir</button>
   </div>
 </div>
 
@@ -1553,6 +1554,14 @@ function actualizarTemporizadorSesion(){
 if(temporizadorSesion){
 temporizadorSesion.innerText = formatearTemporizador(segundosInactividad)
 }
+}
+
+function cerrarSesion(){
+sessionStorage.removeItem("rdUsuario")
+sessionStorage.removeItem("rdClave")
+sessionStorage.removeItem("rdRol")
+localStorage.removeItem("rgdoc_session")
+location.reload()
 }
 
 function bloquearSesion(manual){
