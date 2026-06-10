@@ -16,6 +16,8 @@ Metadatos, iconos y librerías externas
 <link rel="apple-touch-icon" href="icono.png">
 
 <script src="https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.13.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.13.2/firebase-database-compat.js"></script>
 
 <!-- =====================================================
 MODULO 1
@@ -989,6 +991,45 @@ CONFIGURACION API (AQUI VA EL SCRIPT)
 
 const API_URL="https://script.google.com/macros/s/AKfycbydfREY_WSruchtCyrjzOHhuppUrSyVefZPnGM5_purq8SOYYuv6Pf-2gEd--C7KRjW/exec"
 const SHEET_ID_RGDOC="19AX5vrwhUjl8Pa_gtUWxFPjt2cw4RjL5-lP_wl1MBps"
+
+// Firebase — mismo proyecto que Gantt OCGR (comparten maah_usuarios)
+let _fbdb = null
+;(function(){
+  try{
+    const cfg={apiKey:"AIzaSyB0f_Sh2xiDgvB9_-nyp76Ol-XvhhyvcXA",authDomain:"gantt-maah.firebaseapp.com",databaseURL:"https://gantt-maah-default-rtdb.firebaseio.com",projectId:"gantt-maah",storageBucket:"gantt-maah.firebasestorage.app",appId:"1:299934642229:web:87681b489cdc2a5452c17c"}
+    if(!firebase.apps.length) firebase.initializeApp(cfg)
+    _fbdb = firebase.database()
+  }catch(e){ console.warn('[RegDoc] Firebase no disponible:', e) }
+})()
+
+async function _fbBuscarUsuario(nombre, pass){
+  if(!_fbdb) return null
+  const snap = await _fbdb.ref('maah_usuarios').once('value')
+  const users = snap.val() || {}
+  return Object.entries(users).find(([k,u]) =>
+    (u.nombre||'').toUpperCase().trim() === nombre.toUpperCase().trim() && u.pass === pass
+  ) || null
+}
+
+async function _fbCrearUsuario(nombre, pass, rol){
+  if(!_fbdb) return
+  const snap = await _fbdb.ref('maah_usuarios').once('value')
+  const users = snap.val() || {}
+  const yaExiste = Object.values(users).some(u => (u.nombre||'').toUpperCase().trim() === nombre.toUpperCase().trim())
+  if(yaExiste) return
+  const ganttRol = (rol==='admin'||rol==='administrador') ? 'admin' : 'user'
+  await _fbdb.ref('maah_usuarios').push({nombre: nombre.toUpperCase().trim(), pass: pass, rol: ganttRol})
+}
+
+async function _fbCambiarClave(nombre, nuevaPass){
+  if(!_fbdb) return false
+  const snap = await _fbdb.ref('maah_usuarios').once('value')
+  const users = snap.val() || {}
+  const entry = Object.entries(users).find(([k,u]) => (u.nombre||'').toUpperCase().trim() === nombre.toUpperCase().trim())
+  if(!entry) return false
+  await _fbdb.ref('maah_usuarios/' + entry[0] + '/pass').set(nuevaPass)
+  return true
+}
 const CAMPOS_RGDOC=["fecha","numero","identMateria","identDoc","autoridad","ejs","hjs","materia","plazo","procedencia","clasificacion","archivo","llegsal","observ","usuario"]
 const TIEMPO_BLOQUEO = 120000
 
@@ -1449,6 +1490,21 @@ if(!u || !c){ errEl.textContent = "Complete usuario y clave."; return }
 const _bloqueados=new Set(JSON.parse(localStorage.getItem("rgdoc_bloqueados")||"[]"))
 if(_bloqueados.has(u)){ errEl.textContent="❌ Usuario bloqueado. Contacte al administrador."; return }
 errEl.textContent = "Verificando..."
+// Intentar Firebase primero
+try{
+const fbEntry = await _fbBuscarUsuario(u, c)
+if(fbEntry){
+const fbRol = fbEntry[1].rol === 'admin' ? 'admin' : 'usuario'
+sessionStorage.setItem("rdUsuario",u); sessionStorage.setItem("rdClave",c); sessionStorage.setItem("rdRol",fbRol)
+usuarioActual=u; rolActual=fbRol
+localStorage.setItem("rgdoc_session",JSON.stringify({nombre:u,clave:c,rol:fbRol,expira:Date.now()+30*60*1000}))
+ocultarLogin(); mostrarSegunRol(); iniciarControlInactividad()
+await cargarDatos()
+document.getElementById("login-usuario").value=""; document.getElementById("login-clave").value=""
+return
+}
+}catch(eFb){ console.warn('[RegDoc] Firebase login error:', eFb) }
+// Fallback GAS/gviz
 try{
 const data = await fetchGAS(API_URL + "?u=" + encodeURIComponent(u) + "&c=" + encodeURIComponent(c))
 if(data.status === "ok"){
@@ -1989,13 +2045,17 @@ if(nueva.length<3){errEl.textContent="❌ La clave debe tener al menos 3 caracte
 errEl.textContent="Guardando..."
 try{
 const eraObligatorio=_cambioClaveObligatorio
-await fetch(API_URL,{method:"POST",mode:"no-cors",body:JSON.stringify({action:"cambiarClave",usuario:usuarioActual,claveActual:actual,claveNueva:nueva}),headers:{"Content-Type":"application/json"}})
+const fbOk = await _fbCambiarClave(usuarioActual, nueva)
+if(!fbOk) throw new Error("Usuario no encontrado en Firebase")
+// también GAS como respaldo
+fetch(API_URL,{method:"POST",mode:"no-cors",body:JSON.stringify({action:"cambiarClave",usuario:usuarioActual,claveActual:actual,claveNueva:nueva}),headers:{"Content-Type":"application/json"}}).catch(()=>{})
 sessionStorage.setItem("rdClave",nueva)
+localStorage.setItem("rgdoc_session",JSON.stringify({nombre:usuarioActual,clave:nueva,rol:rolActual,expira:Date.now()+30*60*1000}))
 _cambioClaveObligatorio=false
 document.getElementById("modal-clave").classList.remove("open")
 if(!eraObligatorio) alert("✅ Clave cambiada correctamente.")
 }catch(e){
-errEl.textContent="❌ Error al guardar. Intenta de nuevo."
+errEl.textContent="❌ Error al guardar: "+e.message
 }
 }
 
@@ -2069,13 +2129,15 @@ errEl.textContent=""
 if(!u){errEl.textContent="Ingrese nombre de usuario.";return}
 const claveInicial="1234"
 try{
-await fetch(API_URL,{method:"POST",mode:"no-cors",body:JSON.stringify({action:"crearUsuario",adminUsuario:usuarioActual,adminClave:sessionStorage.getItem("rdClave"),nuevoUsuario:u,clave:claveInicial,rol:r}),headers:{"Content-Type":"application/json"}})
+await _fbCrearUsuario(u, claveInicial, r)
+// también GAS como respaldo para Sheets
+fetch(API_URL,{method:"POST",mode:"no-cors",body:JSON.stringify({action:"crearUsuario",adminUsuario:usuarioActual,adminClave:sessionStorage.getItem("rdClave"),nuevoUsuario:u,clave:claveInicial,rol:r}),headers:{"Content-Type":"application/json"}}).catch(()=>{})
 errEl.style.color="#0F6E56"
 errEl.textContent="✅ Usuario creado con clave 1234. Recargando..."
 document.getElementById("nu-usuario").value=""
 localStorage.setItem("rgdoc_new_user", JSON.stringify({nombre: u, pass: claveInicial, rol: r, ts: Date.now()}))
 setTimeout(()=>{ errEl.textContent=""; errEl.style.color=""; cargarListaUsuarios() },2000)
-}catch(e){ errEl.textContent="❌ Error al crear usuario." }
+}catch(e){ errEl.textContent="❌ Error al crear usuario: "+e.message }
 }
 async function eliminarUsuario(nombreUsuario){
 if(!confirm("¿Eliminar usuario "+nombreUsuario+"?")) return
