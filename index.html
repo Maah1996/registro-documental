@@ -1349,12 +1349,15 @@ if(!enviarGantt && yaEstabaEnGantt){
   if(!r.plazo){ alert("El documento no tiene Plazo — no se puede enviar a la Gantt.") }
   else{
     const payload = _construirActoGantt(r)
-    const encoded = btoa(unescape(encodeURIComponent(JSON.stringify(payload))))
-    const urlGantt = GANTT_OCGR_URL + "#rgdoc=" + encoded
     localStorage.setItem("rgdoc_to_gantt", JSON.stringify(payload))
     _marcarEnGantt(r)
     render()
-    window.open(urlGantt, "_blank")
+    // Enviar al iframe Gantt via postMessage (sin abrir nueva ventana)
+    const iframe = document.getElementById("gantt-iframe")
+    if(iframe && iframe.contentWindow){
+      iframe.contentWindow.postMessage({type:"rgdoc_import", payload: payload}, "*")
+    }
+    mostrarVistaGantt()
   }
 }
 }
