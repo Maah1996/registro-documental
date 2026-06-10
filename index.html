@@ -2006,6 +2006,7 @@ await fetch(API_URL,{method:"POST",mode:"no-cors",body:JSON.stringify({action:"c
 errEl.style.color="#0F6E56"
 errEl.textContent="✅ Usuario creado con clave 1234. Recargando..."
 document.getElementById("nu-usuario").value=""
+localStorage.setItem("rgdoc_new_user", JSON.stringify({nombre: u, pass: claveInicial, rol: r, ts: Date.now()}))
 setTimeout(()=>{ errEl.textContent=""; errEl.style.color=""; cargarListaUsuarios() },2000)
 }catch(e){ errEl.textContent="❌ Error al crear usuario." }
 }
