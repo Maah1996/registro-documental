@@ -1352,12 +1352,12 @@ if(!enviarGantt && yaEstabaEnGantt){
     localStorage.setItem("rgdoc_to_gantt", JSON.stringify(payload))
     _marcarEnGantt(r)
     render()
-    // Enviar al iframe Gantt via postMessage (sin abrir nueva ventana)
+    // Si el iframe ya está cargado, enviar postMessage para importar de inmediato
     const iframe = document.getElementById("gantt-iframe")
-    if(iframe && iframe.contentWindow){
+    if(iframe && iframe.contentWindow && _ganttIframeCargado){
       iframe.contentWindow.postMessage({type:"rgdoc_import", payload: payload}, "*")
     }
-    mostrarVistaGantt()
+    // Se queda en RegDoc — el usuario va a la Gantt cuando quiera
   }
 }
 }
