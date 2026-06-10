@@ -1466,7 +1466,7 @@ iniciarControlInactividad()
 render()
 document.getElementById("login-usuario").value = ""
 document.getElementById("login-clave").value = ""
-if(c==="1234") setTimeout(()=>abrirModalClave(true),300)
+if(c==="1234") setTimeout(()=>alert("⚠️ Estás usando la clave inicial 1234. Pide al administrador que la actualice en el sistema."),300)
 }else{
 // GAS rechazó — intentar fallback gviz antes de mostrar error
 try{
@@ -1482,7 +1482,7 @@ localStorage.setItem("rgdoc_session",JSON.stringify({nombre:u,clave:c,rol:rol2,e
 ocultarLogin(); mostrarSegunRol(); iniciarControlInactividad()
 await cargarDatos()
 document.getElementById("login-usuario").value=""; document.getElementById("login-clave").value=""
-if(c==="1234") setTimeout(()=>abrirModalClave(true),300)
+if(c==="1234") setTimeout(()=>alert("⚠️ Estás usando la clave inicial 1234. Pide al administrador que la actualice en el sistema."),300)
 }else{ errEl.textContent="❌ "+(data.mensaje||"Usuario o clave incorrectos.") }
 }catch(e3){ errEl.textContent="❌ "+(data.mensaje||"Usuario o clave incorrectos.") }
 }
@@ -1508,7 +1508,7 @@ iniciarControlInactividad()
 await cargarDatos()
 document.getElementById("login-usuario").value=""
 document.getElementById("login-clave").value=""
-if(c==="1234") setTimeout(()=>abrirModalClave(true),300)
+if(c==="1234") setTimeout(()=>alert("⚠️ Estás usando la clave inicial 1234. Pide al administrador que la actualice en el sistema."),300)
 }else{
 errEl.textContent="❌ Usuario o clave incorrectos."
 }
