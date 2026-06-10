@@ -569,6 +569,14 @@ grid-template-columns:1fr;
 /* BADGE USUARIO EN HEADER */
 .user-badge-bar{background:#243447;color:#fff;padding:6px 20px;display:flex;align-items:center;justify-content:space-between;font-size:12px;margin:-20px -20px 20px -20px;}
 .user-badge-bar span{font-weight:700;}
+/* TABS REGISTRO / GANTT */
+.app-tabs{display:flex;gap:0;margin:-20px -20px 0 -20px;background:#1a3f6f;}
+.app-tab{padding:10px 22px;font-size:13px;font-weight:800;color:rgba(255,255,255,.65);cursor:pointer;border:none;background:none;letter-spacing:.5px;transition:all .15s;}
+.app-tab.active{background:#dfeaf5;color:#1a3f6f;border-radius:8px 8px 0 0;}
+.app-tab:hover:not(.active){color:#fff;}
+/* IFRAME GANTT */
+#gantt-iframe-wrap{display:none;position:fixed;inset:0;z-index:5000;background:#fff;}
+#gantt-iframe-wrap iframe{width:100%;height:100%;border:none;}
 
 </style>
 </head>
@@ -658,7 +666,15 @@ TITULO PRINCIPAL
   </div>
 </div>
 
-<h1>REGISTRO DOCUMENTAL <a href="https://maah1996.github.io/Carta-Gantt-Maah/" target="_blank" title="Ir a Carta Gantt OCGR" style="font-size:13px;font-weight:700;color:#1a3f6f;text-decoration:none;border:1.5px solid #1a3f6f;border-radius:6px;padding:3px 10px;vertical-align:middle;white-space:nowrap;">📅 Gantt OCGR</a></h1>
+<div class="app-tabs">
+  <button class="app-tab active" id="tab-regdoc" onclick="mostrarVistaRegDoc()">📋 Registro Documental</button>
+  <button class="app-tab" id="tab-gantt" onclick="mostrarVistaGantt()">📅 Gantt OCGR</button>
+</div>
+<h1 id="titulo-regdoc">REGISTRO DOCUMENTAL</h1>
+<!-- Contenedor iframe Gantt OCGR -->
+<div id="gantt-iframe-wrap">
+  <iframe id="gantt-iframe" src="" allow="same-origin"></iframe>
+</div>
 <div id="api-status" style="display:none;background:#fff3cd;border:1px solid #ffc107;color:#856404;border-radius:8px;padding:8px 14px;margin:0 0 10px 0;font-size:13px;text-align:center;"></div>
 
 <div class="session-bar">
@@ -2074,8 +2090,26 @@ return lista
 
 actualizarTarjetasResumenActivas()
 
+// ── Vista Gantt OCGR embebida ──────────────────────────────
+const GANTT_OCGR_IFRAME_URL = "https://maah1996.github.io/Carta-Gantt-Maah/"
+let _ganttIframeCargado = false
 
+function mostrarVistaGantt(){
+  document.getElementById("tab-regdoc").classList.remove("active")
+  document.getElementById("tab-gantt").classList.add("active")
+  const wrap = document.getElementById("gantt-iframe-wrap")
+  wrap.style.display = "block"
+  if(!_ganttIframeCargado){
+    document.getElementById("gantt-iframe").src = GANTT_OCGR_IFRAME_URL
+    _ganttIframeCargado = true
+  }
+}
 
+function mostrarVistaRegDoc(){
+  document.getElementById("tab-gantt").classList.remove("active")
+  document.getElementById("tab-regdoc").classList.add("active")
+  document.getElementById("gantt-iframe-wrap").style.display = "none"
+}
 
 </script>
 
