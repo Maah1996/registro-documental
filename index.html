@@ -1468,7 +1468,21 @@ document.getElementById("login-usuario").value = ""
 document.getElementById("login-clave").value = ""
 if(c==="1234") setTimeout(()=>abrirModalClave(true),300)
 }else{
-errEl.textContent = "❌ "+(data.mensaje||"Usuario o clave incorrectos.")
+// GAS rechazó — intentar fallback gviz antes de mostrar error
+try{
+const users2 = await leerSheetGviz("usuarios",["usuario","clave","rol"])
+const su2 = users2.find(x => String(x.usuario||'').trim().toUpperCase()===u && String(x.clave||'').trim()===c)
+if(su2){
+const rol2 = String(su2.rol||'usuario').toLowerCase()
+sessionStorage.setItem("rdUsuario",u); sessionStorage.setItem("rdClave",c); sessionStorage.setItem("rdRol",rol2)
+usuarioActual=u; rolActual=rol2
+localStorage.setItem("rgdoc_session",JSON.stringify({nombre:u,clave:c,rol:rol2,expira:Date.now()+30*60*1000}))
+ocultarLogin(); mostrarSegunRol(); iniciarControlInactividad()
+await cargarDatos()
+document.getElementById("login-usuario").value=""; document.getElementById("login-clave").value=""
+if(c==="1234") setTimeout(()=>abrirModalClave(true),300)
+}else{ errEl.textContent="❌ "+(data.mensaje||"Usuario o clave incorrectos.") }
+}catch(e3){ errEl.textContent="❌ "+(data.mensaje||"Usuario o clave incorrectos.") }
 }
 }catch(e){
 // Fallback: validar contra hoja "usuarios" del Sheet (gviz)
