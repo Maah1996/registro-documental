@@ -909,8 +909,10 @@ function estaEnGantt(r){
   return _ganttIds().has(k)
 }
 function _construirActoGantt(r){
+  const ts = Date.now()
   return {
-    id: Date.now(),
+    id: ts,
+    nonce: ts,
     act: (r.materia||"").substring(0,120),
     obs: "PLAZO | " + (r.procedencia||"—"),
     fecha: normalizarFechaISO(r.plazo),
