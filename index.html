@@ -560,6 +560,9 @@ grid-template-columns:1fr;
 .modal-usuarios-box h3{margin:0 0 16px;color:#243447;font-size:15px;}
 .usuario-item{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:8px;background:#f8fafc;margin-bottom:8px;border-left:4px solid #243447;}
 .usuario-item.admin-u{border-left-color:#c8960a;}
+.usuario-item.bloqueado-u{opacity:.55;background:#fff5f5;border-left-color:#e53e3e;}
+.btn-toggle-bloqueo{font-size:11px;padding:3px 9px;border-radius:4px;border:1px solid #cbd5e0;background:#e6fffa;color:#276749;cursor:pointer;font-weight:700;white-space:nowrap;}
+.btn-toggle-bloqueo.bloqueado{background:#fff5f5;border-color:#e53e3e;color:#c53030;}
 .usuario-nombre{flex:1;font-weight:700;font-size:13px;color:#243447;}
 .usuario-rol{font-size:11px;color:#718096;}
 .btn-del-user{background:#fff0f0;border:1px solid #fed7d7;color:#c62828;border-radius:6px;padding:4px 10px;cursor:pointer;font-size:11px;font-weight:700;}
@@ -1442,6 +1445,8 @@ const c = (document.getElementById("login-clave").value || "").trim()
 const errEl = document.getElementById("login-error")
 errEl.textContent = ""
 if(!u || !c){ errEl.textContent = "Complete usuario y clave."; return }
+const _bloqueados=new Set(JSON.parse(localStorage.getItem("rgdoc_bloqueados")||"[]"))
+if(_bloqueados.has(u)){ errEl.textContent="❌ Usuario bloqueado. Contacte al administrador."; return }
 errEl.textContent = "Verificando..."
 try{
 const data = await fetchGAS(API_URL + "?u=" + encodeURIComponent(u) + "&c=" + encodeURIComponent(c))
@@ -1983,16 +1988,35 @@ async function cargarListaUsuarios(){
 const lista=document.getElementById("lista-usuarios")
 lista.innerHTML="<div style='color:#718096;font-size:12px;'>Cargando...</div>"
 try{
+const bloqueados=new Set(JSON.parse(localStorage.getItem("rgdoc_bloqueados")||"[]"))
 const users=await leerSheetGviz("usuarios",["usuario","clave","rol"])
-lista.innerHTML=users.map(us=>`
-<div class="usuario-item ${(us.rol||'').toLowerCase()==='admin'?'admin-u':''}">
-<div><div class="usuario-nombre">${esc(us.usuario)}</div><div class="usuario-rol">${(us.rol||'').toLowerCase()==='admin'?'Administrador':'Usuario'}</div></div>
-${us.usuario!==usuarioActual?`<button class="btn-del-user" data-uname="${esc(us.usuario)}">✕ Eliminar</button>`:'<span style="font-size:11px;color:#718096;">(tú)</span>'}
-</div>`).join("")||"<div style='color:#718096;font-size:12px;'>Sin usuarios.</div>"
+lista.innerHTML=users.map(us=>{
+const esAdmin=(us.rol||"").toLowerCase()==="admin"
+const esBloqueado=bloqueados.has(us.usuario)
+const esSelf=us.usuario===usuarioActual
+return `<div class="usuario-item ${esAdmin?"admin-u":""} ${esBloqueado?"bloqueado-u":""}">
+<div style="flex:1"><div class="usuario-nombre">${esc(us.usuario)}</div><div class="usuario-rol">${esAdmin?"Administrador":"Usuario"}</div></div>
+${!esSelf?`
+<button class="btn-toggle-bloqueo ${esBloqueado?"bloqueado":""}" data-uname="${esc(us.usuario)}">${esBloqueado?"🔴 Bloqueado":"🟢 Activo"}</button>
+<button class="btn-del-user" data-uname="${esc(us.usuario)}">✕</button>
+`:'<span style="font-size:11px;color:#718096;">(tú)</span>'}
+</div>`
+}).join("")||"<div style='color:#718096;font-size:12px;'>Sin usuarios.</div>"
 lista.querySelectorAll(".btn-del-user[data-uname]").forEach(btn=>{
 btn.addEventListener("click",()=>eliminarUsuario(btn.dataset.uname))
 })
+lista.querySelectorAll(".btn-toggle-bloqueo[data-uname]").forEach(btn=>{
+btn.addEventListener("click",()=>toggleBloqueoUsuario(btn.dataset.uname))
+})
 }catch(e){lista.innerHTML="<div style='color:#c62828;font-size:12px;'>Error al cargar usuarios.</div>"}
+}
+
+function toggleBloqueoUsuario(nombre){
+const bloqueados=new Set(JSON.parse(localStorage.getItem("rgdoc_bloqueados")||"[]"))
+if(bloqueados.has(nombre)) bloqueados.delete(nombre)
+else bloqueados.add(nombre)
+localStorage.setItem("rgdoc_bloqueados",JSON.stringify([...bloqueados]))
+cargarListaUsuarios()
 }
 async function crearUsuario(){
 const u=document.getElementById("nu-usuario").value.trim().toUpperCase()
