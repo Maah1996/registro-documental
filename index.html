@@ -1437,7 +1437,7 @@ usuarioActual = u
 rolActual = data.rol || "usuario"
 registros = (data.registros || []).map(r=>({...r, fecha: normalizarFechaISO(r.fecha), plazo: normalizarFechaISO(r.plazo)}))
 localStorage.setItem("registros", JSON.stringify(registros))
-localStorage.setItem("rgdoc_session", JSON.stringify({nombre: u, expira: Date.now() + 30*60*1000}))
+localStorage.setItem("rgdoc_session", JSON.stringify({nombre: u, clave: c, rol: rolActual, expira: Date.now() + 30*60*1000}))
 ocultarLogin()
 mostrarSegunRol()
 iniciarControlInactividad()
@@ -1461,7 +1461,7 @@ sessionStorage.setItem("rdClave", c)
 sessionStorage.setItem("rdRol", rol)
 usuarioActual = u
 rolActual = rol
-localStorage.setItem("rgdoc_session", JSON.stringify({nombre: u, expira: Date.now() + 30*60*1000}))
+localStorage.setItem("rgdoc_session", JSON.stringify({nombre: u, clave: c, rol: rolActual, expira: Date.now() + 30*60*1000}))
 ocultarLogin()
 mostrarSegunRol()
 iniciarControlInactividad()
@@ -1480,18 +1480,37 @@ errEl.textContent="❌ Usuario o clave incorrectos."
 INICIO DEL SISTEMA
 ===================================================== */
 
-window.onload = ()=>{
+window.onload = async ()=>{
 const u = sessionStorage.getItem("rdUsuario")
 const c = sessionStorage.getItem("rdClave")
 if(u && c){
-usuarioActual = u
-rolActual = sessionStorage.getItem("rdRol") || "usuario"
-ocultarLogin()
-mostrarSegunRol()
-cargarDatos()
-iniciarControlInactividad()
-}else{
-mostrarLogin()
+  usuarioActual = u
+  rolActual = sessionStorage.getItem("rdRol") || "usuario"
+  ocultarLogin()
+  mostrarSegunRol()
+  cargarDatos()
+  iniciarControlInactividad()
+} else {
+  // Intentar restaurar sesión desde token SSO (abierto desde Gantt u otra ventana)
+  try{
+    const raw = localStorage.getItem("rgdoc_session")
+    if(raw){
+      const ticket = JSON.parse(raw)
+      if(ticket && ticket.nombre && ticket.clave && ticket.expira && Date.now() < ticket.expira){
+        sessionStorage.setItem("rdUsuario", ticket.nombre)
+        sessionStorage.setItem("rdClave", ticket.clave)
+        sessionStorage.setItem("rdRol", ticket.rol || "usuario")
+        usuarioActual = ticket.nombre
+        rolActual = ticket.rol || "usuario"
+        ocultarLogin()
+        mostrarSegunRol()
+        await cargarDatos()
+        iniciarControlInactividad()
+        return
+      }
+    }
+  }catch(e){}
+  mostrarLogin()
 }
 }
 
