@@ -545,6 +545,26 @@ grid-template-columns:1fr;
 .btn-ingresar{width:100%;padding:12px;font-size:13px;font-weight:700;background:#243447;color:#fff;border:none;border-radius:8px;cursor:pointer;margin-top:4px;}
 .btn-ingresar:hover{background:#1a2738;}
 .login-error{color:#c62828;font-size:12px;text-align:center;margin-top:10px;min-height:18px;}
+.login-recovery{text-align:center;margin-top:14px;font-size:12px;color:#718096;}
+.login-recovery a{color:#243447;cursor:pointer;font-weight:700;text-decoration:underline;}
+/* MODAL RECUPERAR CLAVE */
+#modal-recuperar{display:none;position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:10000;align-items:center;justify-content:center;}
+#modal-recuperar.open{display:flex;}
+.modal-rec-box{background:#fff;border-radius:14px;padding:28px 28px 22px;width:330px;max-width:95vw;box-shadow:0 20px 60px rgba(0,0,0,.3);}
+.modal-rec-box h3{margin:0 0 4px;color:#243447;font-size:16px;text-align:center;}
+.modal-rec-box p{text-align:center;font-size:11px;color:#718096;margin:0 0 18px;line-height:1.5;}
+.modal-rec-box label{display:block;font-size:11px;font-weight:700;color:#4a5568;margin-bottom:4px;text-transform:uppercase;margin-top:10px;}
+.modal-rec-box input{width:100%;box-sizing:border-box;font-size:14px;padding:10px 12px;border:1.5px solid #e2e8f0;border-radius:8px;font-family:inherit;color:#243447;}
+.modal-rec-box input:focus{outline:none;border-color:#243447;}
+.modal-rec-result{padding:10px 13px;border-radius:8px;font-size:12px;margin:12px 0 4px;line-height:1.6;display:none;}
+.modal-rec-result.ok{background:#e8f5e9;border:1px solid #a5d6a7;color:#2e7d32;}
+.modal-rec-result.err{background:#fce4ec;border:1px solid #ef9a9a;color:#c62828;}
+.rec-btns{display:flex;gap:8px;margin-top:14px;}
+.rec-btns button{flex:1;padding:10px;border-radius:7px;border:none;cursor:pointer;font-size:12px;font-weight:700;transition:opacity .15s;}
+.rec-btns button:disabled{opacity:.6;cursor:not-allowed;}
+.btn-rec-cancel{background:#e2e8f0;color:#4a5568;}
+.btn-rec-confirm{background:#243447;color:#fff;}
+.rec-emergency{margin-top:14px;padding:10px 13px;background:#f0f4f8;border-radius:8px;font-size:11px;color:#718096;line-height:1.7;}
 /* MODAL CAMBIAR CLAVE */
 #modal-clave{display:none;position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:8000;align-items:center;justify-content:center;}
 #modal-clave.open{display:flex;}
@@ -613,6 +633,29 @@ grid-template-columns:1fr;
     <input type="password" id="login-clave" placeholder="Clave de acceso" autocomplete="current-password" onkeydown="if(event.key==='Enter') hacerLogin()">
     <button class="btn-ingresar" onclick="hacerLogin()">INGRESAR</button>
     <div class="login-error" id="login-error"></div>
+    <div class="login-recovery">¿Olvidaste tu clave? <a onclick="abrirRecuperar()">Recuperar acceso</a></div>
+  </div>
+</div>
+
+<!-- MODAL RECUPERAR CLAVE -->
+<div id="modal-recuperar">
+  <div class="modal-rec-box">
+    <h3>🔑 Recuperar acceso</h3>
+    <p>Ingresa tu usuario y solicitaremos restablecer<br>tu clave de acceso a <strong>1234</strong></p>
+    <label>Usuario</label>
+    <input type="text" id="rec-usuario" placeholder="Tu nombre de usuario"
+      oninput="this.value=this.value.toUpperCase()"
+      onkeydown="if(event.key==='Enter') solicitarRecuperacion()">
+    <div class="modal-rec-result" id="rec-result"></div>
+    <div class="rec-btns">
+      <button class="btn-rec-cancel" onclick="cerrarRecuperar()">Cancelar</button>
+      <button class="btn-rec-confirm" id="btn-rec-confirm" onclick="solicitarRecuperacion()">Recuperar clave</button>
+    </div>
+    <div class="rec-emergency">
+      💡 <strong>Acceso de emergencia (Admin):</strong><br>
+      Usuario: <strong>ADMIN</strong> &nbsp;·&nbsp; Clave: <strong>1996</strong><br>
+      Usa estas credenciales si eres administrador del sistema.
+    </div>
   </div>
 </div>
 
@@ -2074,6 +2117,54 @@ if(!eraObligatorio) alert("✅ Clave cambiada correctamente.")
 }catch(e){
 errEl.textContent="❌ Error al guardar: "+e.message
 }
+}
+
+// ── RECUPERAR CLAVE ──────────────────────────────────────────
+function abrirRecuperar(){
+  document.getElementById('rec-usuario').value=''
+  const res=document.getElementById('rec-result')
+  res.className='modal-rec-result'; res.style.display='none'; res.innerHTML=''
+  document.getElementById('modal-recuperar').classList.add('open')
+  setTimeout(()=>document.getElementById('rec-usuario').focus(),150)
+}
+
+function cerrarRecuperar(){
+  document.getElementById('modal-recuperar').classList.remove('open')
+}
+
+async function solicitarRecuperacion(){
+  const u=(document.getElementById('rec-usuario').value||'').trim().toUpperCase()
+  const res=document.getElementById('rec-result')
+  const btn=document.getElementById('btn-rec-confirm')
+  res.style.display='none'
+  if(!u){
+    res.className='modal-rec-result err'; res.style.display='block'
+    res.textContent='⚠️ Ingresa tu nombre de usuario.'; return
+  }
+  btn.textContent='Enviando...'; btn.disabled=true
+  try {
+    const fbOk = await _fbCambiarClave(u, "1234")
+    fetch(API_URL,{
+      method:"POST",mode:"no-cors",
+      body:JSON.stringify({action:"resetClave",usuario:u,claveNueva:"1234"}),
+      headers:{"Content-Type":"application/json"}
+    }).catch(()=>{})
+    btn.textContent='Recuperar clave'; btn.disabled=false
+    if(fbOk){
+      res.className='modal-rec-result ok'; res.style.display='block'
+      res.innerHTML=`✅ Solicitud enviada para <strong>${u}</strong>.<br>
+Intenta ingresar con la clave <strong>1234</strong>.<br>
+Si el sistema te pide cambiar la clave, fue restablecida correctamente.<br>
+<span style="font-size:11px;color:#555">Si el problema persiste, contacta al administrador.</span>`
+    }else{
+      res.className='modal-rec-result err'; res.style.display='block'
+      res.textContent='❌ Usuario no encontrado.'
+    }
+  } catch(e){
+    btn.textContent='Recuperar clave'; btn.disabled=false
+    res.className='modal-rec-result err'; res.style.display='block'
+    res.textContent='❌ Error al procesar la solicitud.'
+  }
 }
 
 function abrirModalUsuarios(){
