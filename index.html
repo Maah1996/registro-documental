@@ -565,6 +565,10 @@ grid-template-columns:1fr;
 .btn-rec-cancel{background:#e2e8f0;color:#4a5568;}
 .btn-rec-confirm{background:#243447;color:#fff;}
 .rec-emergency{margin-top:14px;padding:10px 13px;background:#f0f4f8;border-radius:8px;font-size:11px;color:#718096;line-height:1.7;}
+/* MODAL DOCUMENTO DUPLICADO */
+#modal-duplicado{display:none;position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:10000;align-items:center;justify-content:center;}
+#modal-duplicado.open{display:flex;}
+.dup-datos{background:#fff3cd;border:1px solid #ffc107;border-radius:8px;padding:10px 13px;font-size:12px;margin:0 0 16px;line-height:1.9;color:#856404;}
 /* MODAL CAMBIAR CLAVE */
 #modal-clave{display:none;position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:8000;align-items:center;justify-content:center;}
 #modal-clave.open{display:flex;}
@@ -655,6 +659,23 @@ grid-template-columns:1fr;
       💡 <strong>Acceso de emergencia (Admin):</strong><br>
       Usuario: <strong>ADMIN</strong> &nbsp;·&nbsp; Clave: <strong>1996</strong><br>
       Usa estas credenciales si eres administrador del sistema.
+    </div>
+  </div>
+</div>
+
+<!-- MODAL DOCUMENTO DUPLICADO -->
+<div id="modal-duplicado">
+  <div class="modal-rec-box">
+    <h3>⚠️ Documento ya registrado</h3>
+    <p>Ya existe un registro con la misma fecha, número e ident. materia:</p>
+    <div class="dup-datos">
+      Fecha: <strong id="dup-fecha">—</strong><br>
+      Número: <strong id="dup-numero">—</strong><br>
+      Ident. Materia: <strong id="dup-identmateria">—</strong>
+    </div>
+    <div class="rec-btns">
+      <button class="btn-rec-cancel" onclick="cerrarModalDuplicado()">Cancelar</button>
+      <button class="btn-rec-confirm" onclick="confirmarGuardarDuplicado()">Guardar igual</button>
     </div>
   </div>
 </div>
@@ -1347,6 +1368,41 @@ MODULO 9
 GUARDAR DATOS
 ===================================================== */
 
+function buscarDuplicado(r, excluirIndex){
+if(!r.fecha || !r.numero || !r.identMateria) return -1
+for(let i=0;i<registros.length;i++){
+if(i===excluirIndex) continue
+let reg=registros[i]
+if(normalizarFechaISO(reg.fecha)===r.fecha && mayus(reg.numero)===r.numero && mayus(reg.identMateria)===r.identMateria){
+return i
+}
+}
+return -1
+}
+
+let _pendienteGuardar=null
+
+function mostrarModalDuplicado(r){
+_pendienteGuardar=r
+document.getElementById("dup-fecha").textContent=fechaCL(r.fecha)
+document.getElementById("dup-numero").textContent=r.numero
+document.getElementById("dup-identmateria").textContent=r.identMateria
+document.getElementById("modal-duplicado").classList.add("open")
+}
+
+function cerrarModalDuplicado(){
+document.getElementById("modal-duplicado").classList.remove("open")
+_pendienteGuardar=null
+}
+
+function confirmarGuardarDuplicado(){
+document.getElementById("modal-duplicado").classList.remove("open")
+if(_pendienteGuardar){
+procesarGuardado(_pendienteGuardar)
+_pendienteGuardar=null
+}
+}
+
 function guardar(){
 let r={
 fecha:normalizarFechaISO(fecha.value),
@@ -1366,6 +1422,16 @@ observ:mayus(observ.value),
 usuario: usuarioActual
 }
 
+let dupIndex=buscarDuplicado(r, editIndex)
+if(dupIndex!==-1){
+mostrarModalDuplicado(r)
+return
+}
+
+procesarGuardado(r)
+}
+
+function procesarGuardado(r){
 if(editIndex!==null){
 let rowId=registros[editIndex].rowId
 r.rowId=rowId
