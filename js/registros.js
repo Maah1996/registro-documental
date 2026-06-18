@@ -3,6 +3,27 @@ MODULO 9
 GUARDAR DATOS
 ===================================================== */
 
+// Aplica los filtros de busqueda (numero, fecha, procedencia, archivo) sobre
+// los registros y devuelve la lista con su indice original. init.js la
+// reasigna para sumar tambien el filtro por tarjetas de resumen.
+function obtenerRegistrosFiltrados(){
+let numeroBuscado=normalizarComparacion(buscarNumero.value)
+let fechaBuscada=buscarFecha.value
+let procedBuscada=normalizarComparacion(buscarProcedencia.value)
+let archivoBuscado=normalizarComparacion(buscarArchivo.value)
+
+return registros
+.map((r,indexOriginal)=>({ ...r, indexOriginal }))
+.filter(r=>{
+let fechaRegistro=normalizarFechaISO(r.fecha)
+let okNumero=!numeroBuscado || normalizarComparacion(r.numero).includes(numeroBuscado)
+let okFecha=!fechaBuscada || fechaRegistro===fechaBuscada
+let okProced=!procedBuscada || normalizarComparacion(r.procedencia).includes(procedBuscada)
+let okArchivo=!archivoBuscado || normalizarComparacion(r.archivo).includes(archivoBuscado)
+return okNumero && okFecha && okProced && okArchivo
+})
+}
+
 function buscarDuplicado(r, excluirIndex){
 if(!r.fecha || !r.numero || !r.identMateria) return -1
 for(let i=0;i<registros.length;i++){
