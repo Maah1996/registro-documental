@@ -9,11 +9,8 @@ tbody.innerHTML=""
 
 let lista=obtenerRegistrosFiltrados()
 
-// El admin ve TODOS los documentos; cada usuario normal ve solo los suyos
-const esAdminVista=(rolActual||"").toLowerCase()==="admin"
-if(!esAdminVista){
+// Cada usuario ve solo sus propios documentos
 lista=lista.filter(r=>(r.usuario||"").toUpperCase().trim()===usuarioActual.toUpperCase().trim())
-}
 
 lista.sort((a,b)=>{
 let fechaA=normalizarFechaISO(a.fecha)
@@ -66,15 +63,7 @@ actualizarResumen()
 function actualizarResumen(){
 let res=0, sec=0, pub=0, vencer=0, enGantt=0
 
-// Las tarjetas cuentan la MISMA población que dibuja la tabla, para que las
-// sumas cuadren al pinchar cada tarjeta: el admin cuenta todos los registros,
-// el usuario normal solo los suyos.
-const esAdminResumen=(rolActual||"").toLowerCase()==="admin"
-let base=esAdminResumen
-? registros
-: registros.filter(r=>(r.usuario||"").toUpperCase().trim()===usuarioActual.toUpperCase().trim())
-
-base.forEach(r=>{
+registros.forEach(r=>{
 if(r.clasificacion==="RESERVADO") res++
 if(r.clasificacion==="SECRETO") sec++
 if(r.clasificacion==="PÚBLICO") pub++
@@ -86,7 +75,7 @@ if(estaEnGantt(r)) enGantt++
 document.getElementById("res").innerText=res
 document.getElementById("sec").innerText=sec
 document.getElementById("pub").innerText=pub
-document.getElementById("total").innerText=base.length
+document.getElementById("total").innerText=registros.length
 document.getElementById("porVencer").innerText=vencer
 document.getElementById("enGanttCount").innerText=enGantt
 }
