@@ -9,8 +9,11 @@ tbody.innerHTML=""
 
 let lista=obtenerRegistrosFiltrados()
 
-// Cada usuario ve solo sus propios documentos
+// El admin ve TODOS los documentos; cada usuario normal ve solo los suyos
+const esAdminVista=(rolActual||"").toLowerCase()==="admin"
+if(!esAdminVista){
 lista=lista.filter(r=>(r.usuario||"").toUpperCase().trim()===usuarioActual.toUpperCase().trim())
+}
 
 lista.sort((a,b)=>{
 let fechaA=normalizarFechaISO(a.fecha)
@@ -63,10 +66,13 @@ actualizarResumen()
 function actualizarResumen(){
 let res=0, sec=0, pub=0, vencer=0, enGantt=0
 
-// Las tarjetas deben contar SOLO los documentos que la tabla puede mostrar
-// (los del usuario actual), igual que el filtro de render(), para que las
-// sumas cuadren con lo que se ve al pinchar cada tarjeta.
-let base=registros.filter(r=>(r.usuario||"").toUpperCase().trim()===usuarioActual.toUpperCase().trim())
+// Las tarjetas cuentan la MISMA población que dibuja la tabla, para que las
+// sumas cuadren al pinchar cada tarjeta: el admin cuenta todos los registros,
+// el usuario normal solo los suyos.
+const esAdminResumen=(rolActual||"").toLowerCase()==="admin"
+let base=esAdminResumen
+? registros
+: registros.filter(r=>(r.usuario||"").toUpperCase().trim()===usuarioActual.toUpperCase().trim())
 
 base.forEach(r=>{
 if(r.clasificacion==="RESERVADO") res++
