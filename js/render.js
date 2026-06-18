@@ -63,7 +63,12 @@ actualizarResumen()
 function actualizarResumen(){
 let res=0, sec=0, pub=0, vencer=0, enGantt=0
 
-registros.forEach(r=>{
+// Las tarjetas deben contar SOLO los documentos que la tabla puede mostrar
+// (los del usuario actual), igual que el filtro de render(), para que las
+// sumas cuadren con lo que se ve al pinchar cada tarjeta.
+let base=registros.filter(r=>(r.usuario||"").toUpperCase().trim()===usuarioActual.toUpperCase().trim())
+
+base.forEach(r=>{
 if(r.clasificacion==="RESERVADO") res++
 if(r.clasificacion==="SECRETO") sec++
 if(r.clasificacion==="PÚBLICO") pub++
@@ -75,7 +80,7 @@ if(estaEnGantt(r)) enGantt++
 document.getElementById("res").innerText=res
 document.getElementById("sec").innerText=sec
 document.getElementById("pub").innerText=pub
-document.getElementById("total").innerText=registros.length
+document.getElementById("total").innerText=base.length
 document.getElementById("porVencer").innerText=vencer
 document.getElementById("enGanttCount").innerText=enGantt
 }
