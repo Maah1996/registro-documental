@@ -1,0 +1,44 @@
+// Firebase — mismo proyecto que Gantt OCGR (comparten maah_usuarios)
+let _fbdb = null
+;(function(){
+  try{
+    const cfg={apiKey:"AIzaSyB0f_Sh2xiDgvB9_-nyp76Ol-XvhhyvcXA",authDomain:"gantt-maah.firebaseapp.com",databaseURL:"https://gantt-maah-default-rtdb.firebaseio.com",projectId:"gantt-maah",storageBucket:"gantt-maah.firebasestorage.app",appId:"1:299934642229:web:87681b489cdc2a5452c17c"}
+    if(!firebase.apps.length) firebase.initializeApp(cfg)
+    _fbdb = firebase.database()
+    // Mantener siempre una sesión (anónima si no hay una real) para poder leer
+    // maah_usuarios — las reglas exigen auth != null. No pisa sesiones reales
+    // (ej. la de Carta Gantt, que comparte origen y proyecto Firebase).
+    firebase.auth().onAuthStateChanged(u=>{
+      if(!u) firebase.auth().signInAnonymously().catch(e=>console.warn('[RegDoc] Firebase anon auth:',e))
+    })
+  }catch(e){ console.warn('[RegDoc] Firebase no disponible:', e) }
+})()
+
+async function _fbBuscarUsuario(nombre, pass){
+  if(!_fbdb) return null
+  const snap = await _fbdb.ref('maah_usuarios').once('value')
+  const users = snap.val() || {}
+  return Object.entries(users).find(([k,u]) =>
+    (u.nombre||'').toUpperCase().trim() === nombre.toUpperCase().trim() && u.pass === pass
+  ) || null
+}
+
+async function _fbCrearUsuario(nombre, pass, rol){
+  if(!_fbdb) return
+  const snap = await _fbdb.ref('maah_usuarios').once('value')
+  const users = snap.val() || {}
+  const yaExiste = Object.values(users).some(u => (u.nombre||'').toUpperCase().trim() === nombre.toUpperCase().trim())
+  if(yaExiste) return
+  const ganttRol = (rol==='admin'||rol==='administrador') ? 'admin' : 'user'
+  await _fbdb.ref('maah_usuarios').push({nombre: nombre.toUpperCase().trim(), pass: pass, rol: ganttRol})
+}
+
+async function _fbCambiarClave(nombre, nuevaPass){
+  if(!_fbdb) return false
+  const snap = await _fbdb.ref('maah_usuarios').once('value')
+  const users = snap.val() || {}
+  const entry = Object.entries(users).find(([k,u]) => (u.nombre||'').toUpperCase().trim() === nombre.toUpperCase().trim())
+  if(!entry) return false
+  await _fbdb.ref('maah_usuarios/' + entry[0] + '/pass').set(nuevaPass)
+  return true
+}

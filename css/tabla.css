@@ -1,0 +1,142 @@
+/* TABLA */
+
+.table-wrap{
+overflow:auto;
+border:1px solid #e3e9ef;
+border-radius:10px;
+}
+
+table{
+width:100%;
+border-collapse:collapse;
+font-size:12px;
+background:#fff;
+}
+
+th,td{
+border:1px solid #e5edf5;
+padding:8px 6px;
+text-align:center;
+vertical-align:middle;
+}
+
+th{
+background:#eef4f9;
+position:sticky;
+top:0;
+z-index:1;
+white-space:nowrap;
+}
+
+td{
+white-space:nowrap;
+}
+
+td.col-materia{
+white-space:normal;
+min-width:170px;
+text-align:left;
+}
+
+/* FECHA EN GANTT */
+
+.fecha-en-gantt{
+background:#b3d9f7 !important;
+color:#1a3f6f;
+font-weight:700;
+}
+
+/* BOTON GANTT EN CELDA PLAZO */
+
+.btn-gantt-plazo{
+display:block;
+margin:4px auto 0;
+padding:2px 7px;
+font-size:10px;
+font-weight:700;
+background:#1a3f6f;
+color:#fff;
+border:none;
+border-radius:5px;
+cursor:pointer;
+white-space:nowrap;
+}
+
+.btn-gantt-plazo:hover{
+background:#15325a;
+}
+
+.btn-gantt-plazo.ya-gantt{
+background:#b3d9f7;
+color:#1a3f6f;
+cursor:default;
+}
+
+/* COLORES PLAZO */
+
+.plazoRojo{
+background:#ff3b30;
+color:#fff;
+font-weight:700;
+}
+
+.plazoAzul{
+background:#4da6ff;
+color:#fff;
+font-weight:700;
+}
+
+.plazoAmarillo{
+background:#fff176;
+color:#000;
+font-weight:700;
+}
+
+.plazoVencido{
+background:#00c853;
+color:#fff;
+font-weight:700;
+}
+
+/* CLASIFICACION */
+
+.secret-cell{
+background:#c62828 !important;
+color:#fff !important;
+font-weight:700;
+}
+
+/* BOTONES DE ACCION */
+
+.acciones-wrap{
+display:flex;
+justify-content:center;
+gap:6px;
+}
+
+.btn-tabla{
+min-width:36px;
+height:34px;
+padding:0;
+display:inline-flex;
+align-items:center;
+justify-content:center;
+font-size:15px;
+border-radius:8px;
+}
+
+.btn-editar{
+background:#34495e;
+}
+
+.btn-editar:hover{
+background:#2c3e50;
+}
+
+.btn-borrar{
+background:#4b5d73;
+}
+
+.btn-borrar:hover{
+background:#38485c;
+}

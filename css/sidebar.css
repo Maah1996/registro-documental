@@ -1,0 +1,102 @@
+/* TARJETAS */
+
+.stats{
+display:grid;
+grid-template-columns:repeat(6,minmax(90px,1fr));
+gap:8px;
+margin-bottom:12px;
+align-items:stretch;
+}
+
+.card{
+background:#f7fafc;
+border:1px solid #e5edf5;
+border-radius:8px;
+padding:7px 6px;
+text-align:center;
+display:flex;
+flex-direction:column;
+justify-content:center;
+align-items:center;
+min-height:48px;
+line-height:1.15;
+}
+
+.card.filter-card{
+cursor:pointer;
+user-select:none;
+}
+
+.card.filter-card:hover,
+.card.filter-card.active{
+border-color:#34495e;
+box-shadow:0 2px 8px rgba(52,73,94,.18);
+transform:translateY(-1px);
+}
+
+.card.filter-card.active{
+outline:2px solid #34495e;
+}
+
+.card b{
+display:block;
+font-size:20px;
+margin-bottom:4px;
+line-height:1;
+letter-spacing:.5px;
+}
+
+.card.secret{
+border-color:#f4c7c3;
+background:#fff5f5;
+}
+
+.card.secret b{
+color:#c0392b;
+}
+
+.card.warning{
+border-color:#f7dc6f;
+background:#fffbea;
+}
+
+.card.warning b{
+color:#b9770e;
+}
+
+.card.gantt-card{
+border-color:#b3d9f7;
+background:#eaf4fd;
+}
+
+.card.gantt-card b{
+color:#1a3f6f;
+}
+
+.card.gantt-card.active{
+outline:2px solid #1a3f6f;
+}
+
+/* BUSQUEDA */
+
+.search{
+display:grid;
+grid-template-columns:repeat(4,minmax(160px,1fr));
+gap:10px;
+margin-bottom:12px;
+}
+
+.export{
+display:flex;
+gap:8px;
+justify-content:flex-end;
+margin-bottom:10px;
+}
+
+/* TEXTO SUAVE */
+
+.muted{
+color:#6b7b8c;
+font-size:12px;
+margin-top:10px;
+}
