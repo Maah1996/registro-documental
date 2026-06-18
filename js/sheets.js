@@ -109,10 +109,16 @@ const c = sessionStorage.getItem("rdClave")
 if(!u || !c){ mostrarLogin(); return; }
 try{
 const todos = await leerSheetGviz("REGISTRO")
-const rol = sessionStorage.getItem("rdRol") || "usuario"
-registros = rol==="admin"
+const rol = (sessionStorage.getItem("rdRol") || "usuario").toLowerCase()
+const esAdminCarga = rol==="admin" || rol==="administrador"
+// Los registros SIN dueño (columna USUARIO vacía en la hoja) son visibles para
+// todos; los que tienen dueño quedan restringidos a ese usuario o al admin.
+registros = esAdminCarga
   ? todos
-  : todos.filter(r=>String(r.usuario||'').trim().toUpperCase()===u.trim().toUpperCase())
+  : todos.filter(r=>{
+      const owner=String(r.usuario||'').trim().toUpperCase()
+      return owner==='' || owner===u.trim().toUpperCase()
+    })
 localStorage.setItem("registros",JSON.stringify(registros))
 mostrarEstadoAPI("")
 }catch(e){

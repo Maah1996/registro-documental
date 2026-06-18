@@ -9,8 +9,15 @@ tbody.innerHTML=""
 
 let lista=obtenerRegistrosFiltrados()
 
-// Cada usuario ve solo sus propios documentos
-lista=lista.filter(r=>(r.usuario||"").toUpperCase().trim()===usuarioActual.toUpperCase().trim())
+// El admin ve TODO. El usuario normal ve los documentos sin dueño
+// (columna USUARIO vacía en la hoja) y los suyos propios.
+const esAdminVista=(rolActual||"").toLowerCase()==="admin"||(rolActual||"").toLowerCase()==="administrador"
+if(!esAdminVista){
+lista=lista.filter(r=>{
+const owner=(r.usuario||"").toUpperCase().trim()
+return owner===""||owner===usuarioActual.toUpperCase().trim()
+})
+}
 
 lista.sort((a,b)=>{
 let fechaA=normalizarFechaISO(a.fecha)
