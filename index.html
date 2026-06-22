@@ -1,10 +1,10 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="es">
 
 <!-- =====================================================
 MODULO 0
 CONFIGURACION GENERAL DEL HTML
-Metadatos, iconos y librerÃ­as externas
+Metadatos, iconos y librerías externas
 ===================================================== -->
 
 <head>
@@ -38,10 +38,10 @@ ESTILOS DEL SISTEMA (CSS)
 <!-- LOCK OVERLAY (bloqueo por inactividad) -->
 <div id="lock-overlay" style="display:none;position:fixed;inset:0;background:rgba(15,25,40,0.96);z-index:9998;align-items:center;justify-content:center;backdrop-filter:blur(6px);">
   <div class="login-box" style="text-align:center;">
-    <div style="font-size:52px;margin-bottom:6px;">ðŸ”’</div>
-    <h2 style="margin:0 0 2px;">SesiÃ³n bloqueada</h2>
-    <p id="lock-usuario-text" style="color:#718096;font-size:13px;margin:0 0 22px;">â€”</p>
-    <label style="text-align:left;display:block;">ContraseÃ±a</label>
+    <div style="font-size:52px;margin-bottom:6px;">🔒</div>
+    <h2 style="margin:0 0 2px;">Sesión bloqueada</h2>
+    <p id="lock-usuario-text" style="color:#718096;font-size:13px;margin:0 0 22px;">—</p>
+    <label style="text-align:left;display:block;">Contraseña</label>
     <input type="password" id="lock-clave" placeholder="Ingresa tu clave para continuar" autocomplete="current-password" onkeydown="if(event.key==='Enter') desbloquear()" style="margin-bottom:4px;">
     <button class="btn-ingresar" onclick="desbloquear()">DESBLOQUEAR</button>
     <div class="login-error" id="lock-error"></div>
@@ -52,21 +52,21 @@ ESTILOS DEL SISTEMA (CSS)
 <div id="login-overlay">
   <div class="login-box">
     <h2>REG.DOC</h2>
-    <p>REGISTRO DOCUMENTAL â€” ACCESO</p>
+    <p>REGISTRO DOCUMENTAL — ACCESO</p>
     <label>Usuario</label>
     <input type="text" id="login-usuario" placeholder="Nombre de usuario" autocomplete="username" oninput="this.value=this.value.toUpperCase()">
-    <label>ContraseÃ±a</label>
+    <label>Contraseña</label>
     <input type="password" id="login-clave" placeholder="Clave de acceso" autocomplete="current-password" onkeydown="if(event.key==='Enter') hacerLogin()">
     <button class="btn-ingresar" onclick="hacerLogin()">INGRESAR</button>
     <div class="login-error" id="login-error"></div>
-    <div class="login-recovery">Â¿Olvidaste tu clave? <a onclick="abrirRecuperar()">Recuperar acceso</a></div>
+    <div class="login-recovery">¿Olvidaste tu clave? <a onclick="abrirRecuperar()">Recuperar acceso</a></div>
   </div>
 </div>
 
 <!-- MODAL RECUPERAR CLAVE -->
 <div id="modal-recuperar">
   <div class="modal-rec-box">
-    <h3>ðŸ”‘ Recuperar acceso</h3>
+    <h3>🔑 Recuperar acceso</h3>
     <p>Ingresa tu usuario y solicitaremos restablecer<br>tu clave de acceso a <strong>1234</strong></p>
     <label>Usuario</label>
     <input type="text" id="rec-usuario" placeholder="Tu nombre de usuario"
@@ -78,8 +78,8 @@ ESTILOS DEL SISTEMA (CSS)
       <button class="btn-rec-confirm" id="btn-rec-confirm" onclick="solicitarRecuperacion()">Recuperar clave</button>
     </div>
     <div class="rec-emergency">
-      ðŸ’¡ <strong>Acceso de emergencia (Admin):</strong><br>
-      Usuario: <strong>ADMIN</strong> &nbsp;Â·&nbsp; Clave: <strong>1996</strong><br>
+      💡 <strong>Acceso de emergencia (Admin):</strong><br>
+      Usuario: <strong>ADMIN</strong> &nbsp;·&nbsp; Clave: <strong>1996</strong><br>
       Usa estas credenciales si eres administrador del sistema.
     </div>
   </div>
@@ -88,12 +88,12 @@ ESTILOS DEL SISTEMA (CSS)
 <!-- MODAL DOCUMENTO DUPLICADO -->
 <div id="modal-duplicado">
   <div class="modal-rec-box">
-    <h3>âš ï¸ Documento ya registrado</h3>
-    <p>Ya existe un registro con la misma fecha, nÃºmero e ident. materia:</p>
+    <h3>⚠️ Documento ya registrado</h3>
+    <p>Ya existe un registro con la misma fecha, número e ident. materia:</p>
     <div class="dup-datos">
-      Fecha: <strong id="dup-fecha">â€”</strong><br>
-      NÃºmero: <strong id="dup-numero">â€”</strong><br>
-      Ident. Materia: <strong id="dup-identmateria">â€”</strong>
+      Fecha: <strong id="dup-fecha">—</strong><br>
+      Número: <strong id="dup-numero">—</strong><br>
+      Ident. Materia: <strong id="dup-identmateria">—</strong>
     </div>
     <div class="rec-btns">
       <button class="btn-rec-cancel" onclick="cerrarModalDuplicado()">Cancelar</button>
@@ -105,8 +105,8 @@ ESTILOS DEL SISTEMA (CSS)
 <!-- MODAL CAMBIAR CLAVE -->
 <div id="modal-clave">
   <div class="modal-clave-box">
-    <h3 id="mc-titulo">ðŸ” Cambiar contraseÃ±a</h3>
-    <div id="mc-aviso" style="display:none;background:#fff3cd;border:1px solid #ffc107;color:#856404;border-radius:6px;padding:8px 12px;margin-bottom:12px;font-size:12px;">âš ï¸ Primera vez â€” elige una contraseÃ±a personal antes de continuar.</div>
+    <h3 id="mc-titulo">🔐 Cambiar contraseña</h3>
+    <div id="mc-aviso" style="display:none;background:#fff3cd;border:1px solid #ffc107;color:#856404;border-radius:6px;padding:8px 12px;margin-bottom:12px;font-size:12px;">⚠️ Primera vez — elige una contraseña personal antes de continuar.</div>
     <div id="mc-actual-wrap">
       <label>Clave actual</label>
       <input type="password" id="mc-actual" placeholder="Tu clave actual">
@@ -126,7 +126,7 @@ ESTILOS DEL SISTEMA (CSS)
 <!-- MODAL USUARIOS (solo admin) -->
 <div id="modal-usuarios">
   <div class="modal-usuarios-box">
-    <h3>ðŸ‘¥ GestiÃ³n de usuarios</h3>
+    <h3>👥 Gestión de usuarios</h3>
     <div id="lista-usuarios"></div>
     <div class="nuevo-usuario-form">
       <b style="font-size:13px;color:#243447;">+ Agregar usuario</b>
@@ -134,7 +134,7 @@ ESTILOS DEL SISTEMA (CSS)
       <input type="text" id="nu-usuario" placeholder="Nombre (ej: JUAN)" oninput="this.value=this.value.toUpperCase()">
       <label>Rol</label>
       <select id="nu-rol"><option value="usuario">Usuario</option><option value="admin">Administrador</option></select>
-      <div style="background:#e8f5e9;border:1px solid #a5d6a7;color:#2e7d32;border-radius:6px;padding:8px 10px;font-size:11px;margin-bottom:10px;">ðŸ”‘ Clave inicial automÃ¡tica: <b>1234</b> â€” el usuario deberÃ¡ cambiarla al primer ingreso.</div>
+      <div style="background:#e8f5e9;border:1px solid #a5d6a7;color:#2e7d32;border-radius:6px;padding:8px 10px;font-size:11px;margin-bottom:10px;">🔑 Clave inicial automática: <b>1234</b> — el usuario deberá cambiarla al primer ingreso.</div>
       <div class="login-error" id="nu-error"></div>
       <button class="btn-ingresar" onclick="crearUsuario()">+ Crear usuario</button>
     </div>
@@ -150,18 +150,18 @@ TITULO PRINCIPAL
 ===================================================== -->
 
 <div class="user-badge-bar">
-  <span id="badge-usuario">â€”</span>
+  <span id="badge-usuario">—</span>
   <div style="display:flex;gap:8px;align-items:center;">
     <span id="badge-rol" style="background:rgba(255,255,255,.15);padding:2px 10px;border-radius:10px;font-size:11px;"></span>
-    <button onclick="abrirModalClave()" style="background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.3);color:#fff;padding:3px 10px;border-radius:5px;font-size:11px;cursor:pointer;">ðŸ” Clave</button>
-    <button id="btn-usuarios-admin" onclick="abrirModalUsuarios()" style="display:none;background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.3);color:#fff;padding:3px 10px;border-radius:5px;font-size:11px;cursor:pointer;">ðŸ‘¥ Usuarios</button>
-    <button onclick="cerrarSesion()" style="background:rgba(220,53,69,.35);border:1px solid rgba(220,53,69,.6);color:#fff;padding:3px 10px;border-radius:5px;font-size:11px;cursor:pointer;">â†ª Salir</button>
+    <button onclick="abrirModalClave()" style="background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.3);color:#fff;padding:3px 10px;border-radius:5px;font-size:11px;cursor:pointer;">🔐 Clave</button>
+    <button id="btn-usuarios-admin" onclick="abrirModalUsuarios()" style="display:none;background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.3);color:#fff;padding:3px 10px;border-radius:5px;font-size:11px;cursor:pointer;">👥 Usuarios</button>
+    <button onclick="cerrarSesion()" style="background:rgba(220,53,69,.35);border:1px solid rgba(220,53,69,.6);color:#fff;padding:3px 10px;border-radius:5px;font-size:11px;cursor:pointer;">↪ Salir</button>
   </div>
 </div>
 
 <div class="app-tabs">
-  <button class="app-tab active" id="tab-regdoc" onclick="mostrarVistaRegDoc()">ðŸ“‹ Registro Documental</button>
-  <button class="app-tab" id="tab-gantt" onclick="mostrarVistaGantt()">ðŸ“… Gantt OCGR</button>
+  <button class="app-tab active" id="tab-regdoc" onclick="mostrarVistaRegDoc()">📋 Registro Documental</button>
+  <button class="app-tab" id="tab-gantt" onclick="mostrarVistaGantt()">📅 Gantt OCGR</button>
 </div>
 <h1 id="titulo-regdoc">REGISTRO DOCUMENTAL</h1>
 <!-- Contenedor iframe Gantt OCGR -->
@@ -171,7 +171,7 @@ TITULO PRINCIPAL
 <div id="api-status" style="display:none;background:#fff3cd;border:1px solid #ffc107;color:#856404;border-radius:8px;padding:8px 14px;margin:0 0 10px 0;font-size:13px;text-align:center;"></div>
 
 <div class="session-bar">
-<div class="session-timer">Bloqueo automÃ¡tico en <span id="temporizadorSesion">02:00</span></div>
+<div class="session-timer">Bloqueo automático en <span id="temporizadorSesion">02:00</span></div>
 <button class="btn-lock" id="btnBloquearManual" type="button">BLOQUEAR</button>
 </div>
 
@@ -186,16 +186,16 @@ FORMULARIO DE INGRESO
 
 <div class="clock-card" aria-live="polite">
 <div class="clock-time" id="relojHora">00:00:00</div>
-<div class="clock-date" id="relojFecha">miÃ©rcoles 6 de mayo de 2026</div>
-<div class="clock-day-number" id="relojDiaNumero">DÃ­a 6</div>
+<div class="clock-date" id="relojFecha">miércoles 6 de mayo de 2026</div>
+<div class="clock-day-number" id="relojDiaNumero">Día 6</div>
 </div>
 
-<h3>REGISTRAR AQUÃ</h3>
+<h3>REGISTRAR AQUÍ</h3>
 
 <label>Fecha Doc</label>
 <input type="date" id="fecha">
 
-<label>NÃºmero</label>
+<label>Número</label>
 <input id="numero">
 
 <div class="row2">
@@ -240,16 +240,16 @@ FORMULARIO DE INGRESO
 <div style="display:flex;align-items:center;gap:10px;margin-top:10px;padding:8px 12px;background:#f0f4ff;border:1.5px solid #1a3f6f;border-radius:8px;">
 <input type="checkbox" id="chkGantt" style="width:20px;height:20px;cursor:pointer;accent-color:#1a3f6f;margin:0;">
 <label for="chkGantt" style="font-size:12px;font-weight:800;color:#1a3f6f;cursor:pointer;margin:0;letter-spacing:.5px;">GANTT</label>
-<span style="font-size:11px;color:#4a5568;">â€” Al guardar, enviar tambiÃ©n a Carta Gantt OCGR</span>
+<span style="font-size:11px;color:#4a5568;">— Al guardar, enviar también a Carta Gantt OCGR</span>
 </div>
 
 <div class="row2">
 <div>
-<label>ClasificaciÃ³n</label>
+<label>Clasificación</label>
 <select id="clasificacion">
 <option>RESERVADO</option>
 <option>SECRETO</option>
-<option>PÃšBLICO</option>
+<option>PÚBLICO</option>
 </select>
 </div>
 <div>
@@ -291,14 +291,14 @@ TABLA Y VISUALIZACION DE DATOS
 <div class="stats">
 <div class="card warning filter-card" data-resumen-filtro="POR_VENCER" role="button" tabindex="0"><b id="porVencer">0</b>Por vencer</div>
 <div class="card gantt-card filter-card" data-resumen-filtro="EN_GANTT" role="button" tabindex="0"><b id="enGanttCount">0</b>En Gantt</div>
-<div class="card filter-card" data-resumen-filtro="PÃšBLICO" role="button" tabindex="0"><b id="pub">0</b>PÃºblicos</div>
+<div class="card filter-card" data-resumen-filtro="PÚBLICO" role="button" tabindex="0"><b id="pub">0</b>Públicos</div>
 <div class="card filter-card" data-resumen-filtro="RESERVADO" role="button" tabindex="0"><b id="res">0</b>Reservados</div>
 <div class="card secret filter-card" data-resumen-filtro="SECRETO" role="button" tabindex="0"><b id="sec">0</b>Secretos</div>
 <div class="card filter-card" data-resumen-filtro="TOTAL" role="button" tabindex="0"><b id="total" style="font-weight:900;">0</b>Total</div>
 </div>
 
 <div class="search">
-<input id="buscarNumero" placeholder="Buscar nÃºmero">
+<input id="buscarNumero" placeholder="Buscar número">
 <input type="date" id="buscarFecha">
 <input id="buscarProcedencia" placeholder="Buscar procedencia">
 <input id="buscarArchivo" placeholder="Buscar archivo">
@@ -323,7 +323,7 @@ TABLA Y VISUALIZACION DE DATOS
 <th>HJS</th>
 <th>MATERIA</th>
 <th>PLAZO</th>
-<th>DÃAS</th>
+<th>DÍAS</th>
 <th>PROCED</th>
 <th>CLASIF</th>
 <th>ARCH</th>
