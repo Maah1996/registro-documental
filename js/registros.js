@@ -26,8 +26,9 @@ return okNumero && okFecha && okProced && okArchivo
 
 function buscarDuplicado(r, excluirIndex){
 if(!r.fecha || !r.numero || !r.identMateria) return -1
+// excluirIndex es el índice en el array registros[] (no el rowId del Sheet)
 for(let i=0;i<registros.length;i++){
-if(i===excluirIndex) continue
+if(excluirIndex!==null && excluirIndex!==undefined && i===excluirIndex) continue
 let reg=registros[i]
 if(normalizarFechaISO(reg.fecha)===r.fecha && mayus(reg.numero)===r.numero && mayus(reg.identMateria)===r.identMateria){
 return i
