@@ -107,23 +107,22 @@ async function cargarDatos(){
 const u = sessionStorage.getItem("rdUsuario")
 const c = sessionStorage.getItem("rdClave")
 if(!u || !c){ mostrarLogin(); return; }
+const cacheKey = "registros_" + (u||"").toUpperCase().trim()
 try{
 const todos = await leerSheetGviz("REGISTRO")
 const rol = (sessionStorage.getItem("rdRol") || "usuario").toLowerCase()
 const esAdminCarga = rol==="admin" || rol==="administrador"
-// Los registros SIN dueño (columna USUARIO vacía en la hoja) son visibles para
-// todos; los que tienen dueño quedan restringidos a ese usuario o al admin.
 registros = esAdminCarga
   ? todos
   : todos.filter(r=>{
       const owner=String(r.usuario||'').trim().toUpperCase()
       return owner==='' || owner===u.trim().toUpperCase()
     })
-localStorage.setItem("registros",JSON.stringify(registros))
+localStorage.setItem(cacheKey,JSON.stringify(registros))
 mostrarEstadoAPI("")
 }catch(e){
 mostrarEstadoAPI("⚠️ "+(e.message||String(e)))
-try{ registros = JSON.parse(localStorage.getItem("registros")) || [] }catch(err){ registros = [] }
+try{ registros = JSON.parse(localStorage.getItem(cacheKey)) || [] }catch(err){ registros = [] }
 }
 render()
 }

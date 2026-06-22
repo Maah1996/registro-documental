@@ -67,7 +67,9 @@ CARGA LOCAL
 ===================================================== */
 
 try{
-registros=JSON.parse(localStorage.getItem("registros"))||[]
+const _u=(sessionStorage.getItem("rdUsuario")||"").toUpperCase().trim()
+const _key=_u?"registros_"+_u:"registros"
+registros=JSON.parse(localStorage.getItem(_key))||[]
 }catch(error){
 registros=[]
 }
