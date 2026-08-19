@@ -51,6 +51,19 @@ async function _fbEncolarImportGantt(payload){
   catch(e){ console.warn('[RegDoc] No se pudo encolar el envío a la Gantt:', e) }
 }
 
+// Deja encolada en Firebase la solicitud de activar/desactivar, para un
+// usuario, el permiso de ver la Carta Gantt OCGR compartida (la misma que
+// ve el administrador) en vez de su Gantt personal — se aplica junto con
+// el permiso "ver todo" de RGDOC. Igual que las otras colas: RGDOC no
+// tiene permiso para escribir maah_usuarios directo, así que lo procesa
+// la Carta Gantt sola cuando el administrador inicia sesión ahí (ver
+// procesarColaPermisosPendientes en Carta-Gantt-Maah/js/rgdoc.js).
+async function _fbEncolarPermisoGantt(nombre, verOCGR){
+  if(!_fbdb) return
+  try{ await _fbdb.ref('maah_pending_gantt_permisos').push({nombre: nombre.toUpperCase().trim(), verOCGR: !!verOCGR, ts: Date.now()}) }
+  catch(e){ console.warn('[RegDoc] No se pudo encolar el permiso de la Gantt:', e) }
+}
+
 async function _fbCambiarClave(nombre, nuevaPass){
   if(!_fbdb) return false
   const snap = await _fbdb.ref('maah_usuarios').once('value')

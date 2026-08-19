@@ -29,7 +29,7 @@ const verTodo=esVerdadero(us.verTodo)
 return `<div class="usuario-item ${esAdmin?"admin-u":""} ${esBloqueado?"bloqueado-u":""}">
 <div style="flex:1"><div class="usuario-nombre">${esc(us.usuario)}</div><div class="usuario-rol">${esAdmin?"Administrador":"Usuario"}</div></div>
 ${!esSelf && !esAdmin?`
-<label style="display:flex;align-items:center;gap:4px;font-size:10px;color:#1a3f6f;font-weight:700;cursor:pointer;white-space:nowrap;" title="Ver y editar todos los documentos del administrador">
+<label style="display:flex;align-items:center;gap:4px;font-size:10px;color:#1a3f6f;font-weight:700;cursor:pointer;white-space:nowrap;" title="Ver y editar todos los documentos, y la Carta Gantt OCGR, del administrador">
 <input type="checkbox" class="chk-vertodo" data-uname="${esc(us.usuario)}" ${verTodo?"checked":""} style="width:14px;height:14px;margin:0;cursor:pointer;accent-color:#1a3f6f;">
 Ver todo
 </label>
@@ -60,10 +60,13 @@ chk.addEventListener("change",()=>toggleVerTodoUsuario(chk.dataset.uname, chk.ch
 // documentos del sistema, no solo los propios. Queda guardado en la
 // columna "verTodo" de la hoja "usuarios" del Sheet (vía Apps Script),
 // así que aplica en cualquier computador la próxima vez que ese usuario
-// inicie sesión.
+// inicie sesión. El mismo permiso también le da acceso a ver la Carta
+// Gantt OCGR compartida (la que ve el administrador) en vez de su Gantt
+// personal — eso se encola aparte para la Carta Gantt (ver firebase.js).
 async function toggleVerTodoUsuario(nombreUsuario, verTodo){
 try{
 await fetch(API_URL,{method:"POST",mode:"no-cors",body:JSON.stringify({action:"actualizarVerTodo",adminUsuario:usuarioActual,adminClave:sessionStorage.getItem("rdClave"),usuario:nombreUsuario,verTodo:verTodo}),headers:{"Content-Type":"application/json"}})
+_fbEncolarPermisoGantt(nombreUsuario, verTodo)
 }catch(e){ alert("Error al actualizar el permiso de "+nombreUsuario+".") }
 }
 
@@ -86,6 +89,7 @@ try{
 await _fbCrearUsuario(u, claveInicial, r)
 // también GAS como respaldo para Sheets
 fetch(API_URL,{method:"POST",mode:"no-cors",body:JSON.stringify({action:"crearUsuario",adminUsuario:usuarioActual,adminClave:sessionStorage.getItem("rdClave"),nuevoUsuario:u,clave:claveInicial,rol:r,verTodo:verTodo}),headers:{"Content-Type":"application/json"}}).catch(()=>{})
+if(verTodo) _fbEncolarPermisoGantt(u, true)
 errEl.style.color="#0F6E56"
 errEl.textContent="✅ Usuario creado con clave 1234. Recargando..."
 document.getElementById("nu-usuario").value=""
