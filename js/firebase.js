@@ -37,6 +37,20 @@ async function _fbCrearUsuario(nombre, pass, rol){
   await _fbdb.ref('maah_pending_gantt_users').push({nombre: nombre.toUpperCase().trim(), pass: pass, rol: ganttRol, ts: Date.now()})
 }
 
+// Deja encolada en Firebase una actividad para importar a la Carta Gantt
+// (documento guardado con el checkbox "GANTT" marcado). El mecanismo
+// existente (localStorage + postMessage) solo funciona si la pestaña Gantt
+// ya está abierta en ESE mismo navegador — si nadie la abre ahí, el
+// documento se queda esperando para siempre. Esta cola es el respaldo
+// durable: cualquier administrador que abra la Gantt, desde cualquier
+// computador, la procesa sola (ver procesarColaImportsPendientes en
+// Carta-Gantt-Maah/js/rgdoc.js).
+async function _fbEncolarImportGantt(payload){
+  if(!_fbdb) return
+  try{ await _fbdb.ref('maah_pending_gantt_imports').push(payload) }
+  catch(e){ console.warn('[RegDoc] No se pudo encolar el envío a la Gantt:', e) }
+}
+
 async function _fbCambiarClave(nombre, nuevaPass){
   if(!_fbdb) return false
   const snap = await _fbdb.ref('maah_usuarios').once('value')

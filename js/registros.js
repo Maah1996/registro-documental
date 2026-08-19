@@ -121,6 +121,7 @@ if(!enviarGantt && yaEstabaEnGantt){
   const payload = _construirActoGantt(r)
   payload.update = true
   localStorage.setItem("rgdoc_to_gantt", JSON.stringify(payload))
+  _fbEncolarImportGantt(payload)
   _marcarEnGantt(r)
   render()
 } else if(enviarGantt && !yaEstabaEnGantt){
@@ -129,6 +130,10 @@ if(!enviarGantt && yaEstabaEnGantt){
   else{
     const payload = _construirActoGantt(r)
     localStorage.setItem("rgdoc_to_gantt", JSON.stringify(payload))
+    // Respaldo durable en Firebase — sin esto, si nadie abre la pestaña
+    // Gantt en este mismo navegador, el documento nunca se escribe en la
+    // base de datos (el localStorage no viaja entre navegadores/equipos).
+    _fbEncolarImportGantt(payload)
     _marcarEnGantt(r)
     render()
     // Si el iframe ya está cargado, enviar postMessage para importar de inmediato
