@@ -3,6 +3,11 @@ MODULO 8
 FUNCIONES AUXILIARES
 ===================================================== */
 
+function esVerdadero(v){
+var s=(v==null?"":String(v)).trim().toUpperCase()
+return s==="SI"||s==="TRUE"||s==="1"
+}
+
 function esc(v){
 var s=(v==null?"":String(v))
 return s.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;").replace(/'/g,"&#39;")

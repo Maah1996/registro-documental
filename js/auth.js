@@ -50,11 +50,13 @@ if(data.status === "ok"){
 sessionStorage.setItem("rdUsuario", u)
 sessionStorage.setItem("rdClave", c)
 sessionStorage.setItem("rdRol", data.rol || "usuario")
+sessionStorage.setItem("rdVerTodo", data.verTodo ? "1" : "0")
 usuarioActual = u
 rolActual = data.rol || "usuario"
+verTodoActual = !!data.verTodo
 registros = (data.registros || []).map(r=>({...r, fecha: normalizarFechaISO(r.fecha), plazo: normalizarFechaISO(r.plazo)}))
 localStorage.setItem("registros", JSON.stringify(registros))
-localStorage.setItem("rgdoc_session", JSON.stringify({nombre: u, clave: c, rol: rolActual, expira: Date.now() + 30*60*1000}))
+localStorage.setItem("rgdoc_session", JSON.stringify({nombre: u, clave: c, rol: rolActual, verTodo: verTodoActual, expira: Date.now() + 30*60*1000}))
 ocultarLogin()
 mostrarSegunRol()
 iniciarControlInactividad()
@@ -65,15 +67,16 @@ if(c==="1234") setTimeout(()=>alert("⚠️ Estás usando la clave inicial 1234.
 }else{
 // GAS rechazó — intentar fallback gviz antes de mostrar error
 try{
-const users2 = await leerSheetGviz("usuarios",["usuario","clave","rol"])
+const users2 = await leerSheetGviz("usuarios",["usuario","clave","rol","verTodo"])
 const _normClave=v=>String(v||'').replace(/[\s ]/g,'')
 const su2 = users2.find(x => String(x.usuario||'').trim().toUpperCase()===u && _normClave(x.clave)===_normClave(c))
 
 if(su2){
 const rol2 = String(su2.rol||'usuario').toLowerCase()
-sessionStorage.setItem("rdUsuario",u); sessionStorage.setItem("rdClave",c); sessionStorage.setItem("rdRol",rol2)
-usuarioActual=u; rolActual=rol2
-localStorage.setItem("rgdoc_session",JSON.stringify({nombre:u,clave:c,rol:rol2,expira:Date.now()+30*60*1000}))
+const verTodo2 = esVerdadero(su2.verTodo)
+sessionStorage.setItem("rdUsuario",u); sessionStorage.setItem("rdClave",c); sessionStorage.setItem("rdRol",rol2); sessionStorage.setItem("rdVerTodo", verTodo2?"1":"0")
+usuarioActual=u; rolActual=rol2; verTodoActual=verTodo2
+localStorage.setItem("rgdoc_session",JSON.stringify({nombre:u,clave:c,rol:rol2,verTodo:verTodo2,expira:Date.now()+30*60*1000}))
 ocultarLogin(); mostrarSegunRol(); iniciarControlInactividad()
 await cargarDatos()
 document.getElementById("login-usuario").value=""; document.getElementById("login-clave").value=""
@@ -85,18 +88,21 @@ if(c==="1234") setTimeout(()=>alert("⚠️ Estás usando la clave inicial 1234.
 // Fallback: validar contra hoja "usuarios" del Sheet (gviz)
 errEl.textContent = "Verificando..."
 try{
-const users = await leerSheetGviz("usuarios",["usuario","clave","rol"])
+const users = await leerSheetGviz("usuarios",["usuario","clave","rol","verTodo"])
 const _nc=v=>String(v||'').replace(/[\s ]/g,'')
 const sheetUser = users.find(x => String(x.usuario||'').trim().toUpperCase()===u && _nc(x.clave)===_nc(c))
 
 if(sheetUser){
 const rol = String(sheetUser.rol||'usuario').toLowerCase()
+const verTodo = esVerdadero(sheetUser.verTodo)
 sessionStorage.setItem("rdUsuario", u)
 sessionStorage.setItem("rdClave", c)
 sessionStorage.setItem("rdRol", rol)
+sessionStorage.setItem("rdVerTodo", verTodo?"1":"0")
 usuarioActual = u
 rolActual = rol
-localStorage.setItem("rgdoc_session", JSON.stringify({nombre: u, clave: c, rol: rolActual, expira: Date.now() + 30*60*1000}))
+verTodoActual = verTodo
+localStorage.setItem("rgdoc_session", JSON.stringify({nombre: u, clave: c, rol: rolActual, verTodo: verTodoActual, expira: Date.now() + 30*60*1000}))
 ocultarLogin()
 mostrarSegunRol()
 iniciarControlInactividad()

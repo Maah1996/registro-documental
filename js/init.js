@@ -58,8 +58,10 @@ if(u && c){
         sessionStorage.setItem("rdUsuario", ticket.nombre)
         sessionStorage.setItem("rdClave", ticket.clave)
         sessionStorage.setItem("rdRol", ticket.rol || "usuario")
+        sessionStorage.setItem("rdVerTodo", ticket.verTodo ? "1" : "0")
         usuarioActual = ticket.nombre
         rolActual = ticket.rol || "usuario"
+        verTodoActual = !!ticket.verTodo
         ocultarLogin()
         mostrarSegunRol()
         await cargarDatos()

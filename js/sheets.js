@@ -112,7 +112,8 @@ try{
 const todos = await leerSheetGviz("REGISTRO")
 const rol = (sessionStorage.getItem("rdRol") || "usuario").toLowerCase()
 const esAdminCarga = rol==="admin" || rol==="administrador"
-registros = esAdminCarga
+const verTodoCarga = sessionStorage.getItem("rdVerTodo") === "1"
+registros = (esAdminCarga || verTodoCarga)
   ? todos
   : todos.filter(r=>{
       const owner=String(r.usuario||'').trim().toUpperCase()

@@ -76,7 +76,11 @@ clasificacion:mayus(clasificacion.value),
 archivo:mayus(archivo.value),
 llegsal:mayus(llegsal.value),
 observ:mayus(observ.value),
-usuario: usuarioActual
+// Al editar un documento existente se conserva el dueño original (útil
+// para usuarios con permiso "ver todo" que editan documentos ajenos, ej.
+// del administrador) — solo un documento NUEVO queda a nombre de quien
+// lo crea.
+usuario: (editIndex!==null && registros[editIndex]) ? (registros[editIndex].usuario || usuarioActual) : usuarioActual
 }
 
 let dupIndex=buscarDuplicado(r, editIndex)

@@ -34,6 +34,9 @@ const printArea=document.getElementById("printArea")
 
 let usuarioActual = sessionStorage.getItem("rdUsuario") || ""
 let rolActual = sessionStorage.getItem("rdRol") || "usuario"
+// Permiso "ver todo": un usuario normal autorizado por el admin ve y puede
+// editar TODOS los documentos (no solo los propios), sin ser admin completo.
+let verTodoActual = sessionStorage.getItem("rdVerTodo") === "1"
 
 /* =====================================================
 MODULO 6

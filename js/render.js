@@ -3,14 +3,18 @@ MODULO 11
 RENDER TABLA Y LOGICA VISUAL
 ===================================================== */
 
-// Cada usuario ve solo sus propios documentos.
-// Documentos sin dueño (legado, columna USUARIO vacía) solo los ve el admin.
+// Cada usuario ve solo sus propios documentos, salvo que sea admin o tenga
+// el permiso "ver todo" (autorizado por el admin en el panel de usuarios) —
+// en ese caso ve y puede trabajar con todos los documentos del sistema.
+// Documentos sin dueño (legado, columna USUARIO vacía) solo los ve quien
+// pueda ver todo.
 // Se usa tanto en render() (tabla) como en actualizarResumen() (tarjetas),
 // para que ambas partes apliquen siempre el mismo criterio de propiedad.
 function usuarioPuedeVerRegistro(r){
 const esAdminVista=(rolActual||"").toLowerCase()==="admin"||(rolActual||"").toLowerCase()==="administrador"
+if(esAdminVista || verTodoActual) return true
 const owner=(r.usuario||"").toUpperCase().trim()
-if(owner==="") return esAdminVista
+if(owner==="") return false
 return owner===usuarioActual.toUpperCase().trim()
 }
 
