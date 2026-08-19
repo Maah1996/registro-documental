@@ -136,6 +136,17 @@ sessionStorage.removeItem("rdUsuario")
 sessionStorage.removeItem("rdClave")
 sessionStorage.removeItem("rdRol")
 localStorage.removeItem("rgdoc_session")
+// Cierra también cualquier sesión REAL de Firebase Auth que haya quedado
+// activa (ej. porque alguien inició sesión dentro de la pestaña Carta Gantt
+// OCGR, que comparte origen y proyecto Firebase). Sin esto, el siguiente
+// usuario que entre a RGDOC y abra la Gantt hereda esa sesión ajena en vez
+// de la suya propia.
+try{
+if(firebase && firebase.auth && firebase.auth().currentUser && !firebase.auth().currentUser.isAnonymous){
+firebase.auth().signOut().catch(()=>{}).finally(()=>location.reload())
+return
+}
+}catch(e){}
 location.reload()
 }
 

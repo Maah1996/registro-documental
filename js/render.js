@@ -3,20 +3,24 @@ MODULO 11
 RENDER TABLA Y LOGICA VISUAL
 ===================================================== */
 
+// Cada usuario ve solo sus propios documentos.
+// Documentos sin dueño (legado, columna USUARIO vacía) solo los ve el admin.
+// Se usa tanto en render() (tabla) como en actualizarResumen() (tarjetas),
+// para que ambas partes apliquen siempre el mismo criterio de propiedad.
+function usuarioPuedeVerRegistro(r){
+const esAdminVista=(rolActual||"").toLowerCase()==="admin"||(rolActual||"").toLowerCase()==="administrador"
+const owner=(r.usuario||"").toUpperCase().trim()
+if(owner==="") return esAdminVista
+return owner===usuarioActual.toUpperCase().trim()
+}
+
 function render(){
 let tbody=document.querySelector("#tabla tbody")
 tbody.innerHTML=""
 
 let lista=obtenerRegistrosFiltrados()
 
-// Cada usuario ve solo sus propios documentos.
-// Documentos sin dueño (legado, columna USUARIO vacía) solo los ve el admin.
-const esAdminVista=(rolActual||"").toLowerCase()==="admin"||(rolActual||"").toLowerCase()==="administrador"
-lista=lista.filter(r=>{
-const owner=(r.usuario||"").toUpperCase().trim()
-if(owner==="") return esAdminVista
-return owner===usuarioActual.toUpperCase().trim()
-})
+lista=lista.filter(usuarioPuedeVerRegistro)
 
 lista.sort((a,b)=>{
 let fechaA=normalizarFechaISO(a.fecha)
@@ -69,7 +73,11 @@ actualizarResumen()
 function actualizarResumen(){
 let res=0, sec=0, pub=0, vencer=0, enGantt=0
 
-registros.forEach(r=>{
+// Las tarjetas deben reflejar solo los documentos que el usuario puede ver
+// (mismo criterio que la tabla), no el total de registros cargados en memoria.
+const misRegistros=registros.filter(usuarioPuedeVerRegistro)
+
+misRegistros.forEach(r=>{
 if(r.clasificacion==="RESERVADO") res++
 if(r.clasificacion==="SECRETO") sec++
 if(r.clasificacion==="PÚBLICO") pub++
@@ -81,7 +89,7 @@ if(estaEnGantt(r)) enGantt++
 document.getElementById("res").innerText=res
 document.getElementById("sec").innerText=sec
 document.getElementById("pub").innerText=pub
-document.getElementById("total").innerText=registros.length
+document.getElementById("total").innerText=misRegistros.length
 document.getElementById("porVencer").innerText=vencer
 document.getElementById("enGanttCount").innerText=enGantt
 }
