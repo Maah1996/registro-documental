@@ -25,12 +25,16 @@ async function _fbBuscarUsuario(nombre, pass){
 
 async function _fbCrearUsuario(nombre, pass, rol){
   if(!_fbdb) return
-  const snap = await _fbdb.ref('maah_usuarios').once('value')
-  const users = snap.val() || {}
-  const yaExiste = Object.values(users).some(u => (u.nombre||'').toUpperCase().trim() === nombre.toUpperCase().trim())
-  if(yaExiste) return
   const ganttRol = (rol==='admin'||rol==='administrador') ? 'admin' : 'user'
-  await _fbdb.ref('maah_usuarios').push({nombre: nombre.toUpperCase().trim(), pass: pass, rol: ganttRol})
+  // RGDOC solo tiene una sesión ANÓNIMA de Firebase, y las reglas de
+  // seguridad de la Carta Gantt no permiten a una sesión anónima crear
+  // usuarios directamente en maah_usuarios (con toda razón: cualquiera que
+  // abriera la página podría crearse una cuenta). En vez de eso, se deja la
+  // solicitud en una cola (maah_pending_gantt_users) — la Carta Gantt la
+  // procesa sola la próxima vez que el administrador inicia sesión ahí,
+  // usando su sesión real para crear la cuenta completa (con login e
+  // índice de autenticación incluidos).
+  await _fbdb.ref('maah_pending_gantt_users').push({nombre: nombre.toUpperCase().trim(), pass: pass, rol: ganttRol, ts: Date.now()})
 }
 
 async function _fbCambiarClave(nombre, nuevaPass){
