@@ -171,6 +171,9 @@ llegsal.value=r.llegsal||"LLEGADO"
 observ.value=r.observ||""
 
 editIndex=i
+// El documento que se está editando ya trae su propia fecha y plazo — no
+// auto-copiar una sobre la otra si el usuario retoca la Fecha Doc aquí.
+_plazoAutoSync = false
 // Pre-marcar checkbox si el registro ya está en Gantt
 const chk = document.getElementById("chkGantt")
 if(chk) chk.checked = estaEnGantt(r)
@@ -206,4 +209,7 @@ observ.value=""
 editIndex=null
 const chkGantt=document.getElementById("chkGantt")
 if(chkGantt) chkGantt.checked=false
+// Documento nuevo → vuelve a copiar Fecha Doc en Plazo hasta que el
+// usuario toque Plazo directamente.
+_plazoAutoSync = true
 }

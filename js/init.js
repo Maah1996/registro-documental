@@ -8,6 +8,15 @@ buscarFecha.addEventListener("input",render)
 buscarProcedencia.addEventListener("input",render)
 buscarArchivo.addEventListener("input",render)
 
+// Al escribir la Fecha Doc, copiarla automáticamente a Plazo — hasta que
+// el usuario toque Plazo directamente, momento en que deja de auto-copiarse.
+fecha.addEventListener("input",()=>{
+if(_plazoAutoSync) plazo.value = fecha.value
+})
+plazo.addEventListener("input",()=>{
+_plazoAutoSync = false
+})
+
 actualizarReloj()
 setInterval(actualizarReloj,1000)
 

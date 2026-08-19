@@ -37,6 +37,11 @@ let rolActual = sessionStorage.getItem("rdRol") || "usuario"
 // Permiso "ver todo": un usuario normal autorizado por el admin ve y puede
 // editar TODOS los documentos (no solo los propios), sin ser admin completo.
 let verTodoActual = sessionStorage.getItem("rdVerTodo") === "1"
+// Mientras esto sea true, escribir en "Fecha Doc" copia el valor a "Plazo"
+// automáticamente. Se apaga apenas el usuario toca el campo Plazo a mano
+// (para no pisarle una fecha que eligió aparte), y se reactiva al limpiar
+// el formulario o al empezar a editar otro documento.
+let _plazoAutoSync = true
 
 /* =====================================================
 MODULO 6
