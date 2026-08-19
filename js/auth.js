@@ -141,13 +141,16 @@ localStorage.removeItem("rgdoc_session")
 // OCGR, que comparte origen y proyecto Firebase). Sin esto, el siguiente
 // usuario que entre a RGDOC y abra la Gantt hereda esa sesión ajena en vez
 // de la suya propia.
+// Se llama SIEMPRE (sin revisar antes si currentUser ya está listo): al
+// cargar la página, Firebase Auth restaura la sesión guardada de forma
+// asíncrona, así que currentUser puede seguir en null por un instante
+// aunque exista una sesión real por restaurarse. signOut() es inofensivo
+// si no hay ninguna sesión real activa.
 try{
-if(firebase && firebase.auth && firebase.auth().currentUser && !firebase.auth().currentUser.isAnonymous){
 firebase.auth().signOut().catch(()=>{}).finally(()=>location.reload())
-return
-}
-}catch(e){}
+}catch(e){
 location.reload()
+}
 }
 
 function bloquearSesion(manual){
